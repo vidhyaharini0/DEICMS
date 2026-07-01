@@ -1,20 +1,17 @@
 from flask import Blueprint, render_template, request, jsonify, session
 from flask_login import login_required
-
 from app.logic.ai_assistant import AIInvestigationAssistant
 
 assistant_bp = Blueprint('assistant', __name__, url_prefix='/assistant')
 
-# One shared instance (stateless — all state is in the session or passed in)
+# One shared instance (stateless - all state is in the session or passed in)
 _assistant = AIInvestigationAssistant()
-
 
 @assistant_bp.route('/')
 @login_required
 def chat_page():
     history = session.get('assistant_history', [])
     return render_template('assistant/chat.html', history=history)
-
 
 @assistant_bp.route('/chat', methods=['POST'])
 @login_required
@@ -26,7 +23,6 @@ def chat():
 
     # Retrieve per-session conversation history
     history = session.get('assistant_history', [])
-
     response = _assistant.answer(user_message, conversation_history=history)
 
     # Update history (keep last 10 turns = 5 exchanges)
@@ -39,9 +35,7 @@ def chat():
         'intent':            response.intent,
         'context_used':      response.context_used,
         'validation_passed': response.validation_passed,
-        'warning':           response.warning,
-    })
-
+        'warning':           response.warning})
 
 @assistant_bp.route('/clear', methods=['POST'])
 @login_required

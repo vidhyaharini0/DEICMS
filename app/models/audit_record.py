@@ -1,8 +1,6 @@
-from datetime import timedelta
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from app import db
 from sqlalchemy import event
-
 
 class AuditRecord(db.Model):
     """
@@ -21,18 +19,14 @@ class AuditRecord(db.Model):
             'Login', 'Logout', 'File Access', 'Data Modification',
             'Integrity Check', 'State Change', 'Failed Attempt',
             'Role Change', 'Key Generation',
-            name='audit_event_type'
-        ),
-        nullable=False
-    )
+            name='audit_event_type'),
+        nullable=False)
 
     # Who triggered the event (null for automated system events)
-    investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'),
-                                 nullable=True)
+    investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
 
     # Which evidence item the event relates to (if any)
-    evidence_id = db.Column(db.Integer, db.ForeignKey('evidence_items.id'),
-                             nullable=True)
+    evidence_id = db.Column(db.Integer, db.ForeignKey('evidence_items.id'), nullable=True)
 
     # Which case the event relates to (if any)
     case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=True)
@@ -44,11 +38,7 @@ class AuditRecord(db.Model):
     ip_address = db.Column(db.String(50), nullable=True)
 
     # Outcome of the event
-    result = db.Column(
-        db.Enum('Success', 'Failure', 'Warning', name='audit_result'),
-        nullable=False,
-        default='Success'
-    )
+    result = db.Column(db.Enum('Success', 'Failure', 'Warning', name='audit_result'), nullable=False, default='Success')
 
     # For integrity check events: stores the full result as JSON
     # e.g. {"verdict": "Intact", "completeness": 100, "failures": []}

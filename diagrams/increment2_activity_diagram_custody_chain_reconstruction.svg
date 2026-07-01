@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 780 980" role="img" font-family="Segoe UI, Arial, Helvetica, sans-serif">
-<title>Activity Diagram — Custody Chain Reconstruction — DEICMS</title>
+<title>Activity Diagram - Custody Chain Reconstruction - DEICMS</title>
 <desc>Shows the full activity flow of the custody chain reconstruction algorithm including gap detection, candidate generation, plausibility scoring, best-first search, and confidence labelling.</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -11,7 +11,7 @@
 <rect x="0" y="0" width="780" height="980" fill="#FFFFFF"/>
 
 <!-- Title -->
-<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Activity Diagram — Custody Chain Reconstruction</text>
+<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Activity Diagram - Custody Chain Reconstruction</text>
 <text x="40" y="50" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">Gap detection -> candidate generation -> plausibility scoring -> confidence labelling</text>
 
 <!-- Start node -->

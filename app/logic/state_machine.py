@@ -1,6 +1,6 @@
 """
 Evidence Lifecycle State Machine
-Section 2C — Complex Application Logic (Feature 4)
+Section 2C - Complex Application Logic (Feature 4)
 
 Enforces legally meaningful transitions between evidence lifecycle states.
 No evidence item can skip a state, transition backwards without authorisation,
@@ -18,22 +18,9 @@ Each transition has:
 """
 from typing import List, Optional
 
-
-# ── Transition table ──────────────────────────────────────────────────────────
-#
-# Structure:
-#   (current_state, target_state) -> {
-#       'required_roles': [...],   # investigator must have one of these roles
-#       'preconditions': [...]     # list of (check_fn, error_message) tuples
-#   }
-#
-# Precondition functions receive (evidence_item, investigator) as arguments
-# and return True if the condition is satisfied.
-
 def _has_custody_log(evidence, investigator) -> bool:
     """At least one custody log entry must exist before moving to Under Analysis."""
     return evidence.custody_logs.count() > 0
-
 
 def _has_integrity_check(evidence, investigator) -> bool:
     """A passed integrity check must exist before archiving."""
@@ -52,61 +39,47 @@ def _has_integrity_check(evidence, investigator) -> bool:
                 continue
     return False
 
-
 def _not_flagged(evidence, investigator) -> bool:
     """Cannot transition out of Flagged state unless resolved by Admin."""
     return evidence.lifecycle_state != 'Flagged'
-
 
 TRANSITION_TABLE = {
     # Collected -> Submitted: Lead Investigator or Admin, no extra preconditions
     ('Collected', 'Submitted'): {
         'required_roles': ['Admin', 'Lead Investigator'],
-        'preconditions': []
-    },
+        'preconditions': []},
     # Submitted -> Under Analysis: Analyst, Lead, or Admin
     # Requires at least one custody log entry
     ('Submitted', 'Under Analysis'): {
         'required_roles': ['Admin', 'Lead Investigator', 'Analyst'],
         'preconditions': [
             (_has_custody_log,
-             'At least one custody log entry must exist before starting analysis.')
-        ]
-    },
+             'At least one custody log entry must exist before starting analysis.')]},
     # Under Analysis -> Transferred: any authenticated role
     ('Under Analysis', 'Transferred'): {
         'required_roles': ['Admin', 'Lead Investigator', 'Analyst'],
-        'preconditions': []
-    },
+        'preconditions': []},
     # Transferred -> Under Analysis: any authenticated role
     ('Transferred', 'Under Analysis'): {
         'required_roles': ['Admin', 'Lead Investigator', 'Analyst'],
-        'preconditions': []
-    },
+        'preconditions': []},
     # Collected -> Transferred: moving physical/digital custody before analysis
     ('Collected', 'Transferred'): {
         'required_roles': ['Admin', 'Lead Investigator', 'Analyst'],
-        'preconditions': []
-    },
+        'preconditions': []},
     # Submitted -> Transferred: moving custody after submission
     ('Submitted', 'Transferred'): {
         'required_roles': ['Admin', 'Lead Investigator', 'Analyst'],
-        'preconditions': []
-    },
+        'preconditions': []},
     # Under Analysis -> Archived: Lead or Admin
     # Requires a passed integrity check
     ('Under Analysis', 'Archived'): {
         'required_roles': ['Admin', 'Lead Investigator'],
-        'preconditions': [
-            (_has_integrity_check,
-             'A passed integrity check (verdict: Intact) is required before archiving.')
-        ]
-    },
+        'preconditions': [(_has_integrity_check, 'A passed integrity check (verdict: Intact) is required before archiving.')]},
     # Submitted -> Archived: Admin only (emergency skip)
     ('Submitted', 'Archived'): {
         'required_roles': ['Admin'],
-        'preconditions': []
-    },
+        'preconditions': []},
     # Any -> Flagged: Admin or Lead (triggered by integrity failure)
     ('Collected', 'Flagged'):      {'required_roles': ['Admin', 'Lead Investigator'], 'preconditions': []},
     ('Submitted', 'Flagged'):      {'required_roles': ['Admin', 'Lead Investigator'], 'preconditions': []},
@@ -114,15 +87,9 @@ TRANSITION_TABLE = {
     ('Transferred', 'Flagged'):    {'required_roles': ['Admin', 'Lead Investigator'], 'preconditions': []},
     ('Archived', 'Flagged'):       {'required_roles': ['Admin', 'Lead Investigator'], 'preconditions': []},
     # Flagged -> Under Analysis: Admin only (after resolving the integrity issue)
-    ('Flagged', 'Under Analysis'): {
-        'required_roles': ['Admin'],
-        'preconditions': []
-    },
-}
+    ('Flagged', 'Under Analysis'): {'required_roles': ['Admin'], 'preconditions': []}}
 
-
-# ── State machine result ──────────────────────────────────────────────────────
-
+#  State machine result 
 class TransitionResult:
     """Returned by StateMachine.transition() to indicate success or failure."""
 
@@ -135,8 +102,7 @@ class TransitionResult:
         return self.success
 
 
-# ── State machine ─────────────────────────────────────────────────────────────
-
+#  State machine 
 class EvidenceStateMachine:
     """
     Implements the Evidence Lifecycle State Machine.
@@ -221,10 +187,8 @@ class EvidenceStateMachine:
             success=True,
             message=(
                 f"Evidence '{self.evidence.evidence_number}' successfully "
-                f"transitioned from '{old_state}' to '{target_state}'."
-            ),
-            new_state=target_state
-        )
+                f"transitioned from '{old_state}' to '{target_state}'."),
+            new_state=target_state)
 
     def get_available_transitions(self) -> List[str]:
         """
@@ -252,10 +216,8 @@ class EvidenceStateMachine:
             case_id=self.evidence.case_id,
             description=(
                 f"State transition: '{old_state}' -> '{new_state}'. "
-                f"Justification: {justification or 'None provided'}."
-            ),
-            result='Success'
-        )
+                f"Justification: {justification or 'None provided'}."), 
+            result='Success')
         db.session.add(audit)
 
     def _log_rejection(self, target_state: str, reason: str):
@@ -270,10 +232,8 @@ class EvidenceStateMachine:
             description=(
                 f"Rejected transition to '{target_state}' "
                 f"for evidence {self.evidence.evidence_number}. "
-                f"Reason: {reason}"
-            ),
-            result='Failure'
-        )
+                f"Reason: {reason}"),
+            result='Failure')
         db.session.add(audit)
 
     def _recalculate_risk_score(self):
@@ -289,15 +249,14 @@ class EvidenceStateMachine:
             'Transferred':    0.5,
             'Submitted':      0.4,
             'Collected':      0.3,
-            'Archived':       0.1
-        }
+            'Archived':       0.1}
         base_score = state_risk_map.get(self.evidence.lifecycle_state, 0.5)
 
         # Combine with existing risk score (simple average for now)
         current = self.evidence.risk_score or 0.0
         self.evidence.risk_score = round((current + base_score) / 2, 3)
 
-        # Update risk level label — Flagged always gets High regardless of score
+        # Update risk level label - Flagged always gets High regardless of score
         if self.evidence.lifecycle_state == 'Flagged':
             self.evidence.risk_level = 'High'
         elif self.evidence.risk_score >= 0.7:

@@ -12,14 +12,12 @@ from app.logic.validators import validate_password_strength
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-
 def _admin_guard():
     """Returns a redirect response if the current user is not an Admin, else None."""
     if not current_user.is_authenticated or not current_user.is_admin():
         flash('Access denied. Admin role required.', 'danger')
         return redirect(url_for('dashboard.index'))
     return None
-
 
 @admin_bp.route('/users')
 @login_required
@@ -31,7 +29,6 @@ def list_users():
 
     investigators = Investigator.query.order_by(Investigator.created_at.desc()).all()
     return render_template('admin/users.html', investigators=investigators)
-
 
 @admin_bp.route('/users/new', methods=['GET', 'POST'])
 @login_required
@@ -79,8 +76,7 @@ def create_user():
             email=email,
             role=role,
             public_key=public_pem,
-            private_key_encrypted=encrypt_private_key(private_pem),
-        )
+            private_key_encrypted=encrypt_private_key(private_pem))
         investigator.set_password(password)
 
         db.session.add(investigator)
@@ -91,8 +87,7 @@ def create_user():
             investigator_id=current_user.id,
             description=f'Admin {current_user.full_name} created account: {email} [{role}]',
             ip_address=request.remote_addr,
-            result='Success'
-        )
+            result='Success')
         db.session.add(audit)
         db.session.commit()
 
@@ -127,8 +122,7 @@ def toggle_active(user_id):
         investigator_id=current_user.id,
         description=f'Admin {current_user.full_name} {action} account: {investigator.email}',
         ip_address=request.remote_addr,
-        result='Success'
-    )
+        result='Success')
     db.session.add(audit)
     db.session.commit()
 
@@ -152,8 +146,7 @@ def unlock_account(user_id):
         investigator_id=current_user.id,
         description=f'Admin {current_user.full_name} manually unlocked account: {investigator.email}',
         ip_address=request.remote_addr,
-        result='Success'
-    )
+        result='Success')
     db.session.add(audit)
     db.session.commit()
 
@@ -191,8 +184,7 @@ def change_role(user_id):
             f'{old_role} -> {new_role}'
         ),
         ip_address=request.remote_addr,
-        result='Success'
-    )
+        result='Success')
     db.session.add(audit)
     db.session.commit()
 

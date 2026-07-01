@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Cases — DEICMS{% endblock %}
+{% block title %}Cases - DEICMS{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title"><i class="bi bi-folder"></i>Investigation Cases</span>
@@ -25,7 +25,7 @@
           <tr>
             <td><code>{{ case.case_number }}</code></td>
             <td class="fw-semibold">{{ case.title }}</td>
-            <td>{{ case.jurisdiction or '—' }}</td>
+            <td>{{ case.jurisdiction or '-' }}</td>
             <td>
               {% set colours = {'Open':'primary','Active':'success','Pending':'warning','Closed':'secondary','Archived':'dark'} %}
               <span class="badge bg-{{ colours.get(case.status,'secondary') }}">{{ case.status }}</span>

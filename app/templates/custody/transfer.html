@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Transfer Evidence — DEICMS{% endblock %}
+{% block title %}Transfer Evidence - DEICMS{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title">Transfer Evidence</span>
@@ -19,7 +19,7 @@
       <div class="mb-3">
         <label class="form-label fw-semibold small">Transfer To <span class="text-danger">*</span></label>
         <select name="to_investigator_id" class="form-select" required>
-          <option value="">— Select Investigator —</option>
+          <option value="">- Select Investigator -</option>
           {% for inv in investigators %}
           <option value="{{ inv.id }}">{{ inv.full_name }} ({{ inv.role }})</option>
           {% endfor %}

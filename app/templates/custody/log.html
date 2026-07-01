@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Custody Log — DEICMS{% endblock %}
+{% block title %}Custody Log - DEICMS{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title">
@@ -23,10 +23,10 @@
           <tr>
             <td class="text-muted small">{{ loop.index }}</td>
             <td><span class="badge bg-secondary">{{ log.event_type }}</span></td>
-            <td class="small">{{ log.from_investigator.full_name if log.from_investigator else '—' }}</td>
-            <td class="small">{{ log.to_investigator.full_name if log.to_investigator else '—' }}</td>
+            <td class="small">{{ log.from_investigator.full_name if log.from_investigator else '-' }}</td>
+            <td class="small">{{ log.to_investigator.full_name if log.to_investigator else '-' }}</td>
             <td><span class="hash-text">{{ log.file_hash_at_event[:20] }}...</span></td>
-            <td class="small text-muted">{{ log.location or '—' }}</td>
+            <td class="small text-muted">{{ log.location or '-' }}</td>
             <td class="small text-muted">{{ log.timestamp.strftime('%d %b %Y %H:%M:%S') }}</td>
           </tr>
           {% else %}

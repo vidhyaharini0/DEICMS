@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from app import db
 
-
 class CustodyLog(db.Model):
     """
     Records every custody event for an evidence item.
@@ -14,24 +13,15 @@ class CustodyLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Which evidence item this log entry belongs to
-    evidence_id = db.Column(db.Integer, db.ForeignKey('evidence_items.id'),
-                             nullable=False)
+    evidence_id = db.Column(db.Integer, db.ForeignKey('evidence_items.id'), nullable=False)
 
     # Type of custody event
-    event_type = db.Column(
-        db.Enum('Upload', 'Transfer', 'Access', 'Verification',
-                name='custody_event_type'),
-        nullable=False
-    )
+    event_type = db.Column(db.Enum('Upload', 'Transfer', 'Access', 'Verification', name='custody_event_type'), nullable=False)
 
-    # Who transferred FROM (null for the initial upload event)
-    from_investigator_id = db.Column(db.Integer,
-                                      db.ForeignKey('investigators.id'),
-                                      nullable=True)
+    # Who transferred FROM (Null for the initial upload event)
+    from_investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
     # Who transferred TO (null for access-only events)
-    to_investigator_id = db.Column(db.Integer,
-                                    db.ForeignKey('investigators.id'),
-                                    nullable=True)
+    to_investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
 
     # When and where the event happened
     timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
@@ -51,13 +41,9 @@ class CustodyLog(db.Model):
     # Optional notes about the event
     notes = db.Column(db.Text, nullable=True)
 
-    # ── Relationships ─────────────────────────────────────────────────────
-    from_investigator = db.relationship('Investigator',
-                                         foreign_keys=[from_investigator_id],
-                                         backref='transfers_sent')
-    to_investigator = db.relationship('Investigator',
-                                       foreign_keys=[to_investigator_id],
-                                       backref='transfers_received')
+    #  Relationships 
+    from_investigator = db.relationship('Investigator', foreign_keys=[from_investigator_id], backref='transfers_sent')
+    to_investigator = db.relationship('Investigator', foreign_keys=[to_investigator_id], backref='transfers_received')
 
     def __repr__(self):
         return (f'<CustodyLog evidence={self.evidence_id} '

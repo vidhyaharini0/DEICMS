@@ -1,4 +1,3 @@
-from datetime import timedelta
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timezone, timedelta
 
@@ -13,25 +12,23 @@ from app.logic.risk_scoring import EvidenceRiskScorer
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
-
 @dashboard_bp.route('/dashboard')
 @login_required
 def index():
-    # ── Basic counts ──────────────────────────────────────────────────────────
+    #  Basic counts 
     total_cases     = Case.query.count()
     total_evidence  = EvidenceItem.query.count()
     total_transfers = CustodyLog.query.count()
     total_audits    = AuditRecord.query.count()
 
-    # ── Recent cases (5 most recent) ──────────────────────────────────────────
+    #  Recent cases (5 most recent) 
     recent_cases = (
         Case.query
         .order_by(Case.created_at.desc())
         .limit(5)
-        .all()
-    )
+        .all())
 
-    # ── Risk-ranked evidence (top 5 highest risk) ─────────────────────────────
+    #  Risk-ranked evidence (top 5 highest risk) 
     scorer = EvidenceRiskScorer()
     all_evidence = EvidenceItem.query.all()
 
@@ -42,25 +39,22 @@ def index():
             scored_evidence.append({
                 'evidence': ev,
                 'score':    report.final_score,
-                'level':    report.risk_level,
-            })
+                'level':    report.risk_level})
         except Exception:
             # Never let a scoring error break the dashboard
             scored_evidence.append({
                 'evidence': ev,
                 'score':    0.0,
-                'level':    'UNKNOWN',
-            })
+                'level':    'UNKNOWN'})
 
     scored_evidence.sort(key=lambda x: x['score'], reverse=True)
     top_risk_evidence = scored_evidence[:5]
 
-    # ── Integrity summary ─────────────────────────────────────────────────────
+    #  Integrity summary 
     integrity_counts = {
         'VERIFIED':    0,
         'NOT_CHECKED': 0,
-        'FAILED':      0,
-    }
+        'FAILED':      0}
     for ev in all_evidence:
         status = (getattr(ev, 'integrity_status', None) or 'NOT_CHECKED').upper()
         if status in integrity_counts:
@@ -68,20 +62,17 @@ def index():
         else:
             integrity_counts['NOT_CHECKED'] += 1
 
-    # ── Recent audit records (5 most recent) ─────────────────────────────────
+    #  Recent audit records (5 most recent) 
     recent_audits = (
         AuditRecord.query
         .order_by(AuditRecord.timestamp.desc())
         .limit(5)
-        .all()
-    )
+        .all())
 
-    # ════════════════════════════════════════════════════════════════════════
     #  Dashboard visualisation datasets (consumed by Chart.js in the template)
-    # ════════════════════════════════════════════════════════════════════════
     all_audits = AuditRecord.query.all()
-
-    # 1) Risk-level distribution — uses the *computed* scorer levels (same
+    
+    # 1) Risk-level distribution - uses the *computed* scorer levels (same
     #    source as the "Top 5 Highest-Risk" table) so the numbers stay
     #    consistent across the dashboard.
     risk_level_counts = OrderedDict(
@@ -108,9 +99,7 @@ def index():
         if rec.event_type in _audit_type_counts:
             _audit_type_counts[rec.event_type] += 1
     # Drop event types with zero occurrences to keep the chart readable
-    audit_type_counts = OrderedDict(
-        (k, v) for k, v in _audit_type_counts.items() if v > 0
-    )
+    audit_type_counts = OrderedDict((k, v) for k, v in _audit_type_counts.items() if v > 0)
 
     # 4) Security activity over the last 30 days (Successful vs Security Alerts)
     window_days = 30
@@ -140,8 +129,7 @@ def index():
         'audit_values':     list(audit_type_counts.values()),
         'activity_labels':  activity_labels,
         'activity_success': activity_success,
-        'activity_alerts':  activity_alerts,
-    }
+        'activity_alerts':  activity_alerts}
 
     return render_template(
         'dashboard/index.html',
@@ -153,5 +141,4 @@ def index():
         top_risk_evidence=top_risk_evidence,
         integrity_counts=integrity_counts,
         recent_audits=recent_audits,
-        charts=charts,
-    )
+        charts=charts)

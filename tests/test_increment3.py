@@ -1,23 +1,18 @@
 """
 tests/test_increment3.py
 ========================
-Increment 3 test suite — Risk Scoring, AI Assistant Orchestration,
+Increment 3 test suite - Risk Scoring, AI Assistant Orchestration,
 Anomaly Detection, and their Flask routes.
 
 Run with:  pytest tests/test_increment3.py -v
 Run all:   pytest -v
 """
 
-from datetime import timedelta
 import pytest
 from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock, patch
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Fixtures
-# ─────────────────────────────────────────────────────────────────────────────
-
 @pytest.fixture
 def app():
     """Create a fresh Flask app with an in-memory SQLite database."""
@@ -31,8 +26,7 @@ def app():
         'WTF_CSRF_ENABLED':    False,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         'SECRET_KEY':          'test-secret',
-        'ANTHROPIC_API_KEY':   'test-key-not-real',
-    })
+        'ANTHROPIC_API_KEY':   'test-key-not-real'})
 
     from app import db as _db
     with test_app.app_context():
@@ -44,44 +38,41 @@ def app():
 
 
 def _seed_db(db):
-    """Seed minimal data — uses only fields that actually exist in the model."""
+    """Seed minimal data - uses only fields that actually exist in the model."""
     from app.models.investigator import Investigator
     from app.models.case import Case
     from app.models.evidence import EvidenceItem
     from app.models.custody_log import CustodyLog
     from app.models.audit_record import AuditRecord
 
-    # ── Investigators ─────────────────────────────────────────────────────
+    #  Investigators 
     admin = Investigator(
         email='admin@test.com',
         full_name='Admin User',
-        role='Admin',
-    )
+        role='Admin')
     admin.set_password('Admin@1234')
 
     analyst = Investigator(
         email='analyst@test.com',
         full_name='Analyst User',
-        role='Analyst',
-    )
+        role='Analyst')
     analyst.set_password('Analyst@1234')
 
     db.session.add_all([admin, analyst])
     db.session.flush()
 
-    # ── Case ──────────────────────────────────────────────────────────────
+    #  Case 
     case = Case(
         case_number='CASE-TEST-001',
         title='Test Case Alpha',
         description='A test case for Increment 3',
         status='Open',
-        created_by_id=admin.id,
-    )
+        created_by_id=admin.id)
     db.session.add(case)
     db.session.flush()
 
-    # ── Evidence items (using actual model field names) ────────────────────
-    # ev1: .exe file — high file-type risk
+    #  Evidence items (using actual model field names) 
+    # ev1: .exe file - high file-type risk
     ev1 = EvidenceItem(
         evidence_number='EV-TEST-001',
         title='Suspicious Executable',
@@ -92,10 +83,9 @@ def _seed_db(db):
         original_hash='aabbcc' * 10,
         current_hash='aabbcc' * 10,
         uploaded_by_id=admin.id,
-        created_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=60),
-    )
+        created_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=60))
 
-    # ev2: .txt file — low file-type risk
+    # ev2: .txt file - low file-type risk
     ev2 = EvidenceItem(
         evidence_number='EV-TEST-002',
         title='Clean Text File',
@@ -106,10 +96,9 @@ def _seed_db(db):
         original_hash='ddeeff' * 10,
         current_hash='ddeeff' * 10,
         uploaded_by_id=admin.id,
-        created_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=2),
-    )
+        created_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=2))
 
-    # ev3: no extension — default file-type risk
+    # ev3: no extension - default file-type risk
     ev3 = EvidenceItem(
         evidence_number='EV-TEST-003',
         title='Unknown File',
@@ -120,13 +109,12 @@ def _seed_db(db):
         original_hash='112233' * 10,
         current_hash='112233' * 10,
         uploaded_by_id=analyst.id,
-        created_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=10),
-    )
+        created_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=10))
 
     db.session.add_all([ev1, ev2, ev3])
     db.session.flush()
 
-    # ── Custody logs for ev1 (rapid transfers) ────────────────────────────
+    #  Custody logs for ev1 (rapid transfers) 
     now = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None)
     for i in range(4):
         log = CustodyLog(
@@ -136,27 +124,24 @@ def _seed_db(db):
             to_investigator_id=admin.id,
             reason=f'Transfer {i + 1}',
             timestamp=now - timedelta(hours=(3 - i)),
-            file_hash_at_event='aabbcc' * 10,
-        )
+            file_hash_at_event='aabbcc' * 10)
         db.session.add(log)
 
-    # ── Audit records for ev1 ─────────────────────────────────────────────
+    #  Audit records for ev1 
     db.session.add(AuditRecord(
         event_type='Data Modification',
         evidence_id=ev1.id,
         investigator_id=admin.id,
         description='Role mismatch detected during transfer',
         result='Warning',
-        timestamp=now - timedelta(days=1),
-    ))
+        timestamp=now - timedelta(days=1)))
     db.session.add(AuditRecord(
         event_type='Integrity Check',
         evidence_id=ev1.id,
         investigator_id=admin.id,
         description='Duplicate entry found',
         result='Warning',
-        timestamp=now - timedelta(days=1),
-    ))
+        timestamp=now - timedelta(days=1)))
 
     db.session.commit()
 
@@ -170,25 +155,16 @@ def logged_in_client(client):
     """Returns a test client already logged in as admin."""
     client.post('/', data={
         'email':    'admin@test.com',
-        'password': 'Admin@1234',
-    }, follow_redirects=True)
+        'password': 'Admin@1234'}, follow_redirects=True)
     return client
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Helper — fetch evidence objects inside app context
-# ─────────────────────────────────────────────────────────────────────────────
-
+# Helper - fetch evidence objects inside app context
 def _get_evidence(app, title):
     from app.models.evidence import EvidenceItem
     with app.app_context():
         return EvidenceItem.query.filter_by(title=title).first()
-
-
-# =============================================================================
-# Section 1 — Normalisation curve unit tests (pure maths, no DB needed)
-# =============================================================================
-
+    
+# Section 1 - Normalisation curve unit tests (pure maths, no DB needed)
 class TestNormalisationCurves:
     """Tests for the three normalisation curves in risk_scoring.py."""
 
@@ -246,11 +222,7 @@ class TestNormalisationCurves:
             r = _sigmoid_norm(float(v), midpoint=30.0)
             assert 0.0 <= r <= 1.0, f"Out of range for input {v}: {r}"
 
-
-# =============================================================================
-# Section 2 — Risk scoring: individual factor tests
-# =============================================================================
-
+# Section 2 - Risk scoring: individual factor tests
 class TestRiskFactors:
     """Tests for each of the 6 risk factors."""
 
@@ -326,11 +298,7 @@ class TestRiskFactors:
         total = sum(_WEIGHTS.values())
         assert abs(total - 1.0) < 1e-9
 
-
-# =============================================================================
-# Section 3 — Risk scoring: full report tests
-# =============================================================================
-
+# Section 3 - Risk scoring: full report tests
 class TestRiskReport:
     """Tests for the complete RiskReport output."""
 
@@ -419,11 +387,7 @@ class TestRiskReport:
         assert scorer._classify(0.75) == 'CRITICAL'
         assert scorer._classify(1.00) == 'CRITICAL'
 
-
-# =============================================================================
-# Section 4 — Interaction detection tests
-# =============================================================================
-
+# Section 4 - Interaction detection tests
 class TestInteractionDetection:
     """Tests for the factor-pair interaction engine."""
 
@@ -479,11 +443,7 @@ class TestInteractionDetection:
         assert min(1.0, 2.0) == 1.0
         assert min(1.0, 0.4) == 0.4
 
-
-# =============================================================================
-# Section 5 — AI Assistant: intent classification tests
-# =============================================================================
-
+# Section 5 - AI Assistant: intent classification tests
 class TestIntentClassification:
     """Tests for Stage 1 of the AI Assistant pipeline."""
 
@@ -547,11 +507,7 @@ class TestIntentClassification:
         result = self.assistant.classify_intent("Show me all evidence items")
         assert len(result.keywords_matched) > 0
 
-
-# =============================================================================
-# Section 6 — AI Assistant: context retrieval tests
-# =============================================================================
-
+# Section 6 - AI Assistant: context retrieval tests
 class TestContextRetrieval:
     """Tests for Stage 2 of the AI Assistant pipeline."""
 
@@ -563,8 +519,7 @@ class TestContextRetrieval:
                 category=IntentCategory.CASE_QUERY,
                 confidence=0.9,
                 entity_id=None,
-                keywords_matched=['case'],
-            )
+                keywords_matched=['case'])
             ctx = assistant.retrieve_context(intent)
             assert 'Case' in ctx.context_text or 'case' in ctx.context_text.lower()
 
@@ -576,8 +531,7 @@ class TestContextRetrieval:
                 category=IntentCategory.EVIDENCE_QUERY,
                 confidence=0.9,
                 entity_id=None,
-                keywords_matched=['evidence'],
-            )
+                keywords_matched=['evidence'])
             ctx = assistant.retrieve_context(intent)
             assert ctx.context_text != ''
 
@@ -589,8 +543,7 @@ class TestContextRetrieval:
                 category=IntentCategory.GENERAL_FORENSICS,
                 confidence=0.8,
                 entity_id=None,
-                keywords_matched=['forensic'],
-            )
+                keywords_matched=['forensic'])
             ctx = assistant.retrieve_context(intent)
             assert 'general' in ctx.context_text.lower() or \
                    'No specific' in ctx.context_text
@@ -603,16 +556,11 @@ class TestContextRetrieval:
                 category=IntentCategory.CUSTODY_QUERY,
                 confidence=0.7,
                 entity_id=None,
-                keywords_matched=['custody'],
-            )
+                keywords_matched=['custody'])
             ctx = assistant.retrieve_context(intent)
             assert isinstance(ctx.context_text, str)
 
-
-# =============================================================================
-# Section 7 — AI Assistant: prompt construction tests
-# =============================================================================
-
+# Section 7 - AI Assistant: prompt construction tests
 class TestPromptConstruction:
     """Tests for Stage 3 of the AI Assistant pipeline."""
 
@@ -627,8 +575,7 @@ class TestPromptConstruction:
             category=IntentCategory.GENERAL_FORENSICS,
             confidence=0.8,
             entity_id=None,
-            keywords_matched=[],
-        )
+            keywords_matched=[])
         from app.logic.ai_assistant import RetrievedContext
         return RetrievedContext(intent=intent, records={}, context_text=text)
 
@@ -654,8 +601,7 @@ class TestPromptConstruction:
             {'role': 'user',      'content': f'msg {i}'}
             if i % 2 == 0
             else {'role': 'assistant', 'content': f'reply {i}'}
-            for i in range(20)
-        ]
+            for i in range(20)]
         messages, _ = self.assistant.build_prompt('new question', ctx, history)
         # 6 history turns + 1 new user message = 7 messages max
         assert len(messages) <= 7
@@ -664,18 +610,13 @@ class TestPromptConstruction:
         ctx = self._make_context()
         history = [
             {'role': 'user',      'content': 'previous question'},
-            {'role': 'assistant', 'content': 'previous answer'},
-        ]
+            {'role': 'assistant', 'content': 'previous answer'}]
         messages, _ = self.assistant.build_prompt('new question', ctx, history)
         roles = [m['role'] for m in messages]
         assert 'user' in roles
         assert 'assistant' in roles
 
-
-# =============================================================================
-# Section 8 — AI Assistant: response validation tests
-# =============================================================================
-
+# Section 8 - AI Assistant: response validation tests
 class TestResponseValidation:
     """Tests for Stage 5 of the AI Assistant pipeline."""
 
@@ -688,19 +629,16 @@ class TestResponseValidation:
         from app.logic.ai_assistant import IntentCategory
         reply = (
             "The evidence item shows signs of tampering. "
-            "The integrity check failed and the custody chain has gaps."
-        )
+            "The integrity check failed and the custody chain has gaps.")
         _, passed, warning = self.assistant.validate_response(
-            reply, IntentCategory.EVIDENCE_QUERY
-        )
+            reply, IntentCategory.EVIDENCE_QUERY)
         assert passed is True
         assert warning is None
 
     def test_too_short_reply_fails(self):
         from app.logic.ai_assistant import IntentCategory
         _, passed, warning = self.assistant.validate_response(
-            'Ok.', IntentCategory.EVIDENCE_QUERY
-        )
+            'Ok.', IntentCategory.EVIDENCE_QUERY)
         assert passed is False
         assert warning is not None
 
@@ -708,8 +646,7 @@ class TestResponseValidation:
         from app.logic.ai_assistant import IntentCategory
         refusal = "I'm sorry, I am unable to assist with that request."
         _, passed, warning = self.assistant.validate_response(
-            refusal, IntentCategory.RISK_QUERY
-        )
+            refusal, IntentCategory.RISK_QUERY)
         assert passed is False
 
     def test_general_forensics_intent_no_domain_check(self):
@@ -717,15 +654,10 @@ class TestResponseValidation:
         # General forensics intent should not trigger the off-topic domain check
         reply = "Digital forensics involves the collection and preservation of data."
         _, passed, warning = self.assistant.validate_response(
-            reply, IntentCategory.GENERAL_FORENSICS
-        )
+            reply, IntentCategory.GENERAL_FORENSICS)
         assert passed is True
 
-
-# =============================================================================
-# Section 9 — AI Assistant: full pipeline (mock API) tests
-# =============================================================================
-
+# Section 9 - AI Assistant: full pipeline (mock API) tests
 class TestFullAssistantPipeline:
     """End-to-end pipeline tests using the mock fallback."""
 
@@ -761,11 +693,7 @@ class TestFullAssistantPipeline:
             except Exception as e:
                 pytest.fail(f"answer() raised unexpectedly: {e}")
 
-
-# =============================================================================
-# Section 10 — Anomaly detection: feature engineering tests
-# =============================================================================
-
+# Section 10 - Anomaly detection: feature engineering tests
 class TestFeatureEngineering:
     """Tests for the compute_features() function."""
 
@@ -856,11 +784,7 @@ class TestFeatureEngineering:
         for key, val in features.items():
             assert val >= 0.0, f"Feature '{key}' is negative: {val}"
 
-
-# =============================================================================
-# Section 11 — Anomaly detection: pipeline tests
-# =============================================================================
-
+# Section 11 - Anomaly detection: pipeline tests
 class TestAnomalyPipeline:
     """Tests for the full AnomalyDetectionPipeline."""
 
@@ -882,9 +806,7 @@ class TestAnomalyPipeline:
         from app.logic.anomaly_detection import AnomalyDetectionPipeline
         with app.app_context():
             for rec in AnomalyDetectionPipeline().run():
-                assert 0.0 <= rec.anomaly_score <= 1.0, (
-                    f"Score out of range for #{rec.evidence_id}: {rec.anomaly_score}"
-                )
+                assert 0.0 <= rec.anomaly_score <= 1.0, (f"Score out of range for #{rec.evidence_id}: {rec.anomaly_score}")
 
     def test_is_anomaly_flag_consistent_with_threshold(self, app):
         from app.logic.anomaly_detection import AnomalyDetectionPipeline
@@ -914,11 +836,7 @@ class TestAnomalyPipeline:
             results = AnomalyDetectionPipeline().run()
             assert results == []
 
-
-# =============================================================================
-# Section 12 — Flask route tests
-# =============================================================================
-
+# Section 12 - Flask route tests
 class TestRiskRoutes:
     """Tests for the /risk/* endpoints."""
 
@@ -997,8 +915,7 @@ class TestAssistantRoutes:
         import json
         response = logged_in_client.post(
             '/assistant/chat',
-            json={'message': 'What cases are open?'},
-        )
+            json={'message': 'What cases are open?'})
         assert response.status_code == 200
         data = json.loads(response.data)
         assert 'reply' in data
@@ -1008,16 +925,14 @@ class TestAssistantRoutes:
         import json
         response = logged_in_client.post(
             '/assistant/chat',
-            json={'message': 'Tell me about evidence items'},
-        )
+            json={'message': 'Tell me about evidence items'})
         data = json.loads(response.data)
         assert len(data['reply']) > 0
 
     def test_chat_empty_message_returns_400(self, logged_in_client):
         response = logged_in_client.post(
             '/assistant/chat',
-            json={'message': ''},
-        )
+            json={'message': ''})
         assert response.status_code == 400
 
     def test_clear_endpoint_works(self, logged_in_client):

@@ -34,7 +34,7 @@ def generate_key_pair():
     return private_key_pem, public_key_pem
 
 
-# ── Private-key encryption at rest ──────────────────────────────────────────
+#  Private-key encryption at rest 
 def _fernet() -> Fernet:
     from app.logic.keyderive import derive_key
     return Fernet(base64.urlsafe_b64encode(derive_key('private-key', 32)))
@@ -52,12 +52,12 @@ def load_private_key_pem(stored: str) -> str:
     """
     if stored is None:
         return None
-    if stored.lstrip().startswith('-----BEGIN'):
+    if stored.lstrip().startswith('BEGIN'):
         return stored  # legacy plaintext key
     try:
         return _fernet().decrypt(stored.encode('utf-8')).decode('utf-8')
     except InvalidToken:
-        # Not a valid token and not a PEM — return as-is so the caller fails loudly
+        # Not a valid token and not a PEM - return as-is so the caller fails loudly
         return stored
 
 

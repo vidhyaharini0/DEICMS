@@ -92,7 +92,6 @@ def create_app():
 
     return app
 
-
 def _ensure_schema():
     """
     Lightweight, idempotent migration for databases created before the
@@ -148,12 +147,11 @@ def _ensure_schema():
     key_changed = False
     for inv in Investigator.query.all():
         pk = inv.private_key_encrypted
-        if pk and pk.lstrip().startswith('-----BEGIN'):
+        if pk and pk.lstrip().startswith('BEGIN'):
             inv.private_key_encrypted = encrypt_private_key(pk)
             key_changed = True
     if key_changed:
         db.session.commit()
-
 
 @login_manager.user_loader
 def load_user(user_id):

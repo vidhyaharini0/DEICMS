@@ -38,7 +38,7 @@
             <td>{{ loop.index }}</td>
             <td>
               <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
-                #{{ ev.id }} — {{ ev.title }}
+                #{{ ev.id }} - {{ ev.title }}
               </a>
             </td>
             <td><a href="{{ url_for('cases.view_case', case_id=ev.case_id) }}">#{{ ev.case_id }}</a></td>
@@ -60,7 +60,7 @@
               {% if r.interactions %}
                 <span class="badge bg-danger">{{ r.interactions | length }} interaction(s)</span>
               {% else %}
-                <span class="text-muted">—</span>
+                <span class="text-muted">-</span>
               {% endif %}
             </td>
             <td>

@@ -7,21 +7,17 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Load environment variables from .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-
 class Config:
     # Secret key used by Flask to sign session cookies
     # In a real deployment, this should be a long random string stored securely
     # We use os.environ[] so the app crashes immediately on startup if missing.
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
 
-    # WTF_CSRF_SECRET_KEY — used by flask-wtf to sign CSRF tokens
+    # WTF_CSRF_SECRET_KEY - used by flask-wtf to sign CSRF tokens
     WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY', SECRET_KEY)
 
     # Database file location (SQLite for development)
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL',
-        'sqlite:///' + os.path.join(BASE_DIR, 'deicms.db')
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(BASE_DIR, 'deicms.db'))
 
     # Disable modification tracking to save memory (we don't need it)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -32,7 +28,7 @@ class Config:
     # Maximum file size for uploads: 500 MB
     MAX_CONTENT_LENGTH = 500 * 1024 * 1024
 
-    # ← ADD THIS — paste your real key here
+    # ← ADD THIS - paste your real key here
     NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY', 'dummy-nvidia-key')
 
     # Allowed file extensions for evidence uploads
@@ -44,7 +40,7 @@ class Config:
         'csv', 'json', 'xml', 'log', 'db', 'sqlite'   # Data files
     }
 
-    # ── Security settings ────────────────────────────────────────────────────
+    #  Security settings 
     # Account lockout: how many consecutive failures trigger a lockout
     MAX_LOGIN_ATTEMPTS = 5
     # How long the account stays locked (minutes)
@@ -69,10 +65,10 @@ class Config:
     # Minimum length enforced by the password-strength policy.
     PASSWORD_MIN_LENGTH = 12
 
-    # Flask-Limiter — use in-memory store for development
+    # Flask-Limiter - use in-memory store for development
     RATELIMIT_STORAGE_URI = 'memory://'
 
-    # ─────────────────────────────────────────────────────────────────────────
+    # 
     # Magic-byte MIME type -> allowed extension mapping
     # Used by the file upload validator to verify the real file type
     MIME_TO_EXTENSIONS = {
@@ -101,10 +97,8 @@ class Config:
         'application/zip':  ['.zip'],   # kept for zip files only
     }
 
-
 class DevelopmentConfig(Config):
     DEBUG = True
-
 
 class ProductionConfig(Config):
     DEBUG = False
@@ -123,4 +117,3 @@ if config == ProductionConfig:
     for key in ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET', 'NVIDIA_API_KEY']:
         if not getattr(config, key):
             raise ValueError(f"FATAL: Missing required environment variable for production: {key}")
-

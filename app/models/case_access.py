@@ -1,7 +1,5 @@
-from datetime import timedelta
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from app import db
-
 
 class CaseAccess(db.Model):
     """
@@ -16,46 +14,34 @@ class CaseAccess(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Which case this access record applies to
-    case_id = db.Column(db.Integer, db.ForeignKey('cases.id'),
-                        nullable=False)
+    case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=False)
 
     # Which investigator is being granted access
-    investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'),
-                                nullable=False)
+    investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=False)
 
     # Permission level within the case
     # Owner     -> created the case; can add/remove members
     # Member    -> full operational access (evidence, custody, etc.)
     # ReadOnly  -> can view but not modify
-    permission = db.Column(
-        db.Enum('Owner', 'Member', 'ReadOnly', name='case_permission'),
-        nullable=False,
-        default='Member'
-    )
+    permission = db.Column(db.Enum('Owner', 'Member', 'ReadOnly', name='case_permission'), nullable=False, default='Member')
 
     # When this access was granted and by whom
     granted_at = db.Column(db.DateTime, default=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), nullable=False)
-    granted_by_id = db.Column(db.Integer, db.ForeignKey('investigators.id'),
-                              nullable=True)
+    granted_by_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
 
-    # ── Relationships ─────────────────────────────────────────────────────
+    #  Relationships 
     case = db.relationship('Case', backref=db.backref('access_records', lazy='dynamic'))
-    investigator = db.relationship('Investigator',
-                                   foreign_keys=[investigator_id],
-                                   backref=db.backref('case_access_records', lazy='dynamic'))
-    granted_by = db.relationship('Investigator',
-                                 foreign_keys=[granted_by_id])
+    investigator = db.relationship('Investigator', foreign_keys=[investigator_id], backref=db.backref('case_access_records', lazy='dynamic'))
+    granted_by = db.relationship('Investigator', foreign_keys=[granted_by_id])
 
     # Unique constraint: one row per (case, investigator) pair
-    __table_args__ = (
-        db.UniqueConstraint('case_id', 'investigator_id', name='uq_case_investigator'),
-    )
+    __table_args__ = (db.UniqueConstraint('case_id', 'investigator_id', name='uq_case_investigator'),)
 
     def __repr__(self):
         return (f'<CaseAccess case={self.case_id} '
                 f'investigator={self.investigator_id} permission={self.permission}>')
 
-    # ── Access-control helpers ────────────────────────────────────────────
+    #  Access-control helpers 
     @staticmethod
     def get_permission(case_id, investigator):
         """
@@ -68,8 +54,7 @@ class CaseAccess(db.Model):
         if investigator.is_admin():
             return 'Admin'
         row = CaseAccess.query.filter_by(
-            case_id=case_id, investigator_id=investigator.id
-        ).first()
+            case_id=case_id, investigator_id=investigator.id).first()
         return row.permission if row else None
 
     @staticmethod
@@ -88,8 +73,7 @@ class CaseAccess(db.Model):
         Idempotently grant (or update) a case-access row. Returns the row.
         """
         row = CaseAccess.query.filter_by(
-            case_id=case_id, investigator_id=investigator_id
-        ).first()
+            case_id=case_id, investigator_id=investigator_id).first()
         if row:
             row.permission = permission
         else:
@@ -97,7 +81,6 @@ class CaseAccess(db.Model):
                 case_id=case_id,
                 investigator_id=investigator_id,
                 permission=permission,
-                granted_by_id=granted_by_id,
-            )
+                granted_by_id=granted_by_id)
             db.session.add(row)
         return row

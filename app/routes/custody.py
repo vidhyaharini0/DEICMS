@@ -1,5 +1,5 @@
 """
-Custody routes — Increment 2
+Custody routes - Increment 2
 Now includes:
   - Digital signature on every custody transfer (Ed25519)
   - State machine transition on transfer
@@ -7,9 +7,8 @@ Now includes:
   - Chain Reconstruction endpoint
   - Evidence state change endpoint
 """
-from datetime import timedelta
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import (Blueprint, render_template, redirect, url_for,
                    flash, request, jsonify)
 from flask_login import login_required, current_user
@@ -21,7 +20,6 @@ from app.models.audit_record import AuditRecord
 from app.models.case_access import CaseAccess
 
 custody_bp = Blueprint('custody', __name__)
-
 
 def _deny_if_no_case_access(evidence):
     """
@@ -50,7 +48,6 @@ def _build_transfer_payload(evidence_id: int, event_type: str,
         'file_hash': file_hash
     }
     return json.dumps(payload_dict, sort_keys=True).encode('utf-8')
-
 
 @custody_bp.route('/evidence/<int:evidence_id>/transfer', methods=['GET', 'POST'])
 @login_required
@@ -104,30 +101,25 @@ def transfer_evidence(evidence_id):
             timestamp=transfer_time,
             from_id=current_user.id,
             to_id=to_investigator_id,
-            file_hash=evidence.current_hash
-        )
+            file_hash=evidence.current_hash)
 
         signature_hex = None
         if current_user.private_key_encrypted:
             from app.logic.crypto import sign_payload
             try:
                 signature_hex = sign_payload(
-                    current_user.private_key_encrypted, payload
-                )
+                    current_user.private_key_encrypted, payload)
             except Exception as e:
                 flash(f'Warning: Could not sign transfer: {e}', 'warning')
 
         from app.logic.state_machine import EvidenceStateMachine
         sm = EvidenceStateMachine(evidence, current_user)
-        result = sm.transition_to('Transferred',
-                                  justification=justification or reason)
+        result = sm.transition_to('Transferred', justification=justification or reason)
 
         if not result:
             db.session.commit()
             flash(f'Transfer rejected: {result.message}', 'danger')
-            return redirect(url_for('evidence.view_evidence',
-                                    case_id=evidence.case_id,
-                                    evidence_id=evidence_id))
+            return redirect(url_for('evidence.view_evidence', case_id=evidence.case_id, evidence_id=evidence_id))
 
         evidence.current_holder_id = to_investigator_id
 
@@ -141,8 +133,7 @@ def transfer_evidence(evidence_id):
             reason=reason,
             file_hash_at_event=evidence.current_hash,
             digital_signature=signature_hex,
-            notes=f'Signed transfer from {current_user.full_name} to {to_investigator.full_name}'
-        )
+            notes=f'Signed transfer from {current_user.full_name} to {to_investigator.full_name}')
         db.session.add(custody_entry)
 
         audit = AuditRecord(
@@ -153,11 +144,9 @@ def transfer_evidence(evidence_id):
             description=(
                 f'Evidence {evidence.evidence_number} transferred '
                 f'from {current_user.full_name} to {to_investigator.full_name}. '
-                f'Signed: {"Yes" if signature_hex else "No"}'
-            ),
+                f'Signed: {"Yes" if signature_hex else "No"}'),
             ip_address=request.remote_addr,
-            result='Success'
-        )
+            result='Success')
         db.session.add(audit)
         db.session.commit()
 
@@ -165,8 +154,7 @@ def transfer_evidence(evidence_id):
             f'Evidence {evidence.evidence_number} transferred to '
             f'{to_investigator.full_name} successfully. '
             f'{"Transfer digitally signed." if signature_hex else ""}',
-            'success'
-        )
+            'success')
         return redirect(url_for('evidence.view_evidence',
                                 case_id=evidence.case_id,
                                 evidence_id=evidence_id))
@@ -174,7 +162,6 @@ def transfer_evidence(evidence_id):
     return render_template('custody/transfer.html',
                            evidence=evidence,
                            investigators=investigators)
-
 
 @custody_bp.route('/evidence/<int:evidence_id>/custody-log')
 @login_required
@@ -190,7 +177,6 @@ def view_custody_log(evidence_id):
     return render_template('custody/log.html',
                            evidence=evidence,
                            custody_logs=custody_logs)
-
 
 @custody_bp.route('/evidence/<int:evidence_id>/verify')
 @login_required
@@ -216,12 +202,10 @@ def verify_integrity(evidence_id):
         description=(
             f'Graph integrity verification run on {evidence.evidence_number}. '
             f'Verdict: {report.verdict}. '
-            f'Completeness: {report.completeness_score}%.'
-        ),
+            f'Completeness: {report.completeness_score}%.'),
         ip_address=request.remote_addr,
         result='Success' if report.verdict == 'Intact' else 'Warning',
-        integrity_check_result=json.dumps(report.to_dict())
-    )
+        integrity_check_result=json.dumps(report.to_dict()))
     db.session.add(audit)
 
     if report.verdict == 'Broken' and evidence.lifecycle_state != 'Flagged':
@@ -229,13 +213,9 @@ def verify_integrity(evidence_id):
         sm = EvidenceStateMachine(evidence, current_user)
         sm.transition_to('Flagged',
                          justification='Auto-flagged: integrity verification failed.')
-
     db.session.commit()
 
-    return render_template('custody/integrity_report.html',
-                           evidence=evidence,
-                           report=report)
-
+    return render_template('custody/integrity_report.html', evidence=evidence, report=report)
 
 @custody_bp.route('/evidence/<int:evidence_id>/verify/json')
 @login_required
@@ -249,7 +229,6 @@ def verify_integrity_json(evidence_id):
     engine = GraphIntegrityEngine(evidence)
     report = engine.verify()
     return jsonify(report.to_dict())
-
 
 @custody_bp.route('/evidence/<int:evidence_id>/reconstruct')
 @login_required
@@ -272,18 +251,13 @@ def reconstruct_chain(evidence_id):
         description=(
             f'Chain reconstruction run on {evidence.evidence_number}. '
             f'Confidence: {report.chain_confidence_score}%. '
-            f'Unresolved gaps: {report.unresolved_gaps}.'
-        ),
+            f'Unresolved gaps: {report.unresolved_gaps}.'),
         ip_address=request.remote_addr,
-        result='Success' if report.unresolved_gaps == 0 else 'Warning'
-    )
+        result='Success' if report.unresolved_gaps == 0 else 'Warning')
     db.session.add(audit)
     db.session.commit()
 
-    return render_template('custody/reconstruction_report.html',
-                           evidence=evidence,
-                           report=report)
-
+    return render_template('custody/reconstruction_report.html', evidence=evidence, report=report)
 
 @custody_bp.route('/evidence/<int:evidence_id>/change-state', methods=['GET', 'POST'])
 @login_required
@@ -311,10 +285,6 @@ def change_state(evidence_id):
             db.session.rollback()
             flash(result.message, 'danger')
 
-        return redirect(url_for('evidence.view_evidence',
-                                case_id=evidence.case_id,
-                                evidence_id=evidence_id))
+        return redirect(url_for('evidence.view_evidence', case_id=evidence.case_id, evidence_id=evidence_id))
 
-    return render_template('custody/change_state.html',
-                           evidence=evidence,
-                           available_transitions=available)
+    return render_template('custody/change_state.html', evidence=evidence, available_transitions=available)

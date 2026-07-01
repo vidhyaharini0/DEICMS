@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 820 540" role="img" font-family="Segoe UI, Arial, Helvetica, sans-serif">
-<title>Agile Burndown Chart — DEICMS (14-Day Sprint)</title>
+<title>Agile Burndown Chart - DEICMS (14-Day Sprint)</title>
 <desc>Sprint burndown chart showing ideal vs actual story points remaining over a 14-day sprint. The team started at 42 points and delivered all work by day 14.</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -11,7 +11,7 @@
 <rect x="0" y="0" width="820" height="540" fill="#FFFFFF"/>
 
 <!-- Title -->
-<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Agile Burndown Chart — DEICMS (14-Day Sprint)</text>
+<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Agile Burndown Chart - DEICMS (14-Day Sprint)</text>
 <text x="40" y="50" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">42 story points · Increment 3 · Ideal vs Actual velocity</text>
 
 <!-- ====== CHART AREA ====== -->
@@ -80,7 +80,7 @@
   points="100,138  147,153  194,176  241,199  288,230  335,245  382,268  430,291  477,314  524,337  571,360  618,383  665,406  712,429  760,460"
   fill="none" stroke="#1D9E75" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="8 4"/>
 
-<!-- Data dots — Ideal -->
+<!-- Data dots - Ideal -->
 <circle cx="100" cy="138" r="4" fill="#3C3489"/>
 <circle cx="147" cy="161" r="4" fill="#3C3489"/>
 <circle cx="194" cy="184" r="4" fill="#3C3489"/>
@@ -97,7 +97,7 @@
 <circle cx="712" cy="437" r="4" fill="#3C3489"/>
 <circle cx="760" cy="460" r="4" fill="#3C3489"/>
 
-<!-- Data dots — Actual -->
+<!-- Data dots - Actual -->
 <circle cx="100" cy="138" r="4" fill="#1D9E75"/>
 <circle cx="147" cy="153" r="4" fill="#1D9E75"/>
 <circle cx="194" cy="176" r="4" fill="#1D9E75"/>

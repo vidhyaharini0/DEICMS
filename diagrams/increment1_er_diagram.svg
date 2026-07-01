@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1120 820" role="img" font-family="Segoe UI, Arial, Helvetica, sans-serif">
-<title>Entity-Relationship Diagram — DEICMS</title><desc>ER diagram of the six database tables, their columns and relationships, including the new case_access table and the new authentication columns on investigators.</desc>
+<title>Entity-Relationship Diagram - DEICMS</title><desc>ER diagram of the six database tables, their columns and relationships, including the new case_access table and the new authentication columns on investigators.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#6B6B66" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="tarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#1D9E75" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
 <rect x="0" y="0" width="1120" height="820" fill="#FFFFFF"/>
-<text x="40" y="34" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Entity-Relationship Diagram — DEICMS</text>
+<text x="40" y="34" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Entity-Relationship Diagram - DEICMS</text>
 <text x="40" y="56" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">New elements added for the security features are shown in green.</text>
 <rect x="40" y="80" width="250" height="28" fill="#3C3489" rx="7" stroke="#AFA9EC" stroke-width="1"/>
 <rect x="40" y="101" width="250" height="7" fill="#3C3489" rx="0"/>
@@ -286,5 +286,5 @@
 <text x="808" y="461" font-size="11" fill="#6B6B66" text-anchor="middle" font-weight="700" dominant-baseline="central">N</text>
 <rect x="40" y="770" width="16" height="12" fill="#E8F6F0" rx="2" stroke="#1D9E75" stroke-width="1"/>
 <text x="64" y="776" font-size="11" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">New (security features)</text>
-<text x="250" y="776" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">PK = primary key    FK = foreign key    UK = unique key    1—N = one-to-many</text>
+<text x="250" y="776" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">PK = primary key    FK = foreign key    UK = unique key    1-N = one-to-many</text>
 </svg>

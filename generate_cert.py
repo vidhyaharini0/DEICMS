@@ -8,12 +8,10 @@ issued by a trusted Certificate Authority, the browser will show a one-time
 "your connection is not private" warning on first visit. This is expected for
 local development.
 """
-from datetime import timedelta
 import datetime
-from datetime import timezone
+from datetime import timezone, timedelta
 import ipaddress
 import os
-
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes, serialization
@@ -22,7 +20,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 CERT_PATH = os.path.join(BASE_DIR, 'cert.pem')
 KEY_PATH = os.path.join(BASE_DIR, 'key.pem')
-
 
 def generate_self_signed_cert(cert_path=CERT_PATH, key_path=KEY_PATH):
     """Create a 2048-bit RSA key and a self-signed certificate for localhost."""
@@ -45,31 +42,25 @@ def generate_self_signed_cert(cert_path=CERT_PATH, key_path=KEY_PATH):
         .add_extension(
             x509.SubjectAlternativeName([
                 x509.DNSName(u'localhost'),
-                x509.IPAddress(ipaddress.IPv4Address(u'127.0.0.1')),
-            ]),
-            critical=False,
-        )
-        .sign(key, hashes.SHA256())
-    )
+                x509.IPAddress(ipaddress.IPv4Address(u'127.0.0.1'))]),
+            critical=False)
+        .sign(key, hashes.SHA256()))
 
     with open(key_path, 'wb') as f:
         f.write(key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=serialization.NoEncryption(),
-        ))
+            encryption_algorithm=serialization.NoEncryption()))
     with open(cert_path, 'wb') as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
 
     return cert_path, key_path
-
 
 def ensure_cert():
     """Generate the cert/key pair only if they do not already exist."""
     if not (os.path.exists(CERT_PATH) and os.path.exists(KEY_PATH)):
         generate_self_signed_cert()
     return CERT_PATH, KEY_PATH
-
 
 if __name__ == '__main__':
     c, k = generate_self_signed_cert()

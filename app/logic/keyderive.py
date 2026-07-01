@@ -11,7 +11,6 @@ only be decrypted by a process that holds the application secret.
 import hashlib
 from flask import current_app
 
-
 def _master_secret() -> bytes:
     secret = (current_app.config.get('KEY_ENCRYPTION_SECRET')
               or current_app.config.get('SECRET_KEY')

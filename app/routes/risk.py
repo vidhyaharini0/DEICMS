@@ -1,11 +1,9 @@
 from flask import Blueprint, render_template, jsonify
 from flask_login import login_required
-
 from app.models.evidence import EvidenceItem
 from app.logic.risk_scoring import EvidenceRiskScorer
 
 risk_bp = Blueprint('risk', __name__, url_prefix='/risk')
-
 
 @risk_bp.route('/dashboard')
 @login_required
@@ -32,12 +30,10 @@ def risk_dashboard():
             'anomaly_score': anomaly_score,
             'is_anomaly': rec.is_anomaly if rec else False,
             'unified_score': unified_score,
-            'unified_level': unified_level,
-        })
+            'unified_level': unified_level})
     # Sort by final_score descending (highest risk first)
     scored.sort(key=lambda x: x['report'].final_score, reverse=True)
     return render_template('risk/risk_dashboard.html', scored=scored)
-
 
 @risk_bp.route('/evidence/<int:evidence_id>')
 @login_required
@@ -58,7 +54,6 @@ def evidence_risk(evidence_id):
     unified_level = scorer._classify(unified_score)
     
     return render_template('risk/evidence_risk.html', report=report, evidence=evidence, anomaly_score=anomaly_score, is_anomaly=is_anomaly, unified_score=unified_score, unified_level=unified_level)
-
 
 @risk_bp.route('/evidence/<int:evidence_id>/json')
 @login_required
@@ -81,22 +76,14 @@ def evidence_risk_json(evidence_id):
                 'normalised_score': f.normalised_score,
                 'weight':           f.weight,
                 'contribution':     f.contribution,
-                'explanation':      f.explanation,
-            }
-            for f in report.factors
-        ],
+                'explanation':      f.explanation} for f in report.factors],
         'interactions': [
             {
                 'factor_names': i.factor_names,
                 'multiplier':   i.multiplier,
-                'explanation':  i.explanation,
-            }
-            for i in report.interactions
-        ],
+                'explanation':  i.explanation,} for i in report.interactions],
         'recommendations': report.recommendations,
-        'computed_at':     report.computed_at.isoformat(),
-    })
-
+        'computed_at':     report.computed_at.isoformat()})
 
 @risk_bp.route('/anomaly')
 @login_required

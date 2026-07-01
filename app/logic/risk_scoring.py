@@ -1,7 +1,7 @@
 """
 Multi-Factor Evidence Risk Scoring Algorithm
-============================================
-Category C — Complex Application Logic (algorithmically non-trivial).
+=================
+Category C - Complex Application Logic (algorithmically non-trivial).
 
 Pipeline:
   1. Extract raw values from the evidence record and its custody logs.
@@ -13,18 +13,12 @@ Pipeline:
   5. Clamp the final score to [0.0, 1.0] and classify risk level.
   6. Generate human-readable recommendations.
 """
-
-from datetime import timedelta
 import math
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Tuple
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Data structures
-# ─────────────────────────────────────────────────────────────────────────────
-
 @dataclass
 class RiskFactor:
     """One scored risk dimension."""
@@ -35,14 +29,12 @@ class RiskFactor:
     contribution: float       # normalised_score × weight
     explanation: str
 
-
 @dataclass
 class InteractionEffect:
     """A dangerous combination of two high-scoring risk factors."""
     factor_names: List[str]
-    multiplier: float         # > 1.0 — amplifies the base score
+    multiplier: float         # > 1.0 - amplifies the base score
     explanation: str
-
 
 @dataclass
 class RiskReport:
@@ -58,17 +50,12 @@ class RiskReport:
     computed_at: datetime
     recommendations: List[str]
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Normalisation curves
-# ─────────────────────────────────────────────────────────────────────────────
-
 def _linear_norm(value: float, min_val: float, max_val: float) -> float:
     """Maps [min_val, max_val] linearly onto [0.0, 1.0]."""
     if max_val <= min_val:
         return 0.0
     return max(0.0, min(1.0, (value - min_val) / (max_val - min_val)))
-
 
 def _log_norm(value: float, scale: float = 10.0) -> float:
     """
@@ -79,7 +66,6 @@ def _log_norm(value: float, scale: float = 10.0) -> float:
         return 0.0
     return min(1.0, math.log1p(value) / math.log1p(scale))
 
-
 def _sigmoid_norm(value: float, midpoint: float, steepness: float = 0.1) -> float:
     """
     Sigmoid (S-curve) normalisation centred on midpoint.
@@ -87,20 +73,16 @@ def _sigmoid_norm(value: float, midpoint: float, steepness: float = 0.1) -> floa
     """
     return 1.0 / (1.0 + math.exp(-steepness * (value - midpoint)))
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Lookup tables and configuration
-# ─────────────────────────────────────────────────────────────────────────────
-
 # File extensions ranked by forensic risk (1.0 = highest inherent risk)
 _FILE_TYPE_RISK: Dict[str, float] = {
-    # Executables and scripts — can be weaponised / executed
+    # Executables and scripts - can be weaponised / executed
     ".exe": 1.0, ".dll": 1.0, ".bat": 0.95, ".cmd": 0.95,
     ".ps1": 0.95, ".sh": 0.90, ".py": 0.85, ".js": 0.80,
     ".vbs": 0.90, ".wsf": 0.88,
-    # Office macros — common malware vector
+    # Office macros - common malware vector
     ".docm": 0.75, ".xlsm": 0.75, ".pptm": 0.75,
-    # Archives — may conceal or obfuscate content
+    # Archives - may conceal or obfuscate content
     ".zip": 0.65, ".rar": 0.65, ".7z": 0.65, ".tar": 0.60,
     ".gz": 0.58,
     # Standard office documents
@@ -113,18 +95,16 @@ _FILE_TYPE_RISK: Dict[str, float] = {
     ".txt": 0.15, ".csv": 0.15, ".log": 0.20, ".json": 0.25,
     ".xml": 0.25,
     # Default for unknown / missing extension
-    "default": 0.50,
-}
+    "default": 0.50}
 
-# Factor weights — must sum exactly to 1.0
+# Factor weights - must sum exactly to 1.0
 _WEIGHTS: Dict[str, float] = {
     "integrity_status":           0.30,
     "file_type_risk":             0.20,
     "custody_transfer_frequency": 0.15,
     "role_mismatch_count":        0.15,
     "time_since_last_activity":   0.10,
-    "duplicate_entry_count":      0.10,
-}
+    "duplicate_entry_count":      0.10}
 
 # Interaction rules: (factor_a, factor_b, threshold_a, threshold_b, multiplier, explanation)
 _INTERACTION_RULES: List[Tuple] = [
@@ -147,27 +127,21 @@ _INTERACTION_RULES: List[Tuple] = [
         "role_mismatch_count", "duplicate_entry_count",
         0.5, 0.5, 1.15,
         "Role mismatches combined with duplicate entries suggest administrative tampering",
-    ),
-]
+    )]
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Main scoring engine
-# ─────────────────────────────────────────────────────────────────────────────
-
 class EvidenceRiskScorer:
     """
     Computes a multi-factor, interaction-aware risk score for one EvidenceItem.
 
     Each factor uses a normalisation curve suited to its natural distribution:
-      • integrity_status     — categorical mapping (direct lookup)
-      • file_type_risk       — categorical mapping (lookup table)
-      • transfer_frequency   — logarithmic  (heavy-tailed; many small values)
-      • role_mismatch_count  — logarithmic  (rare events, diminishing returns)
-      • time_since_activity  — sigmoid      (risk rises sharply past ~30 days)
-      • duplicate_entries    — logarithmic  (rare events, diminishing returns)
+      - integrity_status     - categorical mapping (direct lookup)
+      - file_type_risk       - categorical mapping (lookup table)
+      - transfer_frequency   - logarithmic  (heavy-tailed; many small values)
+      - role_mismatch_count  - logarithmic  (rare events, diminishing returns)
+      - time_since_activity  - sigmoid      (risk rises sharply past ~30 days)
+      - duplicate_entries    - logarithmic  (rare events, diminishing returns)
     """
-
     def score(self, evidence) -> RiskReport:
         """Entry point. Returns a complete RiskReport for one EvidenceItem."""
         from app.models.custody_log import CustodyLog
@@ -176,8 +150,7 @@ class EvidenceRiskScorer:
             CustodyLog.query
             .filter_by(evidence_id=evidence.id)
             .order_by(CustodyLog.timestamp.asc())
-            .all()
-        )
+            .all())
 
         factors = self._extract_and_normalise(evidence, custody_logs)
         factor_map = {f.name: f for f in factors}
@@ -185,14 +158,12 @@ class EvidenceRiskScorer:
         base_score = sum(f.contribution for f in factors)
 
         interactions, interaction_bonus = self._detect_interactions(
-            factor_map, base_score
-        )
+            factor_map, base_score)
 
         final_score = min(1.0, base_score + interaction_bonus)
         risk_level = self._classify(final_score)
         recommendations = self._build_recommendations(
-            factor_map, interactions, final_score
-        )
+            factor_map, interactions, final_score)
 
         return RiskReport(
             evidence_id=evidence.id,
@@ -204,11 +175,9 @@ class EvidenceRiskScorer:
             factors=factors,
             interactions=interactions,
             computed_at=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
-            recommendations=recommendations,
-        )
+            recommendations=recommendations)
 
-    # ── Stage 1+2: Extract raw values and normalise ──────────────────────────
-
+    #  Stage 1+2: Extract raw values and normalise 
     def _extract_and_normalise(self, evidence, custody_logs) -> List[RiskFactor]:
         return [
             self._factor_integrity(evidence),
@@ -216,8 +185,7 @@ class EvidenceRiskScorer:
             self._factor_transfer_frequency(evidence, custody_logs),
             self._factor_role_mismatch(evidence),
             self._factor_inactivity(evidence, custody_logs),
-            self._factor_duplicates(evidence),
-        ]
+            self._factor_duplicates(evidence)]
 
     def _factor_integrity(self, evidence) -> RiskFactor:
         """
@@ -236,8 +204,7 @@ class EvidenceRiskScorer:
             normalised_score=score,
             weight=w,
             contribution=round(score * w, 4),
-            explanation=f"Integrity status is '{status}' -> score {score:.2f}",
-        )
+            explanation=f"Integrity status is '{status}' -> score {score:.2f}")
 
     def _factor_file_type(self, evidence) -> RiskFactor:
         """Looks up the file extension in the forensic-risk table."""
@@ -254,8 +221,7 @@ class EvidenceRiskScorer:
             normalised_score=score,
             weight=w,
             contribution=round(score * w, 4),
-            explanation=f"Extension '{ext or 'unknown'}' has inherent risk score {score:.2f}",
-        )
+            explanation=f"Extension '{ext or 'unknown'}' has inherent risk score {score:.2f}")
 
     def _factor_transfer_frequency(self, evidence, custody_logs) -> RiskFactor:
         """
@@ -273,8 +239,7 @@ class EvidenceRiskScorer:
                 normalised_score=round(score, 4),
                 weight=w,
                 contribution=round(score * w, 4),
-                explanation=f"Only {n} custody record(s) — insufficient for rate calculation",
-            )
+                explanation=f"Only {n} custody record(s) - insufficient for rate calculation")
 
         first_ts = custody_logs[0].timestamp
         last_ts  = custody_logs[-1].timestamp
@@ -295,9 +260,7 @@ class EvidenceRiskScorer:
             contribution=round(score * w, 4),
             explanation=(
                 f"{n - 1} transfer(s) over {span_days:.1f} day(s) "
-                f"= {rate:.2f}/day -> score {score:.2f}"
-            ),
-        )
+                f"= {rate:.2f}/day -> score {score:.2f}"))
         
     def _factor_role_mismatch(self, evidence) -> RiskFactor:
         """
@@ -307,8 +270,7 @@ class EvidenceRiskScorer:
         from app.models.audit_record import AuditRecord
         count = AuditRecord.query.filter_by(
             evidence_id=evidence.id,
-            result="Warning",
-        ).count()
+            result="Warning").count()
         score = _log_norm(float(count), scale=5.0)
         w = _WEIGHTS["role_mismatch_count"]
         return RiskFactor(
@@ -317,8 +279,7 @@ class EvidenceRiskScorer:
             normalised_score=round(score, 4),
             weight=w,
             contribution=round(score * w, 4),
-            explanation=f"{count} role-mismatch audit record(s) -> score {score:.2f}",
-        )
+            explanation=f"{count} role-mismatch audit record(s) -> score {score:.2f}")
 
     def _factor_inactivity(self, evidence, custody_logs) -> RiskFactor:
         """
@@ -345,8 +306,7 @@ class EvidenceRiskScorer:
             normalised_score=round(score, 4),
             weight=w,
             contribution=round(score * w, 4),
-            explanation=f"{days:.1f} day(s) since last activity -> score {score:.2f}",
-        )
+            explanation=f"{days:.1f} day(s) since last activity -> score {score:.2f}")
 
     def _factor_duplicates(self, evidence) -> RiskFactor:
         """
@@ -356,8 +316,7 @@ class EvidenceRiskScorer:
         from app.models.audit_record import AuditRecord
         count = AuditRecord.query.filter_by(
             evidence_id=evidence.id,
-            event_type="Integrity Check",
-        ).count()
+            event_type="Integrity Check").count()
         score = _log_norm(float(count), scale=3.0)
         w = _WEIGHTS["duplicate_entry_count"]
         return RiskFactor(
@@ -366,21 +325,17 @@ class EvidenceRiskScorer:
             normalised_score=round(score, 4),
             weight=w,
             contribution=round(score * w, 4),
-            explanation=f"{count} duplicate-entry audit record(s) -> score {score:.2f}",
-        )
+            explanation=f"{count} duplicate-entry audit record(s) -> score {score:.2f}")
 
-    # ── Stage 4: Interaction detection ───────────────────────────────────────
-
-    def _detect_interactions(
-        self, factor_map: Dict[str, RiskFactor], base_score: float
-    ) -> Tuple[List[InteractionEffect], float]:
+    #  Stage 4: Interaction detection 
+    def _detect_interactions(self, factor_map: Dict[str, RiskFactor], base_score: float) -> Tuple[List[InteractionEffect], float]:
         """
         For each rule where BOTH factors exceed their thresholds, computes:
 
             bonus = base_score × (multiplier − 1) × avg(score_a, score_b)
 
         This means interactions contribute more when the base risk is already
-        elevated — a deliberate design choice to escalate high-risk scenarios.
+        elevated - a deliberate design choice to escalate high-risk scenarios.
         """
         fired: List[InteractionEffect] = []
         total_bonus = 0.0
@@ -397,13 +352,11 @@ class EvidenceRiskScorer:
                 fired.append(InteractionEffect(
                     factor_names=[name_a, name_b],
                     multiplier=mult,
-                    explanation=f"{expl} (additive bonus: +{bonus:.4f})",
-                ))
+                    explanation=f"{expl} (additive bonus: +{bonus:.4f})"))
 
         return fired, round(total_bonus, 4)
 
-    # ── Stage 5: Classification ──────────────────────────────────────────────
-
+    #  Stage 5: Classification 
     @staticmethod
     def _classify(score: float) -> str:
         if score < 0.25:
@@ -415,47 +368,29 @@ class EvidenceRiskScorer:
         else:
             return "CRITICAL"
 
-    # ── Stage 6: Recommendations ─────────────────────────────────────────────
-
+    #  Stage 6: Recommendations 
     @staticmethod
-    def _build_recommendations(
-        fm: Dict[str, RiskFactor],
-        interactions: List[InteractionEffect],
-        final_score: float,
-    ) -> List[str]:
+    def _build_recommendations(fm: Dict[str, RiskFactor], interactions: List[InteractionEffect], final_score: float) -> List[str]:
         recs = []
 
         if fm.get("integrity_status") and fm["integrity_status"].normalised_score >= 0.5:
-            recs.append(
-                "Re-run integrity verification immediately to confirm the file has not been altered."
-            )
+            recs.append("Re-run integrity verification immediately to confirm the file has not been altered.")
         if fm.get("custody_transfer_frequency") and \
                 fm["custody_transfer_frequency"].normalised_score >= 0.6:
-            recs.append(
-                "Investigate the unusually high custody transfer rate for chain-of-custody violations."
-            )
+            recs.append("Investigate the unusually high custody transfer rate for chain-of-custody violations.")
         if fm.get("role_mismatch_count") and fm["role_mismatch_count"].normalised_score >= 0.4:
-            recs.append(
-                "Review access logs for investigators handling evidence outside their assigned role."
-            )
+            recs.append("Review access logs for investigators handling evidence outside their assigned role.")
         if fm.get("time_since_last_activity") and \
                 fm["time_since_last_activity"].normalised_score >= 0.6:
-            recs.append(
-                "Evidence has been inactive for an extended period — confirm it is still secured."
-            )
+            recs.append("Evidence has been inactive for an extended period - confirm it is still secured.")
         if fm.get("duplicate_entry_count") and fm["duplicate_entry_count"].normalised_score >= 0.4:
-            recs.append(
-                "Duplicate custody entries detected — audit the chain manually for manipulation."
-            )
+            recs.append("Duplicate custody entries detected - audit the chain manually for manipulation.")
         if interactions:
             recs.append(
-                f"{len(interactions)} dangerous factor interaction(s) detected — "
-                "escalate to a senior investigator for immediate review."
-            )
+                f"{len(interactions)} dangerous factor interaction(s) detected - "
+                "escalate to a senior investigator for immediate review.")
         if final_score >= 0.75:
-            recs.append(
-                "CRITICAL risk level: consider placing this evidence under restricted access immediately."
-            )
+            recs.append("CRITICAL risk level: consider placing this evidence under restricted access immediately.")
         elif final_score >= 0.50:
             recs.append("HIGH risk level: schedule an expedited audit of this evidence item.")
 

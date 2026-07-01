@@ -1,10 +1,10 @@
 """
-Increment 2 Tests — State Machine, Graph Integrity, Chain Reconstruction
+Increment 2 Tests - State Machine, Graph Integrity, Chain Reconstruction
 Run with: pytest tests/ -v --cov=app
 """
 import pytest
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from app import create_app, db
 from app.models.investigator import Investigator
 from app.models.case import Case
@@ -12,20 +12,17 @@ from app.models.evidence import EvidenceItem
 from app.models.custody_log import CustodyLog
 from app.models.audit_record import AuditRecord
 
-
 @pytest.fixture
 def app():
     app = create_app()
     app.config.update({
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'UPLOAD_FOLDER': '/tmp/test_uploads'
-    })
+        'UPLOAD_FOLDER': '/tmp/test_uploads'})
     with app.app_context():
         db.create_all()
         yield app
         db.drop_all()
-
 
 @pytest.fixture
 def base_data(app):
@@ -76,8 +73,7 @@ def base_data(app):
             original_hash='a' * 64,
             current_hash='a' * 64,
             uploaded_by_id=admin.id,
-            current_holder_id=admin.id
-        )
+            current_holder_id=admin.id)
         db.session.add(evidence)
         db.session.flush()
 
@@ -87,8 +83,7 @@ def base_data(app):
             event_type='Upload',
             to_investigator_id=admin.id,
             timestamp=datetime(2026, 5, 1, 10, 0, 0),
-            file_hash_at_event='a' * 64
-        )
+            file_hash_at_event='a' * 64)
         db.session.add(log1)
         db.session.commit()
 
@@ -98,12 +93,9 @@ def base_data(app):
             'analyst_id': analyst.id,
             'readonly_id': readonly.id,
             'case_id': case.id,
-            'evidence_id': evidence.id
-        }
+            'evidence_id': evidence.id}
 
-
-# ── State Machine Tests ───────────────────────────────────────────────────────
-
+#  State Machine Tests 
 class TestStateMachine:
 
     def test_valid_transition_collected_to_submitted(self, app, base_data):
@@ -209,8 +201,7 @@ class TestStateMachine:
             assert failure_record is not None
 
 
-# ── Graph Integrity Tests ─────────────────────────────────────────────────────
-
+#  Graph Integrity Tests 
 class TestGraphIntegrity:
 
     def test_intact_chain_returns_intact_verdict(self, app, base_data):
@@ -218,7 +209,7 @@ class TestGraphIntegrity:
         with app.app_context():
             evidence = EvidenceItem.query.get(base_data['evidence_id'])
             # No file exists at /tmp/test.pdf so hash check is skipped for
-            # non-Upload nodes — Upload node will detect missing file
+            # non-Upload nodes - Upload node will detect missing file
             from app.logic.graph_integrity import GraphIntegrityEngine
             engine = GraphIntegrityEngine(evidence)
             report = engine.verify()
@@ -242,15 +233,14 @@ class TestGraphIntegrity:
             evidence = EvidenceItem.query.get(base_data['evidence_id'])
 
             # Add a Transfer log with timestamp EQUAL to the Upload node (not strictly greater)
-            # The Upload is at 2026-05-01 10:00:00 — this is the same moment
+            # The Upload is at 2026-05-01 10:00:00 - this is the same moment
             same_time_log = CustodyLog(
                 evidence_id=evidence.id,
                 event_type='Transfer',
                 from_investigator_id=base_data['admin_id'],
                 to_investigator_id=base_data['lead_id'],
-                timestamp=datetime(2026, 5, 1, 10, 0, 0),  # same as Upload — not strictly greater
-                file_hash_at_event='a' * 64
-            )
+                timestamp=datetime(2026, 5, 1, 10, 0, 0),  # same as Upload - not strictly greater
+                file_hash_at_event='a' * 64)
             db.session.add(same_time_log)
             db.session.commit()
 
@@ -286,8 +276,7 @@ class TestGraphIntegrity:
             assert '"completeness_score"' in json_str
 
 
-# ── Chain Reconstruction Tests ────────────────────────────────────────────────
-
+#  Chain Reconstruction Tests 
 class TestChainReconstruction:
 
     def test_no_gaps_returns_full_confidence(self, app, base_data):
@@ -314,8 +303,7 @@ class TestChainReconstruction:
                 from_investigator_id=base_data['analyst_id'],  # mismatch: admin held it
                 to_investigator_id=base_data['admin_id'],
                 timestamp=datetime(2026, 5, 2, 10, 0, 0),
-                file_hash_at_event='a' * 64
-            )
+                file_hash_at_event='a' * 64)
             db.session.add(log2)
             db.session.commit()
 

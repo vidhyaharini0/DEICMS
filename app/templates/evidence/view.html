@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ evidence.evidence_number }} — DEICMS{% endblock %}
+{% block title %}{{ evidence.evidence_number }} - DEICMS{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title">
@@ -37,10 +37,10 @@
           ('Case', case.case_number),
           ('Category', evidence.category),
           ('File Name', evidence.file_name),
-          ('File Size', (evidence.file_size // 1024)|string + ' KB' if evidence.file_size else '—'),
-          ('MIME Type', evidence.file_mime_type or '—'),
+          ('File Size', (evidence.file_size // 1024)|string + ' KB' if evidence.file_size else '-'),
+          ('MIME Type', evidence.file_mime_type or '-'),
           ('Uploaded By', evidence.uploader.full_name),
-          ('Current Holder', evidence.current_holder.full_name if evidence.current_holder else '—'),
+          ('Current Holder', evidence.current_holder.full_name if evidence.current_holder else '-'),
         ] %}
         {% for label, value in rows %}
         <div class="row mb-2">
@@ -87,7 +87,7 @@
         </div>
         {% if evidence.original_hash == evidence.current_hash %}
         <div class="alert alert-success py-2 small mb-0">
-          <i class="bi bi-check-circle me-1"></i>Hashes match — file integrity confirmed.
+          <i class="bi bi-check-circle me-1"></i>Hashes match - file integrity confirmed.
         </div>
         {% else %}
         <div class="alert alert-danger py-2 small mb-0">
@@ -117,13 +117,13 @@
               <tr>
                 <td class="text-muted small">{{ loop.index }}</td>
                 <td><span class="badge bg-secondary">{{ log.event_type }}</span></td>
-                <td class="small">{{ log.from_investigator.full_name if log.from_investigator else '—' }}</td>
-                <td class="small">{{ log.to_investigator.full_name if log.to_investigator else '—' }}</td>
-                <td class="small text-muted">{{ log.location or '—' }}</td>
-                <td class="small">{{ log.reason or '—' }}</td>
+                <td class="small">{{ log.from_investigator.full_name if log.from_investigator else '-' }}</td>
+                <td class="small">{{ log.to_investigator.full_name if log.to_investigator else '-' }}</td>
+                <td class="small text-muted">{{ log.location or '-' }}</td>
+                <td class="small">{{ log.reason or '-' }}</td>
                 <td class="small text-muted">{{ log.timestamp.strftime('%d %b %Y %H:%M') }}</td>
                 <td class="small text-muted font-monospace" title="{{ log.digital_signature }}">
-                    {{ log.digital_signature[:16] + '...' if log.digital_signature else '—' }}
+                    {{ log.digital_signature[:16] + '...' if log.digital_signature else '-' }}
                 </td>
               </tr>
               {% else %}

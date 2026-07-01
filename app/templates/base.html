@@ -7,7 +7,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>{% block title %}DEICMS{% endblock %}</title>
 
-  <!-- Google Fonts — DM Sans (headings) + Source Sans 3 (body) -->
+  <!-- Google Fonts - DM Sans (headings) + Source Sans 3 (body) -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <!-- Bootstrap 5 CSS -->
@@ -17,7 +17,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
 
   <style>
-    /* ── Base typography ─────────────────────────────────────────────── */
+    /*  Base typography  */
     body {
       background-color: #f0f4f4;
       font-family: 'Source Sans 3', sans-serif;
@@ -53,7 +53,7 @@
       color: #1E2E2D;
     }
 
-    /* ── Sidebar ─────────────────────────────────────────────────────── */
+    /*  Sidebar  */
     #sidebar {
       width: 240px;
       min-height: 100vh;
@@ -183,14 +183,14 @@
       color: #6B8A88;
     }
 
-    /* ── Main content ─────────────────────────────────────────────────── */
+    /*  Main content  */
     #main {
       margin-left: 240px;
       padding: 1.5rem 2rem;
       min-height: 100vh;
     }
 
-    /* ── Topbar ──────────────────────────────────────────────────────── */
+    /*  Topbar  */
     .topbar {
       background: #fff;
       border-radius: 8px;
@@ -222,7 +222,7 @@
       color: #1E2E2D;
     }
 
-    /* ── Cards ───────────────────────────────────────────────────────── */
+    /*  Cards  */
     .card {
       border: 0.5px solid #D4D8D8;
       border-radius: 8px;
@@ -241,7 +241,7 @@
       padding: 0.85rem 1.25rem;
     }
 
-    /* ── Stat cards ──────────────────────────────────────────────────── */
+    /*  Stat cards  */
     .stat-card {
       background: #fff;
       border: 0.5px solid #D4D8D8;
@@ -291,7 +291,7 @@
       color: #D4D0CA;
     }
 
-    /* ── Badges ──────────────────────────────────────────────────────── */
+    /*  Badges  */
     .badge {
       font-family: 'DM Sans', sans-serif;
       font-weight: 600;
@@ -300,7 +300,7 @@
       border-radius: 4px;
     }
 
-    /* Risk level badges — override Bootstrap defaults with soft tone colors */
+    /* Risk level badges - override Bootstrap defaults with soft tone colors */
     .badge.bg-primary { background-color: #e0f2fe !important; color: #0369a1 !important; border: 1px solid #bae6fd; }
     .badge.bg-dark    { background-color: #f1f5f9 !important; color: #334155 !important; border: 1px solid #cbd5e1; }
     .badge.bg-danger  { background-color: #fef2f2 !important; color: #991b1b !important; border: 1px solid #fca5a5; }
@@ -343,7 +343,7 @@
       background: transparent;
     }
 
-    /* ── Tables ──────────────────────────────────────────────────────── */
+    /*  Tables  */
     .table {
       font-family: 'Source Sans 3', sans-serif;
       font-size: 0.875rem;
@@ -384,7 +384,7 @@
       color: #7A756E !important;
     }
 
-    /* ── Buttons ─────────────────────────────────────────────────────── */
+    /*  Buttons  */
     .btn {
       font-family: 'DM Sans', sans-serif;
       font-weight: 500;
@@ -487,7 +487,7 @@
       border-color: #1E2E2D;
     }
 
-    /* ── Progress bars ───────────────────────────────────────────────── */
+    /*  Progress bars  */
     .progress {
       background: #e2e8f0;
       border-radius: 9999px;
@@ -504,7 +504,7 @@
     .progress-bar.bg-dark    { background-color: #2D3B3A !important; }
     .progress-bar.bg-info    { background-color: #3DBFA0 !important; }
 
-    /* ── Alerts ──────────────────────────────────────────────────────── */
+    /*  Alerts  */
     .alert {
       border-radius: 8px;
       border-width: 0.5px;
@@ -535,7 +535,7 @@
       color: #1B5E4A;
     }
 
-    /* ── Forms ───────────────────────────────────────────────────────── */
+    /*  Forms  */
     .form-control, .form-select {
       border-color: #D4D0CA;
       border-radius: 6px;
@@ -558,7 +558,7 @@
       margin-bottom: 4px;
     }
 
-    /* ── Hash / mono text ────────────────────────────────────────────── */
+    /*  Hash / mono text  */
     .hash-text {
       font-family: 'Courier New', monospace;
       font-size: 0.76rem;
@@ -569,14 +569,14 @@
       border-radius: 3px;
     }
 
-    /* ── List groups ─────────────────────────────────────────────────── */
+    /*  List groups  */
     .list-group-item {
       border-color: #EBE8E3;
       font-family: 'Source Sans 3', sans-serif;
       font-size: 0.875rem;
     }
 
-    /* ── Pagination ──────────────────────────────────────────────────── */
+    /*  Pagination  */
     .page-link {
       color: #2D8A6A;
       border-color: #e2e8f0;
@@ -589,7 +589,7 @@
       border-color: #3DBFA0;
     }
 
-    /* ── Scrollbar (subtle) ──────────────────────────────────────────── */
+    /*  Scrollbar (subtle)  */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: #f0f4f4; }
     ::-webkit-scrollbar-thumb { background: #C8C5BF; border-radius: 3px; }
@@ -598,7 +598,7 @@
 </head>
 
 <body>
-  <!-- ── Sidebar ───────────────────────────────────────────────────── -->
+  <!--  Sidebar  -->
   {% if current_user.is_authenticated %}
   <nav id="sidebar">
     <div class="brand">
@@ -656,8 +656,8 @@
         <div class="user-role">{{ current_user.role }}</div>
       </div>
     </div>
-    <a href="{{ url_for('auth.mfa_setup') }}"
-       class="nav-link {% if 'mfa' in (request.endpoint or '') %}active{% endif %}">
+    <a href="{{ url_for('auth.two_fa_setup') }}"
+       class="nav-link {% if 'two_fa' in (request.endpoint or '') %}active{% endif %}">
       <i class="bi bi-shield-lock"></i> Security (2FA)
     </a>
     <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger">
@@ -666,7 +666,7 @@
   </nav>
   {% endif %}
 
-  <!-- ── Main content ──────────────────────────────────────────────── -->
+  <!--  Main content  -->
   <div id="main" {% if not current_user.is_authenticated %}style="margin-left:0; background:#F6F4F0;"{% endif %}>
 
     <!-- Flash messages -->

@@ -1,5 +1,4 @@
-from datetime import timedelta
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
@@ -11,13 +10,11 @@ from app.models.investigator import Investigator
 
 cases_bp = Blueprint('cases', __name__)
 
-
 def generate_case_number():
     """Auto-generate a unique case number like CASE-2024-001."""
     year = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None).year
     count = Case.query.count() + 1
     return f'CASE-{year}-{count:03d}'
-
 
 @cases_bp.route('/cases')
 @login_required
@@ -31,12 +28,10 @@ def list_cases():
     if not current_user.is_admin():
         accessible_ids = [
             row.case_id for row in
-            CaseAccess.query.filter_by(investigator_id=current_user.id).all()
-        ]
+            CaseAccess.query.filter_by(investigator_id=current_user.id).all()]
         query = query.filter(Case.id.in_(accessible_ids or [-1]))
     cases = query.order_by(Case.created_at.desc()).all()
     return render_template('cases/list.html', cases=cases)
-
 
 @cases_bp.route('/cases/new', methods=['GET', 'POST'])
 @login_required
@@ -62,8 +57,7 @@ def create_case():
             jurisdiction=jurisdiction,
             status='Open',
             created_by_id=current_user.id,
-            assigned_to_id=current_user.id
-        )
+            assigned_to_id=current_user.id)
         db.session.add(case)
         db.session.flush()  # Get the case ID before committing
 
@@ -72,8 +66,7 @@ def create_case():
             case_id=case.id,
             investigator_id=current_user.id,
             permission='Owner',
-            granted_by_id=current_user.id,
-        )
+            granted_by_id=current_user.id)
 
         audit = AuditRecord(
             event_type='Data Modification',
@@ -81,8 +74,7 @@ def create_case():
             case_id=case.id,
             description=f'Case {case.case_number} created: {title}',
             ip_address=request.remote_addr,
-            result='Success'
-        )
+            result='Success')
         db.session.add(audit)
         db.session.commit()
 
@@ -90,7 +82,6 @@ def create_case():
         return redirect(url_for('cases.view_case', case_id=case.id))
 
     return render_template('cases/create.html')
-
 
 @cases_bp.route('/cases/<int:case_id>')
 @login_required
@@ -118,15 +109,13 @@ def view_case(case_id):
             .filter_by(is_active=True)
             .filter(~Investigator.id.in_(member_ids or [-1]))
             .order_by(Investigator.full_name)
-            .all()
-        )
+            .all())
 
     return render_template('cases/view.html', case=case,
                            evidence_items=evidence_items,
                            members=members,
                            can_manage_members=can_manage_members,
                            addable_investigators=addable_investigators)
-
 
 @cases_bp.route('/cases/<int:case_id>/members/add', methods=['POST'])
 @login_required
@@ -152,8 +141,7 @@ def add_member(case_id):
         case_id=case_id,
         investigator_id=investigator_id,
         permission=permission,
-        granted_by_id=current_user.id,
-    )
+        granted_by_id=current_user.id)
 
     audit = AuditRecord(
         event_type='Role Change',
@@ -162,8 +150,7 @@ def add_member(case_id):
         description=(f'{current_user.full_name} granted {permission} access on '
                      f'case {case.case_number} to {investigator.full_name}.'),
         ip_address=request.remote_addr,
-        result='Success'
-    )
+        result='Success')
     db.session.add(audit)
     db.session.commit()
 
@@ -183,8 +170,7 @@ def remove_member(case_id):
 
     investigator_id = request.form.get('investigator_id', type=int)
     row = CaseAccess.query.filter_by(
-        case_id=case_id, investigator_id=investigator_id
-    ).first()
+        case_id=case_id, investigator_id=investigator_id).first()
 
     if not row:
         flash('That investigator is not a member of this case.', 'warning')
@@ -203,14 +189,12 @@ def remove_member(case_id):
         description=(f'{current_user.full_name} revoked access on '
                      f'case {case.case_number} from {name}.'),
         ip_address=request.remote_addr,
-        result='Success'
-    )
+        result='Success')
     db.session.add(audit)
     db.session.commit()
 
     flash(f'{name} removed from the case.', 'info')
     return redirect(url_for('cases.view_case', case_id=case_id))
-
 
 @cases_bp.route('/cases/<int:case_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -242,8 +226,7 @@ def edit_case(case_id):
             case_id=case.id,
             description=f'Case {case.case_number} updated. Status: {old_status} -> {case.status}',
             ip_address=request.remote_addr,
-            result='Success'
-        )
+            result='Success')
         db.session.add(audit)
         db.session.commit()
 
@@ -251,7 +234,6 @@ def edit_case(case_id):
         return redirect(url_for('cases.view_case', case_id=case_id))
 
     return render_template('cases/edit.html', case=case)
-
 
 @cases_bp.route('/cases/<int:case_id>/archive', methods=['POST'])
 @login_required
@@ -272,8 +254,7 @@ def archive_case(case_id):
         case_id=case.id,
         description=f'Case {case.case_number} archived.',
         ip_address=request.remote_addr,
-        result='Success'
-    )
+        result='Success')
     db.session.add(audit)
     db.session.commit()
 

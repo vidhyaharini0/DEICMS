@@ -36,7 +36,7 @@
           {% for rec in records %}
           <tr>
             <td>{{ loop.index }}</td>
-            <td>#{{ rec.evidence_id }} — {{ rec.evidence_title }}</td>
+            <td>#{{ rec.evidence_id }} - {{ rec.evidence_title }}</td>
             <td>
               {% set score_val = rec.anomaly_score %}
               {% set bar_col = 'bg-success' if score_val < 0.25

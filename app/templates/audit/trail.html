@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Audit Trail — DEICMS{% endblock %}
+{% block title %}Audit Trail - DEICMS{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title"><i class="bi bi-journal-text"></i>System Audit Trail</span>
@@ -27,7 +27,7 @@
               {% elif record.result == 'Failure' %}<span class="badge bg-danger">Failure</span>
               {% else %}<span class="badge bg-warning text-dark">Warning</span>{% endif %}
             </td>
-            <td class="small text-muted">{{ record.ip_address or '—' }}</td>
+            <td class="small text-muted">{{ record.ip_address or '-' }}</td>
             <td class="small text-muted">{{ record.timestamp.strftime('%d %b %Y %H:%M:%S') }}</td>
           </tr>
           {% else %}

@@ -1,28 +1,24 @@
 """
 Custody Chain Reconstruction Algorithm
-Section 2C — Complex Application Logic (Feature 3)
+Section 2C - Complex Application Logic (Feature 3)
 
-When the custody log has gaps — missing transfer records, deleted entries,
-or inconsistent timestamps — this algorithm attempts to reconstruct the
+When the custody log has gaps - missing transfer records, deleted entries,
+or inconsistent timestamps - this algorithm attempts to reconstruct the
 most plausible complete custody chain using available partial evidence.
 
 It uses a custom heuristic best-first search, scoring each candidate
 record on four criteria:
-    (a) Temporal proximity  — how close the candidate's timestamp is
-                              to the expected transfer window
-    (b) Role consistency    — whether the investigator's role permits
-                              custody of this evidence category
-    (c) Location consistency — whether the location is plausible given
-                               surrounding custody locations
-    (d) Behavioural consistency — whether the investigator had other
-                                  interactions with the same case
+    (a) Temporal proximity  - how close the candidate's timestamp is to the expected transfer window
+    (b) Role consistency    - whether the investigator's role permits custody of this evidence category
+    (c) Location consistency - whether the location is plausible given surrounding custody locations
+    (d) Behavioural consistency - whether the investigator had other interactions with the same case
 
 Each gap is tagged as:
-    Confirmed  — original verified record
-    Inferred   — best candidate above the plausibility threshold
-    Unresolved — no candidate scored above the threshold
+    Confirmed  - original verified record
+    Inferred   - best candidate above the plausibility threshold
+    Unresolved - no candidate scored above the threshold
 """
-from datetime import timedelta
+
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
@@ -39,8 +35,7 @@ ROLE_CUSTODY_PERMISSIONS = {
 }
 
 
-# ── Data structures ───────────────────────────────────────────────────────────
-
+#  Data structures 
 @dataclass
 class CandidateRecord:
     """A potential filling record for a gap in the custody chain."""
@@ -57,14 +52,14 @@ class CandidateRecord:
 @dataclass
 class ChainLink:
     """A single link in the reconstructed custody chain."""
-    position: int                    # index in the reconstructed chain
-    custody_log_id: Optional[int]    # None if inferred
+    position: int # index in the reconstructed chain
+    custody_log_id: Optional[int] # None if inferred
     event_type: str
     investigator_name: str
     timestamp: datetime
     location: Optional[str]
-    label: str                       # 'Confirmed' | 'Inferred' | 'Unresolved'
-    confidence: float                # 0.0 to 1.0
+    label: str # 'Confirmed' | 'Inferred' | 'Unresolved'
+    confidence: float # 0.0 to 1.0
     inferred_reason: Optional[str] = None
 
 
@@ -76,7 +71,7 @@ class ReconstructionReport:
     confirmed_links: int
     inferred_links: int
     unresolved_gaps: int
-    chain_confidence_score: float    # (confirmed + inferred) / total_expected * 100
+    chain_confidence_score: float # (confirmed + inferred) / total_expected * 100
     reconstructed_chain: List[ChainLink] = field(default_factory=list)
     ran_at: datetime = field(default_factory=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None))
 
@@ -99,14 +94,11 @@ class ReconstructionReport:
                     'confidence': link.confidence,
                     'inferred_reason': link.inferred_reason
                 }
-                for link in self.reconstructed_chain
-            ],
-            'ran_at': self.ran_at.isoformat()
-        }
+                for link in self.reconstructed_chain],
+            'ran_at': self.ran_at.isoformat()}
 
 
-# ── Main algorithm class ──────────────────────────────────────────────────────
-
+#  Main algorithm class 
 class ChainReconstructionEngine:
     """
     Implements the Custody Chain Reconstruction Algorithm.
@@ -144,8 +136,7 @@ class ChainReconstructionEngine:
                 inferred_links=0,
                 unresolved_gaps=0,
                 chain_confidence_score=0.0,
-                reconstructed_chain=[]
-            )
+                reconstructed_chain=[])
 
         # Step 2: Identify gaps
         gaps = self._identify_gaps(confirmed_logs)
@@ -168,8 +159,7 @@ class ChainReconstructionEngine:
                 timestamp=log.timestamp,
                 location=log.location,
                 label='Confirmed',
-                confidence=1.0
-            ))
+                confidence=1.0))
             confirmed_count += 1
             position += 1
 
@@ -207,12 +197,10 @@ class ChainReconstructionEngine:
                                 f"(temporal={best.score_breakdown.get('temporal', 0):.2f}, "
                                 f"role={best.score_breakdown.get('role', 0):.2f}, "
                                 f"location={best.score_breakdown.get('location', 0):.2f}, "
-                                f"behavioural={best.score_breakdown.get('behavioural', 0):.2f})"
-                            )
-                        ))
+                                f"behavioural={best.score_breakdown.get('behavioural', 0):.2f})")))
                         inferred_count += 1
                     else:
-                        # No candidate passed the threshold — mark as unresolved
+                        # No candidate passed the threshold - mark as unresolved
                         gap_start = log.timestamp
                         gap_end = next_log.timestamp
                         reconstructed_chain.append(ChainLink(
@@ -228,11 +216,8 @@ class ChainReconstructionEngine:
                                 f"Gap between {gap_start.strftime('%d %b %Y %H:%M')} "
                                 f"and {gap_end.strftime('%d %b %Y %H:%M')}. "
                                 f"No candidate scored above threshold "
-                                f"({PLAUSIBILITY_THRESHOLD})."
-                            )
-                        ))
+                                f"({PLAUSIBILITY_THRESHOLD}).")))
                         unresolved_count += 1
-
                     position += 1
 
         # Step 4: Compute chain confidence score
@@ -251,8 +236,7 @@ class ChainReconstructionEngine:
             inferred_links=inferred_count,
             unresolved_gaps=unresolved_count,
             chain_confidence_score=confidence_score,
-            reconstructed_chain=reconstructed_chain
-        )
+            reconstructed_chain=reconstructed_chain)
 
     def _identify_gaps(self, logs) -> set:
         """
@@ -303,9 +287,7 @@ class ChainReconstructionEngine:
                               AuditRecord.evidence_id == self.evidence.id,
                               AuditRecord.event_type == 'File Access',
                               AuditRecord.timestamp > gap_start,
-                              AuditRecord.timestamp < gap_end
-                          )
-                          .all())
+                              AuditRecord.timestamp < gap_end).all())
 
         candidates = []
         for record in access_records:
@@ -321,9 +303,7 @@ class ChainReconstructionEngine:
                 investigator_name=investigator.full_name,
                 investigator_role=investigator.role,
                 timestamp=record.timestamp,
-                location=None  # Access logs don't record location
-            ))
-
+                location=None))  # Access logs don't record location
         return candidates
 
     def _score_candidate(self, candidate: CandidateRecord,
@@ -332,10 +312,10 @@ class ChainReconstructionEngine:
         Compute a plausibility score (0.0 to 1.0) for a candidate record.
         Combines four independent criteria with equal weighting (0.25 each).
 
-        (a) Temporal proximity  — closer to the midpoint of the gap = higher score
-        (b) Role consistency    — correct role for this evidence category
-        (c) Location consistency — placeholder (no location in access logs)
-        (d) Behavioural consistency — has the investigator accessed this case before?
+        (a) Temporal proximity  - closer to the midpoint of the gap = higher score
+        (b) Role consistency    - correct role for this evidence category
+        (c) Location consistency - placeholder (no location in access logs)
+        (d) Behavioural consistency - has the investigator accessed this case before?
         """
         scores = {}
 
@@ -361,9 +341,7 @@ class ChainReconstructionEngine:
 
         # (d) Behavioural consistency
         # Check if this investigator has accessed the same case in surrounding events
-        scores['behavioural'] = self._check_behavioural_consistency(
-            candidate.investigator_id, log_before, log_after
-        )
+        scores['behavioural'] = self._check_behavioural_consistency(candidate.investigator_id, log_before, log_after)
 
         # Weighted sum (equal weights = simple average)
         total = sum(scores.values()) / len(scores)
@@ -387,8 +365,7 @@ class ChainReconstructionEngine:
             AuditRecord.case_id == self.evidence.case_id,
             AuditRecord.investigator_id == investigator_id,
             AuditRecord.timestamp >= window_start,
-            AuditRecord.timestamp <= window_end
-        ).count()
+            AuditRecord.timestamp <= window_end).count()
 
         if related_activity >= 2:
             return 1.0

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — DEICMS{% endblock %}
+{% block title %}Dashboard - DEICMS{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-3">
 
-  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <!--  Page header  -->
   <div class="topbar mb-4">
     <span class="page-title">
       <i class="bi bi-speedometer2 me-2"></i>Dashboard
@@ -15,7 +15,7 @@
     </small>
   </div>
 
-  <!-- ── Stat cards row ───────────────────────────────────────────────────── -->
+  <!--  Stat cards row  -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-xl-3">
       <div class="stat-card accent-blue">
@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <!-- ── Analytics / visualisations ───────────────────────────────────────── -->
+  <!--  Analytics / visualisations  -->
   <div class="row g-4 mb-4">
     <div class="col-lg-5">
       <div class="card shadow-sm h-100">
@@ -75,7 +75,7 @@
     <div class="col-lg-7">
       <div class="card shadow-sm h-100">
         <div class="card-header">
-          <i class="bi bi-graph-up me-2"></i>Security Activity — Last 30 Days
+          <i class="bi bi-graph-up me-2"></i>Security Activity - Last 30 Days
         </div>
         <div class="card-body">
           <div style="height:260px;"><canvas id="activityChart"></canvas></div>
@@ -94,7 +94,7 @@
     </div>
   </div>
 
-  <!-- ── Integrity summary bar ────────────────────────────────────────────── -->
+  <!--  Integrity summary bar  -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header">
       <i class="bi bi-shield-check me-2"></i>Evidence Integrity Overview
@@ -144,10 +144,10 @@
     </div>
   </div>
 
-  <!-- ── Main content: two-column layout ──────────────────────────────────── -->
+  <!--  Main content: two-column layout  -->
   <div class="row g-4">
 
-    <!-- Left column: Risk-ranked evidence ──────────────────────────────────── -->
+    <!-- Left column: Risk-ranked evidence  -->
     <div class="col-lg-7">
       <div class="card shadow-sm h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -219,7 +219,7 @@
       </div>
     </div>
 
-    <!-- Right column: Recent cases + recent audits ──────────────────────────── -->
+    <!-- Right column: Recent cases + recent audits  -->
     <div class="col-lg-5 d-flex flex-column gap-4">
 
       <!-- Recent cases -->
@@ -261,7 +261,7 @@
       </div>
 
       {% if current_user.is_admin() %}
-      <!-- Recent audit records (global trail — Admin only) -->
+      <!-- Recent audit records (global trail - Admin only) -->
       <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="bi bi-journal-text me-2"></i>Recent Audit Activity</span>
@@ -295,7 +295,7 @@
     </div>
   </div>
 
-  <!-- ── Quick-action buttons ──────────────────────────────────────────────── -->
+  <!--  Quick-action buttons  -->
   <div class="card mt-4 shadow-sm">
     <div class="card-header">
       <i class="bi bi-lightning-charge me-2"></i>Quick Actions
@@ -334,7 +334,7 @@
 (function () {
   if (typeof Chart === 'undefined') return;
 
-  // ── DEICMS palette (matches the app theme) ──────────────────────────────
+  //  DEICMS palette (matches the app theme) 
   const C = {
     green:  '#2D8A6A',
     teal:   '#3DBFA0',
@@ -363,7 +363,7 @@
     actAlerts:       {{ charts.activity_alerts | tojson }}
   };
 
-  // 1) Risk distribution — doughnut (Low / Medium / High)
+  // 1) Risk distribution - doughnut (Low / Medium / High)
   const riskColors = { 'LOW': C.green, 'MEDIUM': C.amber, 'HIGH': C.red, 'CRITICAL': C.dark };
   new Chart(document.getElementById('riskChart'), {
     type: 'doughnut',
@@ -382,7 +382,7 @@
     }
   });
 
-  // 2) Lifecycle states — horizontal bar (Flagged highlighted red, Archived dark)
+  // 2) Lifecycle states - horizontal bar (Flagged highlighted red, Archived dark)
   const lifeColors = D.lifeLabels.map(l =>
     l === 'Flagged' ? C.red : (l === 'Archived' ? C.dark : C.teal));
   new Chart(document.getElementById('lifecycleChart'), {
@@ -402,7 +402,7 @@
     }
   });
 
-  // 3) Security activity over time — line (Successful vs Security Alerts)
+  // 3) Security activity over time - line (Successful vs Security Alerts)
   new Chart(document.getElementById('activityChart'), {
     type: 'line',
     data: {
@@ -427,7 +427,7 @@
     }
   });
 
-  // 4) Audit events by type — vertical bar (Failed Attempt highlighted red)
+  // 4) Audit events by type - vertical bar (Failed Attempt highlighted red)
   const auditColors = D.auditLabels.map(l => l === 'Failed Attempt' ? C.red : C.blue);
   new Chart(document.getElementById('auditChart'), {
     type: 'bar',

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Change State — {{ evidence.evidence_number }}{% endblock %}
+{% block title %}Change State - {{ evidence.evidence_number }}{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title">
@@ -25,7 +25,7 @@
           Target State <span class="text-danger">*</span>
         </label>
         <select name="target_state" class="form-select" required>
-          <option value="">— Select a state —</option>
+          <option value="">- Select a state -</option>
           {% for state in available_transitions %}
           <option value="{{ state }}">{{ state }}</option>
           {% endfor %}

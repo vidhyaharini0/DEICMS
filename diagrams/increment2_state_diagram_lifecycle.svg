@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 820 620" role="img" font-family="Segoe UI, Arial, Helvetica, sans-serif">
-<title>State Diagram — Evidence Lifecycle — DEICMS</title>
+<title>State Diagram - Evidence Lifecycle - DEICMS</title>
 <desc>Shows all six evidence lifecycle states and the role-gated transitions between them, including the Flagged state reachable from any active state.</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -14,14 +14,14 @@
 <rect x="0" y="0" width="820" height="620" fill="#FFFFFF"/>
 
 <!-- Title -->
-<text x="40" y="34" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">State Diagram — Evidence Lifecycle</text>
+<text x="40" y="34" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">State Diagram - Evidence Lifecycle</text>
 <text x="40" y="56" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">Role-gated transitions. Red dashed arrows indicate integrity failure from any active state.</text>
 
 <!-- Initial pseudo-state -->
 <circle cx="130" cy="106" r="11" fill="#3C3489"/>
 <line x1="130" y1="117" x2="130" y2="143" stroke="#6B6B66" stroke-width="1.5" marker-end="url(#arrow)"/>
 
-<!-- ====== STATES — Row 1 ====== -->
+<!-- ====== STATES - Row 1 ====== -->
 <!-- Collected -->
 <rect x="74" y="145" width="112" height="44" rx="8" fill="#F4F3FB" stroke="#AFA9EC" stroke-width="1.4"/>
 <text x="130" y="167" font-size="12" fill="#2D3B3A" text-anchor="middle" font-weight="700" dominant-baseline="central">Collected</text>
@@ -34,7 +34,7 @@
 <rect x="490" y="145" width="130" height="44" rx="8" fill="#F4F3FB" stroke="#AFA9EC" stroke-width="1.4"/>
 <text x="555" y="167" font-size="12" fill="#2D3B3A" text-anchor="middle" font-weight="700" dominant-baseline="central">Under Analysis</text>
 
-<!-- ====== STATES — Row 2 ====== -->
+<!-- ====== STATES - Row 2 ====== -->
 <!-- Transferred -->
 <rect x="490" y="320" width="130" height="44" rx="8" fill="#F4F3FB" stroke="#AFA9EC" stroke-width="1.4"/>
 <text x="555" y="342" font-size="12" fill="#2D3B3A" text-anchor="middle" font-weight="700" dominant-baseline="central">Transferred</text>
@@ -43,12 +43,12 @@
 <rect x="280" y="320" width="112" height="44" rx="8" fill="#F4F3FB" stroke="#AFA9EC" stroke-width="1.4"/>
 <text x="336" y="342" font-size="12" fill="#2D3B3A" text-anchor="middle" font-weight="700" dominant-baseline="central">Archived</text>
 
-<!-- ====== FLAGGED — special state ====== -->
+<!-- ====== FLAGGED - special state ====== -->
 <rect x="230" y="480" width="180" height="48" rx="8" fill="#FDECEA" stroke="#C0392B" stroke-width="1.6"/>
 <text x="320" y="500" font-size="12" fill="#C0392B" text-anchor="middle" font-weight="700" dominant-baseline="central">Flagged</text>
 <text x="320" y="516" font-size="10" fill="#C0392B" text-anchor="middle" font-weight="400" dominant-baseline="central">(integrity issue)</text>
 
-<!-- ====== TRANSITIONS — normal ====== -->
+<!-- ====== TRANSITIONS - normal ====== -->
 <!-- Collected -> Submitted -->
 <line x1="186" y1="167" x2="280" y2="167" stroke="#6B6B66" stroke-width="1.3" marker-end="url(#arrow)"/>
 <text x="233" y="160" font-size="9.5" fill="#6B6B66" text-anchor="middle" font-weight="600">Lead / Admin</text>
@@ -70,7 +70,7 @@
 <path d="M336 189 L336 255 L310 255 L310 320" fill="none" stroke="#6B6B66" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
 <text x="290" y="255" font-size="9.5" fill="#6B6B66" text-anchor="end" font-weight="600">Admin only</text>
 
-<!-- ====== FLAGGED transitions — integrity failure from any active state ====== -->
+<!-- ====== FLAGGED transitions - integrity failure from any active state ====== -->
 <!-- From Collected -->
 <path d="M130 189 L130 504 L230 504" fill="none" stroke="#C0392B" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#rarrow)"/>
 

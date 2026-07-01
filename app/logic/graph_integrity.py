@@ -1,6 +1,6 @@
 """
 Chain-of-Custody Graph Integrity Verification Algorithm
-Section 2C — Complex Application Logic (Feature 1)
+Section 2C - Complex Application Logic (Feature 1)
 
 Verifies the complete integrity of an evidence item's custody history
 by modelling it as a directed acyclic graph and performing a depth-first
@@ -8,26 +8,22 @@ search traversal with multi-condition validation at every node.
 
 This is NOT a simple hash check. It walks every node in the custody
 history, verifying:
-  (a) SHA-256 hash matches the stored hash at that event
-  (b) Ed25519 digital signature is valid for that custody payload
-  (c) Timestamps are strictly increasing along the chain
-  (d) No nodes are missing or duplicated
+(a) SHA-256 hash matches the stored hash at that event
+(b) Ed25519 digital signature is valid for that custody payload
+(c) Timestamps are strictly increasing along the chain
+(d) No nodes are missing or duplicated
 
 It produces a structured IntegrityReport with a chain completeness
 score and a detailed list of failures at specific nodes.
 """
-from datetime import timedelta
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import List, Optional
-
 from app.logic.crypto import verify_signature
 
-
-# ── Data structures ───────────────────────────────────────────────────────────
-
+#  Data structures 
 @dataclass
 class NodeFailure:
     """Records a single validation failure at a specific custody node."""
@@ -37,7 +33,6 @@ class NodeFailure:
     failure_type: str      # 'hash_mismatch' | 'invalid_signature' | 'timestamp_anomaly'
     detail: str            # human-readable explanation
 
-
 @dataclass
 class IntegrityReport:
     """
@@ -46,7 +41,7 @@ class IntegrityReport:
     """
     evidence_id: int
     verdict: str                      # 'Intact' | 'Partially Verified' | 'Broken'
-    completeness_score: float         # 0.0 to 100.0 — % of nodes that passed
+    completeness_score: float         # 0.0 to 100.0 - % of nodes that passed
     total_nodes: int
     verified_nodes: int
     failures: List[NodeFailure] = field(default_factory=list)
@@ -69,14 +64,10 @@ class IntegrityReport:
                     'failure_type': f.failure_type,
                     'detail': f.detail
                 }
-                for f in self.failures
-            ],
-            'ran_at': self.ran_at.isoformat()
-        }
+                for f in self.failures],
+            'ran_at': self.ran_at.isoformat()}
 
-
-# ── Graph node ────────────────────────────────────────────────────────────────
-
+#  Graph node 
 class CustodyNode:
     """
     Represents a single node in the custody DAG.
@@ -95,8 +86,7 @@ class CustodyNode:
         self.children: List['CustodyNode'] = []  # outgoing edges in the DAG
 
 
-# ── Main algorithm class ──────────────────────────────────────────────────────
-
+#  Main algorithm class 
 class GraphIntegrityEngine:
     """
     Implements the Chain-of-Custody Graph Integrity Verification Algorithm.
@@ -140,9 +130,7 @@ class GraphIntegrityEngine:
                     event_type='N/A',
                     timestamp=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
                     failure_type='no_records',
-                    detail='No custody log records found for this evidence item.'
-                )]
-            )
+                    detail='No custody log records found for this evidence item.')])
 
         # Step 2: Build the DAG in memory
         nodes = self._build_dag(logs)
@@ -170,8 +158,7 @@ class GraphIntegrityEngine:
             total_nodes=total_nodes,
             verified_nodes=self.verified_count,
             failures=self.failures,
-            verified_timeline=self.verified_timeline
-        )
+            verified_timeline=self.verified_timeline)
 
     def _build_dag(self, logs) -> List[CustodyNode]:
         """
@@ -215,15 +202,13 @@ class GraphIntegrityEngine:
                 'node_id': node.id,
                 'event_type': node.event_type,
                 'timestamp': node.timestamp.isoformat(),
-                'status': 'verified'
-            })
+                'status': 'verified'})
         else:
             self.verified_timeline.append({
                 'node_id': node.id,
                 'event_type': node.event_type,
                 'timestamp': node.timestamp.isoformat(),
-                'status': 'failed'
-            })
+                'status': 'failed'})
 
         # Continue DFS to all children regardless of this node's result
         for child in node.children:
@@ -239,7 +224,7 @@ class GraphIntegrityEngine:
         the hash stored at the time of that specific event.
 
         Note: For non-Upload events we cannot re-read the file at the
-        historical state — we compare the current file hash against the
+        historical state - we compare the current file hash against the
         stored hash at the upload event only, and for transfer events we
         verify the stored hash was consistent at transfer time.
         """
@@ -255,8 +240,7 @@ class GraphIntegrityEngine:
                     event_type=node.event_type,
                     timestamp=node.timestamp,
                     failure_type='hash_mismatch',
-                    detail=f'Evidence file not found at path: {file_path}'
-                ))
+                    detail=f'Evidence file not found at path: {file_path}'))
                 return False
 
             # Recompute SHA-256 on the plaintext (files are encrypted at rest,
@@ -273,9 +257,7 @@ class GraphIntegrityEngine:
                     detail=(
                         f'File hash mismatch at Upload node. '
                         f'Expected: {self.evidence.original_hash[:16]}... '
-                        f'Got: {computed_hash[:16]}...'
-                    )
-                ))
+                        f'Got: {computed_hash[:16]}...')))
                 return False
 
         # For all nodes: verify the stored hash matches the original
@@ -284,7 +266,6 @@ class GraphIntegrityEngine:
             # This is only a failure if the hashes diverged unexpectedly
             # (legitimate transfers may update current_hash, but original stays fixed)
             pass  # Extended hash chain verification goes here in production
-
         return True
 
     def _check_signature(self, node: CustodyNode) -> bool:
@@ -294,7 +275,7 @@ class GraphIntegrityEngine:
 
         The signed payload is the canonical serialisation of the custody
         event fields (evidence_id, event_type, timestamp, from_id, to_id,
-        hash) — the same fields that were signed when the record was created.
+        hash) - the same fields that were signed when the record was created.
         """
         # Upload events are signed by the uploader (to_investigator)
         signer_id = node.from_investigator_id or node.to_investigator_id
@@ -309,8 +290,7 @@ class GraphIntegrityEngine:
                 event_type=node.event_type,
                 timestamp=node.timestamp,
                 failure_type='invalid_signature',
-                detail='No signing investigator found for this custody event.'
-            ))
+                detail='No signing investigator found for this custody event.'))
             return False
 
         # Load the signer's public key from the database
@@ -323,8 +303,7 @@ class GraphIntegrityEngine:
                 event_type=node.event_type,
                 timestamp=node.timestamp,
                 failure_type='invalid_signature',
-                detail=f'Public key not found for investigator ID {signer_id}.'
-            ))
+                detail=f'Public key not found for investigator ID {signer_id}.'))
             return False
 
         # Reconstruct the canonical payload that was originally signed
@@ -341,11 +320,8 @@ class GraphIntegrityEngine:
                 failure_type='invalid_signature',
                 detail=(
                     f'Signature verification failed at node {node.id}. '
-                    f'The custody record may have been tampered with after signing.'
-                )
-            ))
+                    f'The custody record may have been tampered with after signing.')))
             return False
-
         return True
 
     def _check_timestamp(self, node: CustodyNode,
@@ -368,11 +344,8 @@ class GraphIntegrityEngine:
                     f'Timestamp not strictly increasing. '
                     f'Node timestamp: {node.timestamp.isoformat()} is not after '
                     f'predecessor: {predecessor_timestamp.isoformat()}. '
-                    f'Possible duplicate or backdated record.'
-                )
-            ))
+                    f'Possible duplicate or backdated record.')))
             return False
-
         return True
 
     def _build_payload(self, node: CustodyNode) -> bytes:
@@ -387,6 +360,5 @@ class GraphIntegrityEngine:
             'timestamp': node.timestamp.isoformat(),
             'from_investigator_id': node.from_investigator_id,
             'to_investigator_id': node.to_investigator_id,
-            'file_hash': node.file_hash_at_event
-        }
+            'file_hash': node.file_hash_at_event}
         return json.dumps(payload_dict, sort_keys=True).encode('utf-8')

@@ -1,16 +1,15 @@
 """
-Database seeder — creates investigators, cases, and evidence items
+Database seeder - creates investigators, cases, and evidence items
 spanning LOW to CRITICAL risk levels so the system can be fully demonstrated.
 
 Usage:
     python seed.py
 
-Safe to re-run — checks before creating anything.
+Safe to re-run - checks before creating anything.
 """
-from datetime import timedelta
 import hashlib
 from app import create_app, db
-from app.logic.crypto import generate_key_pair, sign_payload
+from app.logic.crypto import generate_key_pair
 from app.models.investigator import Investigator
 from app.models.case import Case
 from app.models.evidence import EvidenceItem
@@ -18,20 +17,14 @@ from app.models.custody_log import CustodyLog
 from app.models.audit_record import AuditRecord
 from datetime import datetime, timedelta, date, timezone
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
 def fake_hash(content: str) -> str:
     """Generate a deterministic SHA-256 hash from a string."""
     return hashlib.sha256(content.encode()).hexdigest()
 
-
 def ts(days_ago: float, hours_ago: float = 0) -> datetime:
     """Return a utc datetime offset from now."""
     return (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=days_ago, hours=hours_ago)
-
 
 def add_custody(db, evidence, event_type, to_inv, from_inv=None,
                 when=None, reason='Standard transfer', location='Digital Lab'):
@@ -44,11 +37,9 @@ def add_custody(db, evidence, event_type, to_inv, from_inv=None,
         timestamp=when or (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
         location=location,
         reason=reason,
-        file_hash_at_event=evidence.original_hash,
-    )
+        file_hash_at_event=evidence.original_hash)
     db.session.add(log)
     return log
-
 
 def add_audit(db, event_type, investigator, evidence=None,
               case=None, description='', result='Success'):
@@ -60,22 +51,17 @@ def add_audit(db, event_type, investigator, evidence=None,
         case_id=case.id if case else None,
         description=description,
         result=result,
-        timestamp=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
-    )
+        timestamp=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None))
     db.session.add(rec)
     return rec
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Main seed function
-# ─────────────────────────────────────────────────────────────────────────────
-
 def seed():
     app = create_app()
 
     with app.app_context():
 
-        # ── Investigators ─────────────────────────────────────────────────
+        #  Investigators 
         def get_or_create_investigator(email, full_name, role, password):
             inv = Investigator.query.filter_by(email=email).first()
             if not inv:
@@ -86,14 +72,13 @@ def seed():
                     role=role,
                     public_key=pub,
                     private_key_encrypted=priv,
-                    is_active=True,
-                )
+                    is_active=True)
                 inv.set_password(password)
                 db.session.add(inv)
                 db.session.commit()
-                print(f'✅  Created {role}: {email} / {password}')
+                print(f' Created {role}: {email} / {password}')
             else:
-                print(f'ℹ️   Already exists: {email}')
+                print(f' Already exists: {email}')
             return inv
 
         admin   = get_or_create_investigator(
@@ -105,7 +90,7 @@ def seed():
         readonly = get_or_create_investigator(
             'readonly@deicms.com','Read-Only Viewer',     'Read-Only',        'Readonly@1234')
 
-        # ── Cases ─────────────────────────────────────────────────────────
+        #  Cases 
         def get_or_create_case(number, title, description, status, opened_days_ago,
                                 created_by, assigned_to, jurisdiction='Italy, Messina'):
             c = Case.query.filter_by(case_number=number).first()
@@ -122,9 +107,9 @@ def seed():
                 )
                 db.session.add(c)
                 db.session.commit()
-                print(f'✅  Created case: {number} — {title}')
+                print(f' Created case: {number} - {title}')
             else:
-                print(f'ℹ️   Case already exists: {number}')
+                print(f' Case already exists: {number}')
             return c
 
         case1 = get_or_create_case(
@@ -136,21 +121,21 @@ def seed():
 
         case2 = get_or_create_case(
             'CASE-2026-002',
-            'Ransomware Attack — MediCorp Hospital',
+            'Ransomware Attack - MediCorp Hospital',
             'Hospital network encrypted by ransomware. Patient data at risk. '
             'Malicious executables and encrypted payload files recovered.',
             'Active', 14, admin, lead)
 
         case3 = get_or_create_case(
             'CASE-2026-003',
-            'Insider Threat — Data Exfiltration',
+            'Insider Threat - Data Exfiltration',
             'Employee suspected of exfiltrating sensitive customer data '
             'via USB drives and cloud upload scripts.',
             'Pending', 60, lead, analyst)
 
         case4 = get_or_create_case(
             'CASE-2026-004',
-            'Phishing Campaign — Financial Sector',
+            'Phishing Campaign - Financial Sector',
             'Coordinated phishing campaign targeting bank employees. '
             'Email attachments and macro-enabled documents collected.',
             'Open', 5, admin, admin)
@@ -165,7 +150,7 @@ def seed():
 
         case6 = get_or_create_case(
             'CASE-2026-006',
-            'Supply Chain Attack — Software Vendor',
+            'Supply Chain Attack - Software Vendor',
             'Malicious update pushed to 3,000 enterprise clients via '
             'compromised software vendor build pipeline. '
             'Backdoored installer and modified DLLs recovered.',
@@ -173,38 +158,34 @@ def seed():
 
         case7 = get_or_create_case(
             'CASE-2026-007',
-            'Corporate Espionage — Trade Secret Theft',
+            'Corporate Espionage - Trade Secret Theft',
             'Former employee suspected of copying proprietary R&D documents '
             'before resignation. USB activity logs and email archives recovered.',
             'Pending', 45, lead, analyst)
 
         case8 = get_or_create_case(
             'CASE-2026-008',
-            'Cyberstalking — Social Media Harassment',
+            'Cyberstalking - Social Media Harassment',
             'Victim received threatening messages from anonymous accounts. '
             'IP logs, browser history exports, and social media data packages recovered.',
             'Open', 10, admin, analyst)
 
-        # ── Evidence items ────────────────────────────────────────────────
+        #  Evidence items 
         # We only seed evidence if none exists yet
         if EvidenceItem.query.count() > 0:
-            print('ℹ️   Evidence items already exist, skipping evidence seed.')
+            print(' Evidence items already exist, skipping evidence seed.')
         else:
             _seed_evidence(db, admin, lead, analyst, readonly,
                            case1, case2, case3, case4,
                            case5, case6, case7, case8)
 
-        print('\n🚀  Database seeded successfully!')
-        print('    Open http://127.0.0.1:5001 and log in with:')
-        print('    admin@deicms.com   / Admin@1234')
-        print('    lead@deicms.com    / Lead@1234')
-        print('    analyst@deicms.com / Analyst@1234')
+        print('\n Database seeded successfully!')
+        print(' Open http://127.0.0.1:5001 and log in with:')
+        print(' admin@deicms.com   / Admin@1234')
+        print(' lead@deicms.com    / Lead@1234')
+        print(' analyst@deicms.com / Analyst@1234')
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Evidence seeding
-# ─────────────────────────────────────────────────────────────────────────────
-
 def _seed_evidence(db, admin, lead, analyst, readonly,
                    case1, case2, case3, case4,
                    case5, case6, case7, case8):
@@ -214,18 +195,17 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
     meaningful data.
 
     Risk drivers used:
-      • file_name extension  — .txt/.jpg = low; .exe/.dll = maximum
-      • transfer frequency   — rapid transfers in a short window
-      • time since activity  — items untouched for 40–65 days
-      • role mismatch audits — Read-Only accessed a Database evidence item
-      • duplicate audits     — duplicated Integrity Check records
+      - file_name extension  - .txt/.jpg = low; .exe/.dll = maximum
+      - transfer frequency   - rapid transfers in a short window
+      - time since activity  - items untouched for 40–65 days
+      - role mismatch audits - Read-Only accessed a Database evidence item
+      - duplicate audits     - duplicated Integrity Check records
     """
-
-    # ── 1. LOW RISK — Plain text interview notes ───────────────────────────
+    #  1. LOW RISK - Plain text interview notes 
     ev1 = EvidenceItem(
         evidence_number='EV-2026-001',
         case_id=case1.id,
-        title='Interview Notes — Suspect A',
+        title='Interview Notes - Suspect A',
         description='Typed interview notes from the initial suspect interview. '
                     'No sensitive data, low forensic value.',
         category='Document',
@@ -240,24 +220,23 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(2),
-    )
+        created_at=ts(2))
     db.session.add(ev1)
     db.session.flush()
 
-    # One upload custody log — very recent
+    # One upload custody log - very recent
     add_custody(db, ev1, 'Upload', analyst,
                 when=ts(2), reason='Initial upload after interview')
     add_audit(db, 'Data Modification', analyst, ev1, case1,
               'Evidence uploaded: interview_notes_suspect_a.txt')
     db.session.commit()
-    print('✅  EV-2026-001 — LOW risk (interview notes .txt)')
+    print(' EV-2026-001 - LOW risk (interview notes .txt)')
 
-    # ── 2. LOW RISK — CCTV screenshot ─────────────────────────────────────
+    #  2. LOW RISK - CCTV screenshot 
     ev2 = EvidenceItem(
         evidence_number='EV-2026-002',
         case_id=case1.id,
-        title='CCTV Screenshot — Server Room Entry',
+        title='CCTV Screenshot - Server Room Entry',
         description='JPEG screenshot extracted from CCTV footage showing '
                     'the suspect entering the server room at 02:14.',
         category='Image',
@@ -272,8 +251,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(5),
-    )
+        created_at=ts(5))
     db.session.add(ev2)
     db.session.flush()
 
@@ -284,9 +262,9 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
     add_audit(db, 'Data Modification', lead, ev2, case1,
               'CCTV screenshot uploaded and transferred to analyst')
     db.session.commit()
-    print('✅  EV-2026-002 — LOW risk (CCTV screenshot .jpg)')
+    print(' EV-2026-002 - LOW risk (CCTV screenshot .jpg)')
 
-    # ── 3. MEDIUM RISK — Financial spreadsheet ─────────────────────────────
+    #  3. MEDIUM RISK - Financial spreadsheet 
     ev3 = EvidenceItem(
         evidence_number='EV-2026-003',
         case_id=case1.id,
@@ -305,8 +283,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(20),
-    )
+        created_at=ts(20))
     db.session.add(ev3)
     db.session.flush()
 
@@ -317,15 +294,15 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
     add_custody(db, ev3, 'Transfer', analyst, from_inv=lead,
                 when=ts(15), reason='Assigned for detailed analysis')
     add_audit(db, 'Data Modification', admin, ev3, case1,
-              'Financial records uploaded — contains PII, restricted access applied')
+              'Financial records uploaded - contains PII, restricted access applied')
     db.session.commit()
-    print('✅  EV-2026-003 — MEDIUM risk (financial spreadsheet, 20 days old, 3 transfers)')
+    print(' EV-2026-003 - MEDIUM risk (financial spreadsheet, 20 days old, 3 transfers)')
 
-    # ── 4. MEDIUM RISK — Macro-enabled document ────────────────────────────
+    #  4. MEDIUM RISK - Macro-enabled document 
     ev4 = EvidenceItem(
         evidence_number='EV-2026-004',
         case_id=case4.id,
-        title='Phishing Email Attachment — Invoice Macro',
+        title='Phishing Email Attachment - Invoice Macro',
         description='Macro-enabled Word document delivered via phishing email. '
                     'Macro code extracted and under static analysis.',
         category='Document',
@@ -340,8 +317,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(18),
-    )
+        created_at=ts(18))
     db.session.add(ev4)
     db.session.flush()
 
@@ -357,13 +333,13 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
               'Read-Only user accessed macro-enabled document evidence',
               result='Warning')
     db.session.commit()
-    print('✅  EV-2026-004 — MEDIUM risk (macro .docm, role mismatch warning)')
+    print(' EV-2026-004 - MEDIUM risk (macro .docm, role mismatch warning)')
 
-    # ── 5. HIGH RISK — PowerShell exfiltration script ─────────────────────
+    #  5. HIGH RISK - PowerShell exfiltration script 
     ev5 = EvidenceItem(
         evidence_number='EV-2026-005',
         case_id=case3.id,
-        title='Data Exfiltration Script — PowerShell',
+        title='Data Exfiltration Script - PowerShell',
         description='PowerShell script found on suspect USB drive. '
                     'Connects to external C2 server and uploads compressed archives.',
         category='Other',
@@ -378,8 +354,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(50),
-    )
+        created_at=ts(50))
     db.session.add(ev5)
     db.session.flush()
 
@@ -408,17 +383,17 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
     # Duplicate integrity check records
     for i in range(2):
         add_audit(db, 'Integrity Check', analyst, ev5, case3,
-                  f'Integrity check run #{i+1} — duplicate entry detected',
+                  f'Integrity check run #{i+1} - duplicate entry detected',
                   result='Warning')
 
     db.session.commit()
-    print('✅  EV-2026-005 — HIGH risk (.ps1, 50 days old, 6 rapid transfers, 2 role warnings)')
+    print(' EV-2026-005 - HIGH risk (.ps1, 50 days old, 6 rapid transfers, 2 role warnings)')
 
-    # ── 6. HIGH RISK — Encrypted archive ──────────────────────────────────
+    #  6. HIGH RISK - Encrypted archive 
     ev6 = EvidenceItem(
         evidence_number='EV-2026-006',
         case_id=case3.id,
-        title='Encrypted Archive — Customer Data Dump',
+        title='Encrypted Archive - Customer Data Dump',
         description='Password-protected RAR archive found on suspect home directory. '
                     'Contents partially decrypted, contains customer PII records.',
         category='Database',
@@ -433,8 +408,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=lead.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(55),
-    )
+        created_at=ts(55))
     db.session.add(ev6)
     db.session.flush()
 
@@ -453,16 +427,16 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
               'Read-Only user accessed Database evidence item',
               result='Warning')
     add_audit(db, 'Integrity Check', admin, ev6, case3,
-              'Integrity check — file hash verified against original',
+              'Integrity check - file hash verified against original',
               result='Success')
     db.session.commit()
-    print('✅  EV-2026-006 — HIGH risk (.rar archive, 55 days old, 5 transfers, 1 role warning)')
+    print(' EV-2026-006 - HIGH risk (.rar archive, 55 days old, 5 transfers, 1 role warning)')
 
-    # ── 7. CRITICAL RISK — Ransomware executable ───────────────────────────
+    #  7. CRITICAL RISK - Ransomware executable 
     ev7 = EvidenceItem(
         evidence_number='EV-2026-007',
         case_id=case2.id,
-        title='Ransomware Payload — LockBit Variant',
+        title='Ransomware Payload - LockBit Variant',
         description='Main ransomware executable recovered from infected hospital server. '
                     'Responsible for encrypting 47,000 patient records. '
                     'Binary analysis confirmed LockBit 3.0 variant with custom C2.',
@@ -478,8 +452,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=admin.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(60),
-    )
+        created_at=ts(60))
     db.session.add(ev7)
     db.session.flush()
 
@@ -489,12 +462,11 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         (admin,   None,    0,   'Initial upload from infected server'),
         (lead,    admin,   20,  'Urgent escalation'),
         (analyst, lead,    40,  'Malware analyst assigned'),
-        (admin,   analyst, 65,  'Admin review — critical evidence'),
+        (admin,   analyst, 65,  'Admin review - critical evidence'),
         (lead,    admin,   90,  'Lead sign-off required'),
         (analyst, lead,    115, 'Dynamic analysis environment'),
         (admin,   analyst, 140, 'Return to admin custody'),
-        (lead,    admin,   170, 'Final custody before flagging'),
-    ]):
+        (lead,    admin,   170, 'Final custody before flagging')]):
         evt = 'Upload' if i == 0 else 'Transfer'
         log = CustodyLog(
             evidence_id=ev7.id,
@@ -504,8 +476,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
             timestamp=base + timedelta(minutes=mins),
             location='Forensic Lab A',
             reason=reason,
-            file_hash_at_event=ev7.original_hash,
-        )
+            file_hash_at_event=ev7.original_hash)
         db.session.add(log)
 
     # 3 role mismatch warnings + 2 duplicate integrity checks
@@ -515,7 +486,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
                   result='Warning')
     for i in range(2):
         add_audit(db, 'Integrity Check', analyst, ev7, case2,
-                  f'Integrity check #{i+1} — hash mismatch detected, evidence may be tampered',
+                  f'Integrity check #{i+1} - hash mismatch detected, evidence may be tampered',
                   result='Warning')
 
     # State change to Flagged logged in audit
@@ -524,13 +495,13 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
               "Possible tampering during transfer.",
               result='Warning')
     db.session.commit()
-    print('✅  EV-2026-007 — CRITICAL risk (.exe ransomware, 60 days, 8 rapid transfers, hash mismatch, 3 role warnings)')
+    print(' EV-2026-007 - CRITICAL risk (.exe ransomware, 60 days, 8 rapid transfers, hash mismatch, 3 role warnings)')
 
-    # ── 8. CRITICAL RISK — Keylogger DLL ──────────────────────────────────
+    #  8. CRITICAL RISK - Keylogger DLL 
     ev8 = EvidenceItem(
         evidence_number='EV-2026-008',
         case_id=case2.id,
-        title='Keylogger DLL — Credential Harvesting Module',
+        title='Keylogger DLL - Credential Harvesting Module',
         description='Dynamic link library injected into browser process. '
                     'Captures keystrokes and exfiltrates credentials to remote C2 server. '
                     'Found on 12 hospital workstations.',
@@ -546,8 +517,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=lead.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(65),
-    )
+        created_at=ts(65))
     db.session.add(ev8)
     db.session.flush()
 
@@ -563,8 +533,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         (lead,    analyst, 120, 'Evidence committee review'),
         (admin,   lead,    145, 'Admin reclaim'),
         (analyst, admin,   165, 'Re-analysis requested'),
-        (lead,    analyst, 185, 'Final lead custody'),
-    ]
+        (lead,    analyst, 185, 'Final lead custody')]
     for i, (to_inv, from_inv, mins, reason) in enumerate(transfer_plan):
         evt = 'Upload' if i == 0 else 'Transfer'
         log = CustodyLog(
@@ -575,14 +544,13 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
             timestamp=base8 + timedelta(minutes=mins),
             location='Forensic Lab B',
             reason=reason,
-            file_hash_at_event=ev8.original_hash,
-        )
+            file_hash_at_event=ev8.original_hash)
         db.session.add(log)
 
     # 5 role mismatch warnings + 2 duplicate entries
     for i in range(5):
         add_audit(db, 'File Access', readonly, ev8, case2,
-                  f'Read-Only accessed DLL evidence — policy violation (incident {i+1})',
+                  f'Read-Only accessed DLL evidence - policy violation (incident {i+1})',
                   result='Warning')
     for i in range(2):
         add_audit(db, 'Integrity Check', analyst, ev8, case2,
@@ -590,16 +558,16 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
                   result='Warning')
     add_audit(db, 'State Change', admin, ev8, case2,
               "Evidence flagged: DLL hash mismatch confirmed. "
-              "Evidence integrity compromised — restricted access applied.",
+              "Evidence integrity compromised - restricted access applied.",
               result='Warning')
     db.session.commit()
-    print('✅  EV-2026-008 — CRITICAL risk (.dll keylogger, 65 days, 10 rapid transfers, 5 role warnings, hash mismatch)')
+    print(' EV-2026-008 - CRITICAL risk (.dll keylogger, 65 days, 10 rapid transfers, 5 role warnings, hash mismatch)')
     
-    # ── 9. HIGH RISK — Cryptocurrency wallet export ────────────────────
+    #  9. HIGH RISK - Cryptocurrency wallet export 
     ev9 = EvidenceItem(
         evidence_number='EV-2026-009',
         case_id=case5.id,
-        title='Blockchain Wallet Export — 14 Addresses',
+        title='Blockchain Wallet Export - 14 Addresses',
         description='JSON export from Electrum wallet containing 14 Bitcoin '
                     'addresses with transaction history. Linked to known '
                     'ransomware payment addresses via blockchain analysis.',
@@ -615,8 +583,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(7),
-    )
+        created_at=ts(7))
     db.session.add(ev9)
     db.session.flush()
 
@@ -633,13 +600,13 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
     add_audit(db, 'Integrity Check', analyst, ev9, case5,
               'Integrity check passed', result='Success')
     db.session.commit()
-    print('✅  EV-2026-009 — HIGH risk (wallet .json, 7 days, 4 transfers, role warning)')
+    print(' EV-2026-009 - HIGH risk (wallet .json, 7 days, 4 transfers, role warning)')
 
-    # ── 10. CRITICAL RISK — Backdoored installer ───────────────────────
+    #  10. CRITICAL RISK - Backdoored installer 
     ev10 = EvidenceItem(
         evidence_number='EV-2026-010',
         case_id=case6.id,
-        title='Backdoored Software Installer — v4.2.1',
+        title='Backdoored Software Installer - v4.2.1',
         description='Modified Windows installer (.exe) recovered from vendor '
                     'build server. Contains embedded reverse shell payload '
                     'connecting to attacker-controlled C2 infrastructure.',
@@ -655,20 +622,18 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=lead.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(3),
-    )
+        created_at=ts(3))
     db.session.add(ev10)
     db.session.flush()
 
     base10 = ts(3)
     for i, (to_inv, from_inv, mins, reason) in enumerate([
         (admin,   None,    0,   'Upload from vendor build server image'),
-        (lead,    admin,   10,  'Immediate escalation — critical evidence'),
+        (lead,    admin,   10,  'Immediate escalation - critical evidence'),
         (analyst, lead,    25,  'Malware analyst assigned'),
         (admin,   analyst, 45,  'Admin review'),
         (lead,    admin,   60,  'Lead sign-off'),
-        (analyst, lead,    80,  'Dynamic analysis environment'),
-    ]):
+        (analyst, lead,    80,  'Dynamic analysis environment')]):
         evt = 'Upload' if i == 0 else 'Transfer'
         log = CustodyLog(
             evidence_id=ev10.id,
@@ -678,8 +643,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
             timestamp=base10 + timedelta(minutes=mins),
             location='Forensic Lab A',
             reason=reason,
-            file_hash_at_event=ev10.original_hash,
-        )
+            file_hash_at_event=ev10.original_hash)
         db.session.add(log)
 
     for i in range(3):
@@ -693,13 +657,13 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
               'Evidence flagged: installer binary modified after collection',
               result='Warning')
     db.session.commit()
-    print('✅  EV-2026-010 — CRITICAL risk (.exe backdoor, 3 days, 6 rapid transfers, hash mismatch)')
+    print(' EV-2026-010 - CRITICAL risk (.exe backdoor, 3 days, 6 rapid transfers, hash mismatch)')
 
-    # ── 11. MEDIUM RISK — USB activity log ────────────────────────────
+    #  11. MEDIUM RISK - USB activity log 
     ev11 = EvidenceItem(
         evidence_number='EV-2026-011',
         case_id=case7.id,
-        title='USB Activity Log — Suspect Workstation',
+        title='USB Activity Log - Suspect Workstation',
         description='Windows event log export showing USB device insertions '
                     'and file copy operations in the 48 hours before resignation. '
                     'Correlates with 4.2 GB of data movement to external drives.',
@@ -715,8 +679,7 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(40),
-    )
+        created_at=ts(40))
     db.session.add(ev11)
     db.session.flush()
 
@@ -725,15 +688,15 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
     add_custody(db, ev11, 'Transfer', lead, from_inv=analyst,
                 when=ts(35), reason='Lead review for correlation analysis')
     add_audit(db, 'Integrity Check', analyst, ev11, case7,
-              'Integrity check passed — file unmodified', result='Success')
+              'Integrity check passed - file unmodified', result='Success')
     db.session.commit()
-    print('✅  EV-2026-011 — MEDIUM risk (.xml log, 40 days old)')
+    print(' EV-2026-011 - MEDIUM risk (.xml log, 40 days old)')
 
-    # ── 12. LOW RISK — Social media data package ───────────────────────
+    #  12. LOW RISK - Social media data package 
     ev12 = EvidenceItem(
         evidence_number='EV-2026-012',
         case_id=case8.id,
-        title='Instagram Data Export — Victim Account',
+        title='Instagram Data Export - Victim Account',
         description='Official data export from victim Instagram account '
                     'containing message history, follower lists, and '
                     'login activity from the period of harassment.',
@@ -749,28 +712,26 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         current_holder_id=analyst.id,
         risk_score=0.0,
         risk_level='Low',
-        created_at=ts(1),
-    )
+        created_at=ts(1))
     db.session.add(ev12)
     db.session.flush()
 
     add_custody(db, ev12, 'Upload', analyst, when=ts(1),
-                reason='Received from victim — official platform export')
+                reason='Received from victim - official platform export')
     add_audit(db, 'Data Modification', analyst, ev12, case8,
               'Evidence received and logged', result='Success')
     db.session.commit()
-    print('✅  EV-2026-012 — LOW risk (.zip social media export, 1 day old)')
+    print(' EV-2026-012 - LOW risk (.zip social media export, 1 day old)')
 
-    print('\n📊  Evidence summary:')
-    print('    EV-001  LOW      — .txt interview notes')
-    print('    EV-002  LOW      — .jpg CCTV screenshot')
-    print('    EV-003  MEDIUM   — .xlsx financial records (20 days old)')
-    print('    EV-004  MEDIUM   — .docm macro document (role mismatch)')
-    print('    EV-005  HIGH     — .ps1 exfiltration script (6 rapid transfers)')
-    print('    EV-006  HIGH     — .rar encrypted archive (55 days old)')
-    print('    EV-007  CRITICAL — .exe ransomware (8 rapid transfers, hash mismatch)')
-    print('    EV-008  CRITICAL — .dll keylogger (10 rapid transfers, 5 role warnings)')
-
+    print('\n Evidence summary:')
+    print('  EV-001  LOW      - .txt interview notes')
+    print('  EV-002  LOW      - .jpg CCTV screenshot')
+    print('  EV-003  MEDIUM   - .xlsx financial records (20 days old)')
+    print('  EV-004  MEDIUM   - .docm macro document (role mismatch)')
+    print('  EV-005  HIGH     - .ps1 exfiltration script (6 rapid transfers)')
+    print('  EV-006  HIGH     - .rar encrypted archive (55 days old)')
+    print('  EV-007  CRITICAL - .exe ransomware (8 rapid transfers, hash mismatch)')
+    print('  EV-008  CRITICAL - .dll keylogger (10 rapid transfers, 5 role warnings)')
 
 if __name__ == '__main__':
     seed()

@@ -5,7 +5,7 @@ app = create_app()
 
 if __name__ == '__main__':
     # Ensure a self-signed certificate exists, then serve the app over HTTPS (TLS).
-    # The hardened copy runs on https://localhost:5001 — the original is on 5000.
+    # The hardened copy runs on https://localhost:5001
     # debug=True restarts the server automatically when a file is saved.
     # Never use debug=True in a real production deployment.
     cert_file, key_file = ensure_cert()

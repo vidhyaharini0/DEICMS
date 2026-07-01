@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1400 1140" role="img" font-family="Segoe UI, Arial, Helvetica, sans-serif">
-<title>Sequence Diagram — AI Investigation Assistant Orchestration Workflow — DEICMS</title>
-<desc>Message flow between Investigator, Flask Route, AIInvestigationAssistant, and the five pipeline stages: classify_intent, retrieve_context, build_prompt, call_claude (NVIDIA NIM API), and validate_response.</desc>
+<title>Sequence Diagram - AI Investigation Assistant Orchestration Workflow - DEICMS</title>
+<desc>Message flow between Investigator, Flask Route, AIInvestigationAssistant, and the five pipeline stages: classify_intent, retrieve_context, build_prompt, call_nvidia (NVIDIA NIM API), and validate_response.</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
     <path d="M1 1L9 5L1 9" fill="none" stroke="#6B6B66" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -11,7 +11,7 @@
 <rect x="0" y="0" width="1400" height="1140" fill="#FFFFFF"/>
 
 <!-- Title -->
-<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Sequence Diagram — AI Assistant Orchestration Workflow</text>
+<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Sequence Diagram - AI Assistant Orchestration Workflow</text>
 <text x="40" y="50" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">Five-stage pipeline: intent classification -> context retrieval -> prompt assembly -> LLM call -> response validation</text>
 
 <!-- ====== LIFELINE HEADERS ====== -->

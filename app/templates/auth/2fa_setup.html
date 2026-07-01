@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Two-Factor Authentication — DEICMS{% endblock %}
+{% block title %}Two-Factor Authentication - DEICMS{% endblock %}
 {% block content %}
 <div class="topbar">
   <span class="page-title"><i class="bi bi-shield-lock"></i>Two-Factor Authentication (2FA)</span>
@@ -17,7 +17,7 @@
         app in addition to your password. This protects your account even if your
         password is stolen.
       </p>
-      <form method="POST" action="{{ url_for('auth.mfa_disable') }}"
+      <form method="POST" action="{{ url_for('auth.two_fa_disable') }}"
             onsubmit="return confirm('Disable multi-factor authentication?');">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -30,7 +30,7 @@
         Authy), then enter the 6-digit code it shows to enable two-factor authentication.
       </p>
       <div class="text-center mb-3">
-        <img src="{{ qr_data }}" alt="MFA QR code" style="width:200px;height:200px;border:1px solid #D4D8D8;border-radius:8px;padding:6px;background:#fff;" />
+        <img src="{{ qr_data }}" alt="2fa QR code" style="width:200px;height:200px;border:1px solid #D4D8D8;border-radius:8px;padding:6px;background:#fff;" />
       </div>
       <p class="small text-muted text-center mb-3">
         Can’t scan? Enter this key manually:

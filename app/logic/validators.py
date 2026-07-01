@@ -5,7 +5,6 @@ import re
 
 MIN_LENGTH = 12
 
-
 def validate_password_strength(password: str):
     """
     Return a list of human-readable rule violations for 'password'.

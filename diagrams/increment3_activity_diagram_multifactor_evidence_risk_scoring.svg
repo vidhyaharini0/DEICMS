@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1200 1120" role="img" font-family="Segoe UI, Arial, Helvetica, sans-serif">
-<title>Activity Diagram — Multi-Factor Evidence Risk Scoring — DEICMS</title>
+<title>Activity Diagram - Multi-Factor Evidence Risk Scoring - DEICMS</title>
 <desc>Activity flow of the multi-factor evidence risk scoring algorithm: extract/normalise factors, weighted scoring, interaction detection, final classification, and recommendations.</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -11,7 +11,7 @@
 <rect x="0" y="0" width="1200" height="1120" fill="#FFFFFF"/>
 
 <!-- Title -->
-<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Activity Diagram — Multi-Factor Evidence Risk Scoring</text>
+<text x="40" y="28" font-size="18" fill="#3C3489" text-anchor="start" font-weight="700" dominant-baseline="central">Activity Diagram - Multi-Factor Evidence Risk Scoring</text>
 <text x="40" y="50" font-size="11" fill="#6B6B66" text-anchor="start" font-weight="400" dominant-baseline="central">Six factors extracted, normalised, weighted, interaction-adjusted, classified, and annotated with recommendations.</text>
 
 <!-- Start -->

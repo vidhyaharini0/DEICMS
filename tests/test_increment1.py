@@ -1,5 +1,5 @@
 """
-Increment 1 Tests — Core Case & Evidence Management
+Increment 1 Tests - Core Case & Evidence Management
 Run with: pytest tests/ -v --cov=app
 """
 import pytest
@@ -9,8 +9,6 @@ import tempfile
 from app import create_app, db
 from app.models.investigator import Investigator
 from app.models.case import Case
-from app.models.evidence import EvidenceItem
-
 
 @pytest.fixture
 def app():
@@ -20,18 +18,15 @@ def app():
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         'WTF_CSRF_ENABLED': False,
-        'UPLOAD_FOLDER': tempfile.mkdtemp()
-    })
+        'UPLOAD_FOLDER': tempfile.mkdtemp()})
     with app.app_context():
         db.create_all()
         yield app
         db.drop_all()
 
-
 @pytest.fixture
 def client(app):
     return app.test_client()
-
 
 @pytest.fixture
 def admin_user(app):
@@ -40,16 +35,13 @@ def admin_user(app):
         user = Investigator(
             full_name='Admin User',
             email='admin@test.com',
-            role='Admin'
-        )
+            role='Admin')
         user.set_password('password123')
         db.session.add(user)
         db.session.commit()
         return user.id  # Return ID to avoid detached instance issues
 
-
-# ── Hash Tests ────────────────────────────────────────────────────────────────
-
+#  Hash Tests 
 def test_sha256_hash_is_64_chars():
     """SHA-256 hash should always be exactly 64 hex characters."""
     with tempfile.NamedTemporaryFile(delete=False) as f:
@@ -66,7 +58,6 @@ def test_sha256_hash_is_64_chars():
     finally:
         os.unlink(tmp_path)
 
-
 def test_same_file_produces_same_hash():
     """The same file content must always produce the same SHA-256 hash."""
     content = b'deterministic content for hashing'
@@ -74,16 +65,13 @@ def test_same_file_produces_same_hash():
     hash2 = hashlib.sha256(content).hexdigest()
     assert hash1 == hash2
 
-
 def test_different_content_produces_different_hash():
     """Different file contents must produce different hashes."""
     hash1 = hashlib.sha256(b'original content').hexdigest()
     hash2 = hashlib.sha256(b'tampered content').hexdigest()
     assert hash1 != hash2
 
-
-# ── Investigator Model Tests ──────────────────────────────────────────────────
-
+#  Investigator Model Tests 
 def test_password_hashing(app):
     """Password should be stored as a hash, not plaintext."""
     with app.app_context():
@@ -92,7 +80,6 @@ def test_password_hashing(app):
         assert user.password_hash != 'mysecretpassword'
         assert user.check_password('mysecretpassword') is True
         assert user.check_password('wrongpassword') is False
-
 
 def test_investigator_roles(app):
     """Role helper methods should return correct permissions."""
@@ -111,9 +98,7 @@ def test_investigator_roles(app):
         assert analyst.can_analyse() is True
         assert readonly.can_analyse() is False
 
-
-# ── Case Model Tests ──────────────────────────────────────────────────────────
-
+#  Case Model Tests 
 def test_create_case(app, admin_user):
     """A case should be created with correct default values."""
     with app.app_context():
@@ -121,8 +106,7 @@ def test_create_case(app, admin_user):
             case_number='CASE-2024-001',
             title='Test Case',
             jurisdiction='Italy',
-            created_by_id=admin_user
-        )
+            created_by_id=admin_user)
         db.session.add(case)
         db.session.commit()
 
@@ -132,33 +116,26 @@ def test_create_case(app, admin_user):
         assert retrieved.status == 'Open'
         assert retrieved.is_archived is False
 
-
-# ── Auth Route Tests ──────────────────────────────────────────────────────────
-
+#  Auth Route Tests 
 def test_login_page_loads(client):
     """The login page should return HTTP 200."""
     response = client.get('/login')
     assert response.status_code == 200
     assert b'DEICMS' in response.data
 
-
 def test_login_with_wrong_credentials(client, app, admin_user):
     """Login with wrong password should fail and stay on login page."""
     response = client.post('/login', data={
         'email': 'admin@test.com',
-        'password': 'wrongpassword'
-    }, follow_redirects=True)
+        'password': 'wrongpassword'}, follow_redirects=True)
     assert b'Invalid email or password' in response.data
-
 
 def test_login_with_correct_credentials(client, app, admin_user):
     """Login with correct credentials should redirect to dashboard."""
     response = client.post('/login', data={
         'email': 'admin@test.com',
-        'password': 'password123'
-    }, follow_redirects=True)
+        'password': 'password123'}, follow_redirects=True)
     assert response.status_code == 200
-
 
 def test_dashboard_requires_login(client):
     """Dashboard should redirect unauthenticated users to login."""

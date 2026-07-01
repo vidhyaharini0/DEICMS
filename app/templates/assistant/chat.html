@@ -16,7 +16,7 @@
     I have live access to the database and will base my answers on real records.
   </p>
 
-  {# ── Chat window ── #}
+  {#  Chat window  #}
   <div id="chatWindow"
        class="border rounded p-3 mb-3 bg-light"
        style="height:420px; overflow-y:auto; display:flex; flex-direction:column; gap:12px;">
@@ -60,7 +60,7 @@
     }
   </style>
 
-  {# ── Input row ── #}
+  {#  Input row  #}
   <div class="input-group">
     <input type="text" id="userInput" class="form-control"
            placeholder="e.g. What is the risk score for evidence #1?"
@@ -68,11 +68,11 @@
     <button id="btnSend" class="btn">Send</button>
   </div>
 
-  {# ── Metadata bar ── #}
+  {#  Metadata bar  #}
   <div id="metaBar" class="mt-2 small text-muted d-none">
-    Intent: <span id="metaIntent">—</span> &nbsp;|&nbsp;
-    Context used: <span id="metaContext">—</span> &nbsp;|&nbsp;
-    Validation: <span id="metaValidation">—</span>
+    Intent: <span id="metaIntent">-</span> &nbsp;|&nbsp;
+    Context used: <span id="metaContext">-</span> &nbsp;|&nbsp;
+    Validation: <span id="metaValidation">-</span>
     <span id="metaWarning" class="text-danger ms-2"></span>
   </div>
 
@@ -80,7 +80,7 @@
 
 <script type="application/json" id="chatHistory">{{ history|tojson }}</script>
 <script>
-// CSRF token read from the <meta> tag in base.html — required for POST fetches
+// CSRF token read from the <meta> tag in base.html - required for POST fetches
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 const chatWindow  = document.getElementById('chatWindow');
 const userInput   = document.getElementById('userInput');
@@ -88,7 +88,7 @@ const btnSend     = document.getElementById('btnSend');
 const btnClear    = document.getElementById('btnClear');
 const metaBar     = document.getElementById('metaBar');
 
-// ── Render a message bubble ──────────────────────────────────────────────────
+//  Render a message bubble 
 function addBubble(role, text) {
   const isUser = role === 'user';
   const wrap = document.createElement('div');
@@ -106,14 +106,14 @@ function addBubble(role, text) {
   // Convert **bold** to <strong> and bullet lines to cleaner display
   bubble.innerHTML = text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^- /gm, '• ');
+    .replace(/^- /gm, '- ');
 
   wrap.appendChild(bubble);
   chatWindow.appendChild(wrap);
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// ── Typing indicator ─────────────────────────────────────────────────────────
+//  Typing indicator 
 function showTyping() {
   const wrap = document.createElement('div');
   wrap.id = 'typingIndicator';
@@ -131,7 +131,7 @@ function hideTyping() {
   if (el) el.remove();
 }
 
-// ── Send a message ────────────────────────────────────────────────────────────
+//  Send a message 
 async function sendMessage() {
   const msg = userInput.value.trim();
   if (!msg) return;
@@ -165,7 +165,7 @@ async function sendMessage() {
 
       // Update metadata bar
       metaBar.classList.remove('d-none');
-      document.getElementById('metaIntent').textContent     = data.intent || '—';
+      document.getElementById('metaIntent').textContent     = data.intent || '-';
       document.getElementById('metaContext').textContent    = data.context_used ? 'Yes' : 'No';
       document.getElementById('metaValidation').textContent = data.validation_passed ? 'Passed' : 'Failed';
       const warnEl = document.getElementById('metaWarning');
@@ -180,7 +180,7 @@ async function sendMessage() {
   }
 }
 
-// ── Clear chat ────────────────────────────────────────────────────────────────
+//  Clear chat 
 async function clearChat() {
   await fetch("{{ url_for('assistant.clear') }}", {
     method: 'POST',
@@ -193,7 +193,7 @@ async function clearChat() {
   metaBar.classList.add('d-none');
 }
 
-// ── Event listeners ───────────────────────────────────────────────────────────
+//  Event listeners 
 btnSend.addEventListener('click', sendMessage);
 btnClear.addEventListener('click', clearChat);
 userInput.addEventListener('keydown', e => {
@@ -203,7 +203,7 @@ userInput.addEventListener('keydown', e => {
   }
 });
 
-// ── Replay saved conversation on page load (persists until "Clear Chat") ───────
+//  Replay saved conversation on page load (persists until "Clear Chat") 
 try {
   const saved = JSON.parse(document.getElementById('chatHistory').textContent || '[]');
   if (saved.length) {

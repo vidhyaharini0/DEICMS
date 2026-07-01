@@ -7,7 +7,6 @@ from flask import redirect, url_for, flash
 
 audit_bp = Blueprint('audit', __name__)
 
-
 @audit_bp.route('/audit')
 @login_required
 def audit_trail():
@@ -23,7 +22,6 @@ def audit_trail():
 
     return render_template('audit/trail.html', records=records)
 
-
 @audit_bp.route('/audit/evidence/<int:evidence_id>')
 @login_required
 def evidence_audit(evidence_id):
@@ -36,9 +34,7 @@ def evidence_audit(evidence_id):
                .filter_by(evidence_id=evidence_id)
                .order_by(AuditRecord.timestamp.desc())
                .all())
-    return render_template('audit/evidence_trail.html',
-                           evidence=evidence, records=records)
-
+    return render_template('audit/evidence_trail.html', evidence=evidence, records=records)
 
 @audit_bp.route('/audit/evidence/<int:evidence_id>/formula-check')
 @login_required
