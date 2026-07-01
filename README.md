@@ -304,23 +304,6 @@ Utility scripts also included: `check_db.py`, `clear_evidence.py`, `deicms_db_au
 
 ---
 
-## Screenshots
-
-> Replace the placeholders below with real screenshots (drop images into a `docs/` or `screenshots/` folder and update the paths).
-
-| View | Screenshot |
-|---|---|
-| Login / 2fa | `![Login](screenshots/login.png)` |
-| Dashboard | `![Dashboard](screenshots/dashboard.png)` |
-| Evidence detail | `![Evidence](screenshots/evidence.png)` |
-| Custody transfer (signed) | `![Transfer](screenshots/transfer.png)` |
-| Integrity report | `![Integrity](screenshots/integrity.png)` |
-| Risk dashboard | `![Risk](screenshots/risk.png)` |
-| Anomaly dashboard | `![Anomaly](screenshots/anomaly.png)` |
-| Audit trail | `![Audit](screenshots/audit.png)` |
-
----
-
 ## Security notes & disclaimer
 
 This project was built for **educational purposes** as part of a System Security course. While it implements real cryptographic primitives and security controls, it has **not** been audited or hardened for production use. Notably:
