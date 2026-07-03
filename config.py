@@ -8,9 +8,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 class Config:
-    # Secret key used by Flask to sign session cookies
-    # In a real deployment, this should be a long random string stored securely
-    # We use os.environ[] so the app crashes immediately on startup if missing.
+    # Secret key used by Flask to sign session cookies.
+    # Loaded from the .env file; the hard-coded fallback exists only so the
+    # test suite can run without a .env. Never use the fallback in production.
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
 
     # WTF_CSRF_SECRET_KEY - used by flask-wtf to sign CSRF tokens
@@ -28,8 +28,10 @@ class Config:
     # Maximum file size for uploads: 500 MB
     MAX_CONTENT_LENGTH = 500 * 1024 * 1024
 
-    # ← ADD THIS - paste your real key here
-    NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY', 'dummy-nvidia-key')
+    # API key for the AI assistant (NVIDIA NIM, OpenAI-compatible endpoint).
+    # Set NVIDIA_API_KEY in the .env file; without a valid key the assistant
+    # falls back to a context-aware mock response.
+    NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY', '')
 
     # Allowed file extensions for evidence uploads
     ALLOWED_EXTENSIONS = {

@@ -9,6 +9,7 @@ from app.models.evidence import EvidenceItem
 from app.models.custody_log import CustodyLog
 from app.models.audit_record import AuditRecord
 from app.logic.risk_scoring import EvidenceRiskScorer
+from app.utils import now_local
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -103,11 +104,11 @@ def index():
 
     # 4) Security activity over the last 30 days (Successful vs Security Alerts)
     window_days = 30
-    today = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None).date()
+    today = now_local().date()
     date_axis = [today - timedelta(days=i) for i in range(window_days - 1, -1, -1)]
     succ = defaultdict(int)
     alert = defaultdict(int)
-    since = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - timedelta(days=window_days)
+    since = now_local() - timedelta(days=window_days)
     for rec in all_audits:
         if rec.timestamp and rec.timestamp >= since:
             d = rec.timestamp.date()

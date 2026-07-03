@@ -12,6 +12,7 @@ from app.models.custody_log import CustodyLog
 from app.models.audit_record import AuditRecord
 from app.models.case_access import CaseAccess
 from app.logic.file_crypto import encrypt_file
+from app.utils import now_local
 
 evidence_bp = Blueprint('evidence', __name__)
 
@@ -92,7 +93,7 @@ def extract_metadata(file_path, mime_type):
     metadata = {
         'file_size': os.path.getsize(file_path),
         'mime_type': mime_type,
-        'extracted_at': (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None).isoformat()}
+        'extracted_at': now_local().isoformat()}
 
     if mime_type and mime_type.startswith('image/'):
         try:
@@ -155,7 +156,7 @@ def upload_evidence(case_id):
             flash('File type not allowed.', 'danger')
             return render_template('evidence/upload.html', case=case)
 
-        timestamp = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None).strftime('%Y%m%d_%H%M%S')
+        timestamp = now_local().strftime('%Y%m%d_%H%M%S')
         from werkzeug.utils import secure_filename
         safe_filename = f"{timestamp}_{secure_filename(file.filename)}"
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], safe_filename)
@@ -215,15 +216,36 @@ def upload_evidence(case_id):
         db.session.add(evidence)
         db.session.flush()
 
+        # Sign the Upload custody event with the uploader's Ed25519 key so
+        # the chain starts with a verifiable root node (every custody record
+        # must carry a signature - the column is NOT NULL by design).
+        upload_time = now_local()
+        from app.routes.custody import _build_transfer_payload
+        from app.logic.crypto import sign_payload
+        upload_payload = _build_transfer_payload(
+            evidence_id=evidence.id,
+            event_type='Upload',
+            timestamp=upload_time,
+            from_id=None,
+            to_id=current_user.id,
+            file_hash=file_hash)
+        try:
+            upload_signature = sign_payload(
+                current_user.private_key_encrypted, upload_payload)
+        except Exception:
+            upload_signature = 'UNSIGNED'
+            flash('Warning: the upload event could not be signed.', 'warning')
+
         custody_entry = CustodyLog(
             evidence_id=evidence.id,
             event_type='Upload',
             from_investigator_id=None,
             to_investigator_id=current_user.id,
-            timestamp=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
+            timestamp=upload_time,
             location=request.form.get('location', 'Unknown'),
             reason='Initial evidence upload',
             file_hash_at_event=file_hash,
+            digital_signature=upload_signature,
             notes=f'File uploaded by {current_user.full_name}')
         db.session.add(custody_entry)
 

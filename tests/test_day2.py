@@ -104,7 +104,8 @@ def sample_data(app):
             event_type='Upload',
             to_investigator_id=admin.id,
             timestamp=datetime(2026, 5, 1, 10, 0, 0),
-            file_hash_at_event='a' * 64)
+            file_hash_at_event='a' * 64,
+            digital_signature='test-signature')
         db.session.add(log1)
         db.session.flush()
 
@@ -115,7 +116,8 @@ def sample_data(app):
             from_investigator_id=admin.id,
             to_investigator_id=analyst.id,
             timestamp=datetime(2026, 5, 1, 10, 0, 0) + timedelta(hours=100),
-            file_hash_at_event='a' * 64)
+            file_hash_at_event='a' * 64,
+            digital_signature='test-signature')
         db.session.add(log2)
         db.session.flush()
 
@@ -126,7 +128,8 @@ def sample_data(app):
             from_investigator_id=admin.id,
             to_investigator_id=analyst.id,
             timestamp=datetime(2026, 5, 1, 10, 0, 0) + timedelta(hours=100),
-            file_hash_at_event='a' * 64)
+            file_hash_at_event='a' * 64,
+            digital_signature='test-signature')
         db.session.add(log3)
 
         # Audit - File access by read-only user (role mismatch for Database category)
@@ -155,8 +158,8 @@ def test_generate_key_pair_returns_pem_strings(app):
     with app.app_context():
         from app.logic.crypto import generate_key_pair
         private_pem, public_pem = generate_key_pair()
-        assert private_pem.startswith('BEGIN PRIVATE KEY')
-        assert public_pem.startswith('BEGIN PUBLIC KEY')
+        assert '-----BEGIN PRIVATE KEY-----' in private_pem
+        assert '-----BEGIN PUBLIC KEY-----' in public_pem
         assert len(private_pem) > 100
         assert len(public_pem) > 100
 
@@ -199,25 +202,31 @@ def test_wrong_key_fails_verification(app):
         # Verify with the WRONG public key
         assert verify_signature(pub2, payload, signature_hex) is False
 
-def test_register_creates_key_pair(app):
-    """Registering a new account via the web route must generate a key pair."""
+def test_admin_created_account_gets_key_pair(app, sample_data):
+    """Account creation is admin-only; the admin route must generate a key pair."""
     with app.test_client() as client:
-        with app.app_context():
-            response = client.post('/register', data={
-                'full_name': 'New User',
-                'email': 'new@test.com',
-                'password': 'password123',
-                'confirm_password': 'password123',
-                'role': 'Analyst'
-            }, follow_redirects=True)
-            assert response.status_code == 200
+        # First factor only - the fixture admin has no TOTP enrolled
+        client.post('/login', data={
+            'email': 'admin@test.com',
+            'password': 'password123'
+        }, follow_redirects=True)
 
+        response = client.post('/admin/users/new', data={
+            'full_name': 'New User',
+            'email': 'new@test.com',
+            'password': 'Str0ng!Passw0rd',
+            'confirm_password': 'Str0ng!Passw0rd',
+            'role': 'Analyst'
+        }, follow_redirects=True)
+        assert response.status_code == 200
+
+        with app.app_context():
             investigator = Investigator.query.filter_by(
                 email='new@test.com').first()
             assert investigator is not None
             assert investigator.public_key is not None
             assert investigator.private_key_encrypted is not None
-            assert investigator.public_key.startswith('BEGIN PUBLIC KEY')
+            assert '-----BEGIN PUBLIC KEY-----' in investigator.public_key
 
 #  Audit Formula Tests 
 def test_time_gap_detected_above_threshold(app, sample_data):

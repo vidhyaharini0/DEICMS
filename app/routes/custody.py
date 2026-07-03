@@ -18,6 +18,7 @@ from app.models.investigator import Investigator
 from app.models.custody_log import CustodyLog
 from app.models.audit_record import AuditRecord
 from app.models.case_access import CaseAccess
+from app.utils import now_local
 
 custody_bp = Blueprint('custody', __name__)
 
@@ -93,7 +94,7 @@ def transfer_evidence(evidence_id):
                                    evidence=evidence,
                                    investigators=investigators)
 
-        transfer_time = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None)
+        transfer_time = now_local()
 
         payload = _build_transfer_payload(
             evidence_id=evidence.id,

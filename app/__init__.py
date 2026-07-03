@@ -6,6 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from config import config
+from app.utils import now_local
 
 # Initialise extensions (not yet tied to an app)
 db = SQLAlchemy()
@@ -27,6 +28,20 @@ def create_app():
     """
     app = Flask(__name__)
     app.config.from_object(config)
+
+    # Load admin-configured risk-scoring overrides persisted by the
+    # Admin -> Risk Settings page (proposal 2C.2: weights are configurable
+    # by administrators). Missing or corrupt file -> defaults are used.
+    import json, os
+    settings_file = os.path.join(os.path.dirname(app.root_path), 'risk_settings.json')
+    if os.path.exists(settings_file):
+        try:
+            with open(settings_file) as fh:
+                persisted = json.load(fh)
+            app.config['RISK_WEIGHTS'] = persisted.get('weights') or {}
+            app.config['RISK_THRESHOLDS'] = persisted.get('thresholds') or {}
+        except (ValueError, OSError):
+            pass  # fall back to the defaults in risk_scoring.py
 
     # Bind extensions to the app
     db.init_app(app)
@@ -71,7 +86,7 @@ def create_app():
         if current_user.is_authenticated:
             session.permanent = True
             from datetime import datetime, timezone
-            now = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None).timestamp()
+            now = now_local().timestamp()
             timeout = app.config.get('IDLE_TIMEOUT_MINUTES', 30) * 60
             last = session.get('last_active')
             if last and (now - last) > timeout:

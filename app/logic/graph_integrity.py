@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 from app.logic.crypto import verify_signature
+from app.utils import now_local
 
 #  Data structures 
 @dataclass
@@ -46,7 +47,7 @@ class IntegrityReport:
     verified_nodes: int
     failures: List[NodeFailure] = field(default_factory=list)
     verified_timeline: List[dict] = field(default_factory=list)
-    ran_at: datetime = field(default_factory=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None))
+    ran_at: datetime = field(default_factory=lambda: now_local())
 
     def to_dict(self) -> dict:
         """Serialise to a plain dict for JSON storage in AuditRecord."""
@@ -128,7 +129,7 @@ class GraphIntegrityEngine:
                 failures=[NodeFailure(
                     node_id=0,
                     event_type='N/A',
-                    timestamp=(datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
+                    timestamp=now_local(),
                     failure_type='no_records',
                     detail='No custody log records found for this evidence item.')])
 

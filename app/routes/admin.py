@@ -1,8 +1,10 @@
 """
-Admin-only routes for user management.
-Only investigators with role='Admin' can access these.
+Admin-only routes for user management and system settings.
+Only investigators with the 'Admin' role can access these.
 """
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+import json
+import os
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models.investigator import Investigator
@@ -190,3 +192,86 @@ def change_role(user_id):
 
     flash(f"Role for {investigator.full_name} changed to '{new_role}'.", 'success')
     return redirect(url_for('admin.list_users'))
+
+
+#  Risk scoring configuration
+def risk_settings_path():
+    """Path of the JSON file that persists admin risk-scoring overrides."""
+    return os.path.join(os.path.dirname(current_app.root_path), 'risk_settings.json')
+
+
+@admin_bp.route('/risk-settings', methods=['GET', 'POST'])
+@login_required
+def risk_settings():
+    """
+    View and edit the risk-scoring factor weights and classification
+    thresholds (proposal 2C.2: 'the weights are configurable by
+    administrators'). Overrides are persisted to risk_settings.json and
+    re-loaded on application startup; weights are re-normalised to sum
+    to 1.0 before use, so admins can enter any relative importance.
+    """
+    guard = _admin_guard()
+    if guard:
+        return guard
+
+    from app.logic.risk_scoring import _WEIGHTS, _THRESHOLDS, get_weights, get_thresholds
+
+    if request.method == 'POST':
+        new_weights = {}
+        new_thresholds = {}
+        errors = []
+
+        for name in _WEIGHTS:
+            raw = request.form.get(f'weight_{name}', '').strip()
+            try:
+                value = float(raw)
+                if value < 0:
+                    raise ValueError
+                new_weights[name] = value
+            except ValueError:
+                errors.append(f"Weight for '{name}' must be a non-negative number.")
+
+        for level in _THRESHOLDS:
+            raw = request.form.get(f'threshold_{level}', '').strip()
+            try:
+                value = float(raw)
+                if not 0.0 < value < 1.0:
+                    raise ValueError
+                new_thresholds[level] = value
+            except ValueError:
+                errors.append(f"Threshold '{level}' must be a number between 0 and 1.")
+
+        if not errors and sum(new_weights.values()) <= 0:
+            errors.append('At least one weight must be greater than zero.')
+        if not errors and not (new_thresholds['LOW'] < new_thresholds['MEDIUM'] < new_thresholds['HIGH']):
+            errors.append('Thresholds must be strictly increasing: LOW < MEDIUM < HIGH.')
+
+        if errors:
+            for e in errors:
+                flash(e, 'danger')
+        else:
+            # Apply to the running app and persist to disk
+            current_app.config['RISK_WEIGHTS'] = new_weights
+            current_app.config['RISK_THRESHOLDS'] = new_thresholds
+            with open(risk_settings_path(), 'w') as fh:
+                json.dump({'weights': new_weights, 'thresholds': new_thresholds}, fh, indent=2)
+
+            audit = AuditRecord(
+                event_type='Data Modification',
+                investigator_id=current_user.id,
+                description=(
+                    f'Admin {current_user.full_name} updated risk-scoring settings: '
+                    f'weights={new_weights}, thresholds={new_thresholds}'),
+                ip_address=request.remote_addr,
+                result='Success')
+            db.session.add(audit)
+            db.session.commit()
+            flash('Risk scoring settings saved. New scores will use the updated weights.', 'success')
+            return redirect(url_for('admin.risk_settings'))
+
+    return render_template(
+        'admin/risk_settings.html',
+        weights=get_weights(),
+        thresholds=get_thresholds(),
+        default_weights=_WEIGHTS,
+        default_thresholds=_THRESHOLDS)

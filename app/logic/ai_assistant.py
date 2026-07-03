@@ -2,15 +2,19 @@
 AI Investigation Assistant - Orchestration Workflow
 Category C - Complex Application Logic.
 
-Five-stage pipeline (each stage is independently testable):
+Six-stage pipeline (each stage is independently testable):
 1. classify_intent - keyword-frequency classifier -> IntentCategory
 2. retrieve_context - fetch relevant DB records based on intent
 3. build_prompt - construct system prompt + message history
-4. call_AI Agent - send to NVIDIA's meta llama API, receive raw reply
+4. call_llm - send to the NVIDIA NIM API (Llama 3.1), receive raw reply
 5. validate_response - length / refusal / off-topic checks
+6. check_hallucinations - cross-check every case number, evidence ID and
+   investigator name mentioned in the reply against the retrieved context;
+   unknown references are flagged and surfaced to the user as warnings
 
 This is not a simple API passthrough: the context injection, intent
-classification, and validation logic are custom application code.
+classification, validation, and hallucination-detection logic are all
+custom application code. The LLM itself is a third-party service.
 """
 
 import re
@@ -49,6 +53,11 @@ class AssistantResponse:
     context_used: bool
     validation_passed: bool
     warning: Optional[str]
+    hallucination_flags: List[str] = None  # entity refs not found in context
+
+    def __post_init__(self):
+        if self.hallucination_flags is None:
+            self.hallucination_flags = []
 
 # Assistant
 class AIInvestigationAssistant:
@@ -245,7 +254,7 @@ class AIInvestigationAssistant:
     #  Stage 3: Prompt construction 
     def build_prompt(self, user_message: str, context: RetrievedContext, conversation_history: Optional[List[Dict]] = None) -> Tuple[List[Dict], str]:
         """
-        Assembles the system prompt and message list for the Claude API.
+        Assembles the system prompt and message list for the LLM API.
 
         The system prompt embeds the live DB context so the model answers
         about actual case data instead of hallucinating.
@@ -303,7 +312,7 @@ class AIInvestigationAssistant:
                 return response.choices[0].message.content or ""
             except Exception as e:
                 import traceback
-                print("CLAUDE CALL FAILED:", repr(e))
+                print("LLM CALL FAILED:", repr(e))
                 traceback.print_exc()
                 pass  # fall through to mock
         return self._mock_response(messages, system_content)
@@ -383,10 +392,69 @@ class AIInvestigationAssistant:
 
         return raw_reply, True, None
 
+    #  Stage 6: Hallucination detection
+    def check_hallucinations(self, reply: str, context: RetrievedContext) -> List[str]:
+        """
+        Cross-checks every entity reference in the LLM reply against the
+        retrieved database context (proposal section 2C.5).
+
+        Algorithm:
+          1. Extract all case and evidence ID references from the reply
+             using regex patterns (e.g. "Case #12", "evidence item 7").
+          2. Extract all known investigator full names from the database
+             and detect which of them the reply mentions.
+          3. Each extracted reference is looked up in the context text that
+             was actually injected into the prompt. A reference that does
+             NOT appear in the context is a potential hallucination.
+          4. Return the list of flagged references (empty list = clean).
+
+        The mock backend can never trigger this check (it only echoes the
+        context), so any flag indicates the live model invented an entity.
+        """
+        flags: List[str] = []
+        known = context.context_text.lower()
+
+        # 1. Case / evidence ID references
+        id_patterns = [
+            ("Case",     r"case\s*(?:number|id)?\s*#?\s*(\d+)"),
+            ("Evidence", r"evidence\s*(?:item|id)?\s*#?\s*(\d+)"),
+        ]
+        for label, pattern in id_patterns:
+            for match in re.finditer(pattern, reply, re.IGNORECASE):
+                ref = f"{label.lower()} #{match.group(1)}"
+                if ref not in known:
+                    flags.append(
+                        f"{label} #{match.group(1)} is mentioned in the answer "
+                        f"but does not appear in the retrieved database records.")
+
+        # 2. Investigator name references
+        try:
+            from app.models.investigator import Investigator
+            for inv in Investigator.query.all():
+                name = (inv.full_name or "").strip()
+                if len(name) >= 4 and name.lower() in reply.lower() \
+                        and name.lower() not in known:
+                    flags.append(
+                        f"Investigator '{name}' is mentioned in the answer "
+                        f"but was not part of the retrieved context.")
+        except Exception:
+            # No app/db context available (e.g. isolated unit test) -
+            # skip the name check rather than fail the whole pipeline.
+            pass
+
+        # De-duplicate while preserving order
+        seen = set()
+        unique_flags = []
+        for f in flags:
+            if f not in seen:
+                seen.add(f)
+                unique_flags.append(f)
+        return unique_flags
+
     # Public entry point
     def answer(self, user_message: str, conversation_history: Optional[List[Dict]] = None) -> AssistantResponse:
         """
-        Runs the full five-stage pipeline.
+        Runs the full six-stage pipeline.
         Degrades gracefully - always returns an AssistantResponse even on error.
         """
         try:
@@ -395,6 +463,12 @@ class AIInvestigationAssistant:
             messages, system_content = self.build_prompt(user_message, context, conversation_history)
             raw = self.call_nvidia(messages, system_content)
             reply, passed, warning = self.validate_response(raw, intent.category)
+            hallucination_flags = self.check_hallucinations(reply, context)
+
+            if hallucination_flags and not warning:
+                warning = (
+                    "The answer references entities that were not found in the "
+                    "database context - verify before relying on it.")
 
             context_used = (
                 bool(context.context_text) and
@@ -406,19 +480,19 @@ class AIInvestigationAssistant:
                 intent=intent.category,
                 context_used=context_used,
                 validation_passed=passed,
-                warning=warning)
+                warning=warning,
+                hallucination_flags=hallucination_flags)
 
-        except Exception as api_err:
-            if "401" in str(api_err) or "auth" in str(api_err).lower():
+        except Exception as exc:
+            if "401" in str(exc) or "auth" in str(exc).lower():
                 return AssistantResponse(
                     reply=(
                         "Authentication error: the NVIDIA_API_KEY is missing or invalid. "
-                        "Please set it in config.py."),
+                        "Please set it in the .env file."),
                     intent=IntentCategory.UNKNOWN,
                     context_used=False,
                     validation_passed=False,
                     warning="API key error")
-        except Exception as exc:
             return AssistantResponse(
                 reply=f"An unexpected error occurred: {exc}. Please try again.",
                 intent=IntentCategory.UNKNOWN,

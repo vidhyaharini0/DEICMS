@@ -15,6 +15,7 @@ from app.models.custody_log import CustodyLog
 from app.models.audit_record import AuditRecord
 from app.models.evidence import EvidenceItem
 from app.models.investigator import Investigator
+from app.utils import now_local
 
 #  1. Time Gap Detection 
 def check_time_gaps(evidence_id: int, threshold_hours: int = 72) -> list:
@@ -163,7 +164,7 @@ def run_all_formula_checks(evidence_id: int, gap_threshold_hours: int = 72) -> d
 
     return {
         'evidence_id': evidence_id,
-        'ran_at': (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None),
+        'ran_at': now_local(),
         'time_gaps': time_gaps,
         'duplicates': duplicates,
         'role_mismatches': role_mismatches,

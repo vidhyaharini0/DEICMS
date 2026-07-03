@@ -16,6 +16,7 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from app.utils import now_local
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 CERT_PATH = os.path.join(BASE_DIR, 'cert.pem')
@@ -37,8 +38,8 @@ def generate_self_signed_cert(cert_path=CERT_PATH, key_path=KEY_PATH):
         .issuer_name(issuer)
         .public_key(key.public_key())
         .serial_number(x509.random_serial_number())
-        .not_valid_before((datetime.datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) - datetime.timedelta(days=1))
-        .not_valid_after((datetime.datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) + datetime.timedelta(days=365))
+        .not_valid_before(now_local() - datetime.timedelta(days=1))
+        .not_valid_after(now_local() + datetime.timedelta(days=365))
         .add_extension(
             x509.SubjectAlternativeName([
                 x509.DNSName(u'localhost'),

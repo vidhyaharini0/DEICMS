@@ -31,11 +31,12 @@ def chat():
     session['assistant_history'] = history[-10:]
 
     return jsonify({
-        'reply':             response.reply,
-        'intent':            response.intent,
-        'context_used':      response.context_used,
-        'validation_passed': response.validation_passed,
-        'warning':           response.warning})
+        'reply':               response.reply,
+        'intent':              response.intent,
+        'context_used':        response.context_used,
+        'validation_passed':   response.validation_passed,
+        'warning':             response.warning,
+        'hallucination_flags': response.hallucination_flags})
 
 @assistant_bp.route('/clear', methods=['POST'])
 @login_required

@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from app import db
+from app.utils import now_local
 
 class EvidenceItem(db.Model):
     """
@@ -54,8 +55,8 @@ class EvidenceItem(db.Model):
     risk_level = db.Column(db.Enum('Low', 'Medium', 'High', name='risk_level'), nullable=True, default='Low')
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), nullable=False)
-    updated_at = db.Column(db.DateTime, default=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), onupdate=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: now_local(), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: now_local(), onupdate=lambda: now_local(), nullable=False)
 
     #  Relationships 
     # Full custody log for this evidence item

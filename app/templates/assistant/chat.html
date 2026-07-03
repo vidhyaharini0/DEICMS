@@ -170,6 +170,13 @@ async function sendMessage() {
       document.getElementById('metaValidation').textContent = data.validation_passed ? 'Passed' : 'Failed';
       const warnEl = document.getElementById('metaWarning');
       warnEl.textContent = data.warning ? `Warning: ${data.warning}` : '';
+
+      // Hallucination detection (stage 6): list any entity references
+      // in the answer that were not found in the database context.
+      if (data.hallucination_flags && data.hallucination_flags.length) {
+        const items = data.hallucination_flags.map(f => `⚠️ ${f}`).join('\n');
+        addBubble('assistant', `Hallucination check flagged the following:\n${items}`);
+      }
     }
   } catch (err) {
     hideTyping();

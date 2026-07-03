@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
+from app.utils import now_local
 
 class Investigator(UserMixin, db.Model):
     """
@@ -66,8 +67,8 @@ class Investigator(UserMixin, db.Model):
     locked_until = db.Column(db.DateTime, nullable=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), nullable=False)
-    updated_at = db.Column(db.DateTime, default=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), onupdate=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: now_local(), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: now_local(), onupdate=lambda: now_local(), nullable=False)
 
     #  Relationships 
     # Cases this investigator created
@@ -95,7 +96,7 @@ class Investigator(UserMixin, db.Model):
         """Return True if the account is currently locked out."""
         if self.locked_until is None:
             return False
-        if (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) < self.locked_until:
+        if now_local() < self.locked_until:
             return True
         # Lockout has expired - clear it
         self.locked_until = None
@@ -106,7 +107,7 @@ class Investigator(UserMixin, db.Model):
         """Return the number of minutes remaining until the account unlocks."""
         if self.locked_until is None:
             return 0
-        remaining = (self.locked_until - (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None)).total_seconds()
+        remaining = (self.locked_until - now_local()).total_seconds()
         return max(0, int(remaining / 60) + 1)
 
     def record_failed_login(self, max_attempts=5, lockout_minutes=15):
@@ -116,7 +117,7 @@ class Investigator(UserMixin, db.Model):
         """
         self.failed_login_count = (self.failed_login_count or 0) + 1
         if self.failed_login_count >= max_attempts:
-            self.locked_until = (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None) + timedelta(minutes=lockout_minutes)
+            self.locked_until = now_local() + timedelta(minutes=lockout_minutes)
 
     def reset_login_attempts(self):
         """Clear the failed login counter and any lockout on successful login."""

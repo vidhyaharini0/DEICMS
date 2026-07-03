@@ -1,15 +1,32 @@
+# Web framework & extensions
 flask
 flask-sqlalchemy
 flask-login
 flask-wtf
 flask-limiter
+python-dotenv
+
+# Cryptography (SHA-256 via stdlib hashlib; Ed25519 / AES-GCM / X.509 below)
 cryptography
+
+# File metadata & type validation
 pillow
-python-magic-bin
-pytest
-pytest-cov
-anthropic
+python-magic-bin; sys_platform == 'win32'
+python-magic; sys_platform != 'win32'
+
+# AI assistant - NVIDIA NIM endpoint is OpenAI-compatible
+openai
+
+# Anomaly detection (Isolation Forest)
 scikit-learn
+
+# PDF chain-of-custody reports
 reportlab
+
+# Two-factor authentication
 pyotp
 qrcode
+
+# Testing
+pytest
+pytest-cov

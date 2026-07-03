@@ -26,7 +26,7 @@ def app():
         'WTF_CSRF_ENABLED':    False,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         'SECRET_KEY':          'test-secret',
-        'ANTHROPIC_API_KEY':   'test-key-not-real'})
+        'NVIDIA_API_KEY':       'test-key-not-real'})
 
     from app import db as _db
     with test_app.app_context():
@@ -124,7 +124,8 @@ def _seed_db(db):
             to_investigator_id=admin.id,
             reason=f'Transfer {i + 1}',
             timestamp=now - timedelta(hours=(3 - i)),
-            file_hash_at_event='aabbcc' * 10)
+            file_hash_at_event='aabbcc' * 10,
+            digital_signature='test-signature')
         db.session.add(log)
 
     #  Audit records for ev1 
@@ -302,13 +303,14 @@ class TestRiskFactors:
 class TestRiskReport:
     """Tests for the complete RiskReport output."""
 
-    def test_report_has_six_factors(self, app):
+    def test_report_has_eight_factors(self, app):
+        """Six proposal signals (S1-S6) plus file-type and duplicate factors."""
         from app.logic.risk_scoring import EvidenceRiskScorer
         from app.models.evidence import EvidenceItem
         with app.app_context():
             ev = EvidenceItem.query.filter_by(title='Suspicious Executable').first()
             report = EvidenceRiskScorer().score(ev)
-            assert len(report.factors) == 6
+            assert len(report.factors) == 8
 
     def test_final_score_in_range(self, app):
         from app.logic.risk_scoring import EvidenceRiskScorer
@@ -880,7 +882,7 @@ class TestRiskRoutes:
         data = json.loads(response.data)
         assert 0.0 <= data['final_score'] <= 1.0
 
-    def test_evidence_risk_json_has_six_factors(self, app, logged_in_client):
+    def test_evidence_risk_json_has_eight_factors(self, app, logged_in_client):
         import json
         from app.models.evidence import EvidenceItem
         with app.app_context():
@@ -888,7 +890,7 @@ class TestRiskRoutes:
             ev_id = ev.id
         response = logged_in_client.get(f'/risk/evidence/{ev_id}/json')
         data = json.loads(response.data)
-        assert len(data['factors']) == 6
+        assert len(data['factors']) == 8
 
     def test_anomaly_dashboard_loads(self, logged_in_client):
         response = logged_in_client.get('/risk/anomaly')

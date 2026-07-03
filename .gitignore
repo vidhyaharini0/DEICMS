@@ -8,5 +8,5 @@ deicms.db
 cert.pem
 key.pem
 uploads/
-DEICMS_Project_Report.docx
-DEICMS_Project_Report.pdf
+risk_settings.json
+.pytest_cache/

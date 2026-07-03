@@ -83,7 +83,8 @@ def base_data(app):
             event_type='Upload',
             to_investigator_id=admin.id,
             timestamp=datetime(2026, 5, 1, 10, 0, 0),
-            file_hash_at_event='a' * 64)
+            file_hash_at_event='a' * 64,
+            digital_signature='test-signature')
         db.session.add(log1)
         db.session.commit()
 
@@ -240,7 +241,8 @@ class TestGraphIntegrity:
                 from_investigator_id=base_data['admin_id'],
                 to_investigator_id=base_data['lead_id'],
                 timestamp=datetime(2026, 5, 1, 10, 0, 0),  # same as Upload - not strictly greater
-                file_hash_at_event='a' * 64)
+                file_hash_at_event='a' * 64,
+                digital_signature='test-signature')
             db.session.add(same_time_log)
             db.session.commit()
 
@@ -303,7 +305,8 @@ class TestChainReconstruction:
                 from_investigator_id=base_data['analyst_id'],  # mismatch: admin held it
                 to_investigator_id=base_data['admin_id'],
                 timestamp=datetime(2026, 5, 2, 10, 0, 0),
-                file_hash_at_event='a' * 64)
+                file_hash_at_event='a' * 64,
+                digital_signature='test-signature')
             db.session.add(log2)
             db.session.commit()
 

@@ -22,6 +22,8 @@
        class="btn btn-outline-dark btn-sm"><i class="bi bi-journal-text me-1"></i>Audit Trail</a>
     <a href="{{ url_for('risk.evidence_risk', evidence_id=evidence.id) }}"
        class="btn btn-warning">Risk Score</a>
+    <a href="{{ url_for('export.custody_report_pdf', evidence_id=evidence.id) }}"
+       class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>Custody PDF</a>
   </div>
 </div>
 

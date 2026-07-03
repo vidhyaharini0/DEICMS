@@ -238,30 +238,22 @@ class EvidenceStateMachine:
 
     def _recalculate_risk_score(self):
         """
-        Adjust the evidence risk score when the lifecycle state changes.
-        Flagged state carries the highest base risk.
-        Archived state carries the lowest.
-        Full multi-factor scoring is implemented in Increment 3.
+        Re-run the full Multi-Factor Evidence Risk Scoring Algorithm after a
+        state change (proposal 2C.4: 'the risk score is recalculated
+        immediately to reflect the new state'). The lifecycle state is one
+        of the scorer's eight factors, so the new state is reflected in the
+        fresh score - no separate heuristic is needed.
         """
-        state_risk_map = {
-            'Flagged':        1.0,
-            'Under Analysis': 0.6,
-            'Transferred':    0.5,
-            'Submitted':      0.4,
-            'Collected':      0.3,
-            'Archived':       0.1}
-        base_score = state_risk_map.get(self.evidence.lifecycle_state, 0.5)
+        from app.logic.risk_scoring import EvidenceRiskScorer
 
-        # Combine with existing risk score (simple average for now)
-        current = self.evidence.risk_score or 0.0
-        self.evidence.risk_score = round((current + base_score) / 2, 3)
+        report = EvidenceRiskScorer().score(self.evidence)
+        self.evidence.risk_score = round(report.final_score, 3)
 
-        # Update risk level label - Flagged always gets High regardless of score
+        # Map the scorer's 4-level classification onto the 3-level enum
+        # stored on the evidence record (CRITICAL collapses into High).
+        level_map = {'LOW': 'Low', 'MEDIUM': 'Medium', 'HIGH': 'High', 'CRITICAL': 'High'}
+        self.evidence.risk_level = level_map.get(report.risk_level, 'Medium')
+
+        # Flagged evidence is always surfaced as High, regardless of score.
         if self.evidence.lifecycle_state == 'Flagged':
             self.evidence.risk_level = 'High'
-        elif self.evidence.risk_score >= 0.7:
-            self.evidence.risk_level = 'High'
-        elif self.evidence.risk_score >= 0.4:
-            self.evidence.risk_level = 'Medium'
-        else:
-            self.evidence.risk_level = 'Low'

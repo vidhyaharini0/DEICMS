@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from app import db
+from app.utils import now_local
 
 class Case(db.Model):
     """
@@ -25,7 +26,7 @@ class Case(db.Model):
     is_archived = db.Column(db.Boolean, default=False, nullable=False)
 
     # Dates
-    date_opened = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc) + timedelta(hours=2))
+    date_opened = db.Column(db.Date, nullable=False, default=now_local)
     date_closed = db.Column(db.Date, nullable=True)
 
     # Who created and who is assigned to this case
@@ -33,8 +34,8 @@ class Case(db.Model):
     assigned_to_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
 
     # Timestamps
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(hours=2), nullable=False)
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(hours=2), onupdate=lambda: datetime.now(timezone.utc) + timedelta(hours=2), nullable=False)
+    created_at = db.Column(db.DateTime, default=now_local, nullable=False)
+    updated_at = db.Column(db.DateTime, default=now_local, onupdate=now_local, nullable=False)
 
     #  Relationships 
     # All evidence items belonging to this case

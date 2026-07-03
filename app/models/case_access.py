@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from app import db
+from app.utils import now_local
 
 class CaseAccess(db.Model):
     """
@@ -26,7 +27,7 @@ class CaseAccess(db.Model):
     permission = db.Column(db.Enum('Owner', 'Member', 'ReadOnly', name='case_permission'), nullable=False, default='Member')
 
     # When this access was granted and by whom
-    granted_at = db.Column(db.DateTime, default=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None), nullable=False)
+    granted_at = db.Column(db.DateTime, default=lambda: now_local(), nullable=False)
     granted_by_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
 
     #  Relationships 

@@ -22,6 +22,7 @@ Each gap is tagged as:
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
+from app.utils import now_local
 
 # Minimum plausibility score (0.0 to 1.0) for a candidate to be accepted
 PLAUSIBILITY_THRESHOLD = 0.40
@@ -73,7 +74,7 @@ class ReconstructionReport:
     unresolved_gaps: int
     chain_confidence_score: float # (confirmed + inferred) / total_expected * 100
     reconstructed_chain: List[ChainLink] = field(default_factory=list)
-    ran_at: datetime = field(default_factory=lambda: (datetime.now(timezone.utc) + timedelta(hours=2)).replace(tzinfo=None))
+    ran_at: datetime = field(default_factory=lambda: now_local())
 
     def to_dict(self) -> dict:
         return {
