@@ -54,7 +54,7 @@
 <text x="590" y="275.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">risk_level: enum</text>
 <line x1="580" y1="286" x2="830" y2="286" stroke="#AFA9EC" stroke-width="1"/>
 <text x="590" y="300.5" font-size="10.5" fill="#5B4FA8" text-anchor="start" font-weight="400" dominant-baseline="central">(scored &amp; state-managed)</text>
-<rect x="860" y="80" width="250" height="199" fill="#FFFFFF" rx="7" stroke="#1D9E75" stroke-width="1.2"/>
+<rect x="860" y="80" width="250" height="216" fill="#FFFFFF" rx="7" stroke="#1D9E75" stroke-width="1.2"/>
 <rect x="860" y="80" width="250" height="30" fill="#0F6E56" rx="7" stroke="#1D9E75" stroke-width="1.2"/>
 <rect x="860" y="102" width="250" height="8" fill="#0F6E56" rx="0"/>
 <text x="985.0" y="91" font-size="9" fill="#9FE1CB" text-anchor="middle" font-weight="700" dominant-baseline="central">«new»</text>
@@ -69,6 +69,7 @@
 <text x="870" y="232.5" font-size="10.5" fill="#1D9E75" text-anchor="start" font-weight="700" dominant-baseline="central">can_access()</text>
 <text x="870" y="249.5" font-size="10.5" fill="#1D9E75" text-anchor="start" font-weight="700" dominant-baseline="central">can_manage_members()</text>
 <text x="870" y="266.5" font-size="10.5" fill="#1D9E75" text-anchor="start" font-weight="700" dominant-baseline="central">grant()</text>
+<text x="870" y="283.5" font-size="10.5" fill="#1D9E75" text-anchor="start" font-weight="700" dominant-baseline="central">accessible_case_ids()</text>
 <rect x="40" y="430" width="250" height="182" fill="#FFFFFF" rx="7" stroke="#AFA9EC" stroke-width="1.2"/>
 <rect x="40" y="430" width="250" height="30" fill="#3C3489" rx="7" stroke="#AFA9EC" stroke-width="1.2"/>
 <rect x="40" y="452" width="250" height="8" fill="#3C3489" rx="0"/>
@@ -121,7 +122,7 @@
 <rect x="600" y="640" width="250" height="30" fill="#3C3489" rx="7" stroke="#AFA9EC" stroke-width="1.2"/>
 <rect x="600" y="662" width="250" height="8" fill="#3C3489" rx="0"/>
 <text x="725.0" y="655.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700" dominant-baseline="central">EvidenceRiskScorer</text>
-<text x="610" y="682.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">WEIGHTS (6 factors)</text>
+<text x="610" y="682.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">WEIGHTS (8 factors · configurable)</text>
 <line x1="600" y1="693" x2="850" y2="693" stroke="#AFA9EC" stroke-width="1"/>
 <text x="610" y="707.5" font-size="10.5" fill="#5B4FA8" text-anchor="start" font-weight="400" dominant-baseline="central">score() -> RiskReport</text>
 <text x="610" y="724.5" font-size="10.5" fill="#5B4FA8" text-anchor="start" font-weight="400" dominant-baseline="central">_classify()</text>
