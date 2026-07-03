@@ -113,12 +113,21 @@ class AnomalyDetectionPipeline:
     ANOMALY_THRESHOLD = 0.6   # score above this -> flagged as anomaly
     MIN_SAMPLES = 3           # Isolation Forest needs at least a few samples
 
-    def run(self) -> List[AnomalyRecord]:
-        """Runs the full pipeline and returns results (empty list if not enough data)."""
+    def run(self, case_ids=None) -> List[AnomalyRecord]:
+        """
+        Runs the full pipeline and returns results (empty list if not
+        enough data). If ''case_ids'' is given, only evidence belonging to
+        those cases is analysed - used to scope the anomaly dashboard to
+        the cases the current investigator may access. ''None'' means no
+        restriction (Admin).
+        """
         from app.models.evidence import EvidenceItem
         from app.models.custody_log import CustodyLog
 
-        evidence_items = EvidenceItem.query.all()
+        query = EvidenceItem.query
+        if case_ids is not None:
+            query = query.filter(EvidenceItem.case_id.in_(case_ids or [-1]))
+        evidence_items = query.all()
         if len(evidence_items) < self.MIN_SAMPLES:
             return []
 

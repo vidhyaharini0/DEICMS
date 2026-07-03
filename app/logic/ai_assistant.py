@@ -25,6 +25,7 @@ from flask import current_app
 
 # Data structures
 class IntentCategory(str, Enum):
+    IDENTITY        = "IDENTITY"        # "who am I", "my cases", "assigned to me"
     CASE_QUERY      = "CASE_QUERY"
     EVIDENCE_QUERY  = "EVIDENCE_QUERY"
     RISK_QUERY      = "RISK_QUERY"
@@ -69,6 +70,11 @@ class AIInvestigationAssistant:
 
     # Intent -> keywords lookup
     _INTENT_KEYWORDS: Dict[IntentCategory, List[str]] = {
+        IntentCategory.IDENTITY: [
+            "who am i", "my cases", "my case", "assigned to me",
+            "assigned to my", "my evidence", "my work", "my account",
+            "my role", "am i", "cases i", "what am i", "who i am",
+        ],
         IntentCategory.CASE_QUERY: [
             "case", "cases", "investigation", "case number", "case id",
             "open case", "closed case", "case status", "assigned",
@@ -110,6 +116,22 @@ class AIInvestigationAssistant:
             (e.g. "case 3", "evidence #7", "item id 12").
         """
         msg_lower = user_message.lower()
+
+        # Priority rule: a clear first-person self-reference is an IDENTITY
+        # question ("who am I", "my cases", "cases assigned to me"), even
+        # though words like "cases" or "assigned" also belong to CASE_QUERY.
+        # This is checked before the frequency contest so identity questions
+        # are always answered from the authenticated user.
+        identity_phrases = [
+            "who am i", "who i am", "what am i", "am i",
+            "assigned to me", "assigned to my", "my case", "my cases",
+            "my evidence", "my work", "my account", "my role"]
+        if any(p in msg_lower for p in identity_phrases):
+            return ClassifiedIntent(
+                category=IntentCategory.IDENTITY, confidence=1.0,
+                entity_id=None, keywords_matched=[
+                    p for p in identity_phrases if p in msg_lower])
+
         scores: Dict[IntentCategory, int] = {}
         matched_kws: Dict[IntentCategory, List[str]] = {}
 
@@ -138,23 +160,70 @@ class AIInvestigationAssistant:
         return ClassifiedIntent(category=best_category, confidence=round(confidence, 3), entity_id=entity_id, keywords_matched=matched_kws[best_category])
 
     #  Stage 2: Context retrieval 
-    def retrieve_context(self, intent: ClassifiedIntent) -> RetrievedContext:
+    def retrieve_context(self, intent: ClassifiedIntent, user=None) -> RetrievedContext:
         """
         Fetches the DB records most relevant to the classified intent and
         serialises them into a compact text block for the prompt.
+
+        All record retrieval is scoped to the cases the *current* investigator
+        may access (via CaseAccess), so the assistant never reveals cases or
+        evidence outside the logged-in user's remit. ``user`` is the current
+        investigator; when None (e.g. isolated unit tests) no scope filter is
+        applied.
         """
         from app.models.case import Case
         from app.models.evidence import EvidenceItem
         from app.models.custody_log import CustodyLog
         from app.models.investigator import Investigator
+        from app.models.case_access import CaseAccess
 
         records: Dict = {}
         lines: List[str] = []
 
-        #  Case queries 
+        case_ids = CaseAccess.accessible_case_ids(user) if user is not None else None
+
+        def scope_cases(q):
+            return q if case_ids is None else q.filter(Case.id.in_(case_ids or [-1]))
+
+        def scope_evidence(q):
+            return q if case_ids is None else q.filter(EvidenceItem.case_id.in_(case_ids or [-1]))
+
+        def can_see_case(cid):
+            return case_ids is None or cid in (case_ids or [])
+
+        #  Identity queries: "who am I", "my cases", "assigned to me"
+        if intent.category == IntentCategory.IDENTITY:
+            if user is not None and getattr(user, 'is_authenticated', False):
+                lines.append(
+                    f"The current user is {user.full_name} "
+                    f"(investigator ID {user.id}, role: {user.role}).")
+                my_cases = scope_cases(Case.query).order_by(Case.created_at.desc()).all()
+                if case_ids is None:
+                    lines.append("As an Admin, this user has access to every case in the system.")
+                if my_cases:
+                    lines.append(f"Cases this user can access ({len(my_cases)}):")
+                    for c in my_cases:
+                        lines.append(
+                            f"  Case #{c.id}: '{c.title}' | {c.status} | "
+                            f"{c.evidence_items.count()} evidence item(s)")
+                else:
+                    lines.append("This user is not currently a member of any case.")
+                records["user"] = user
+                records["cases"] = my_cases
+            else:
+                lines.append("No authenticated user is associated with this request.")
+            context_text = "\n".join(lines) if lines else "No relevant records found."
+            return RetrievedContext(intent=intent, records=records, context_text=context_text)
+
+        #  Case queries
         if intent.category == IntentCategory.CASE_QUERY:
             if intent.entity_id:
                 case = Case.query.get(intent.entity_id)
+                if case and not can_see_case(case.id):
+                    lines.append(
+                        f"You do not have access to Case #{intent.entity_id}, "
+                        f"or it does not exist.")
+                    case = None
                 if case:
                     records["case"] = case
                     lines.append(
@@ -170,13 +239,17 @@ class AIInvestigationAssistant:
                 else:
                     lines.append(f"No case found with ID {intent.entity_id}.")
             else:
-                cases = Case.query.order_by(Case.created_at.desc()).limit(10).all()
+                cases = (scope_cases(Case.query)
+                         .order_by(Case.created_at.desc()).limit(10).all())
                 records["cases"] = cases
-                lines.append(f"Most recent {len(cases)} case(s):")
-                for c in cases:
-                    lines.append(
-                        f"  Case #{c.id}: '{c.title}' | "
-                        f"{c.status} | {c.evidence_items.count()} evidence item(s)")
+                if cases:
+                    lines.append(f"Most recent {len(cases)} accessible case(s):")
+                    for c in cases:
+                        lines.append(
+                            f"  Case #{c.id}: '{c.title}' | "
+                            f"{c.status} | {c.evidence_items.count()} evidence item(s)")
+                else:
+                    lines.append("You do not currently have access to any cases.")
 
         #  Evidence / Risk / Integrity queries 
         elif intent.category in (
@@ -185,6 +258,11 @@ class AIInvestigationAssistant:
             IntentCategory.INTEGRITY_QUERY):
             if intent.entity_id:
                 ev = EvidenceItem.query.get(intent.entity_id)
+                if ev and not can_see_case(ev.case_id):
+                    lines.append(
+                        f"You do not have access to Evidence #{intent.entity_id}, "
+                        f"or it does not exist.")
+                    ev = None
                 if ev:
                     records["evidence"] = ev
                     lines.append(
@@ -193,28 +271,38 @@ class AIInvestigationAssistant:
                         f"State: {getattr(ev, 'lifecycle_state', 'Unknown')} | "
                         f"Case: #{ev.case_id} | "
                         f"File: {getattr(ev, 'file_name', 'N/A')}")
-                else:
+                elif ev is None and intent.entity_id and not lines:
                     lines.append(f"No evidence item found with ID {intent.entity_id}.")
             else:
-                items = (EvidenceItem.query
+                items = (scope_evidence(EvidenceItem.query)
                     .order_by(EvidenceItem.created_at.desc())
                     .limit(10)
                     .all())
                 records["evidence_items"] = items
-                lines.append(f"Most recent {len(items)} evidence item(s):")
-                for ev in items:
-                    lines.append(
-                        f"  Evidence #{ev.id}: '{ev.title}' | "
-                        f"State: {getattr(ev, 'lifecycle_state', 'Unknown')} | "
-                        f"File: {getattr(ev, 'file_name', 'N/A')}")
+                if items:
+                    lines.append(f"Most recent {len(items)} accessible evidence item(s):")
+                    for ev in items:
+                        lines.append(
+                            f"  Evidence #{ev.id}: '{ev.title}' | "
+                            f"State: {getattr(ev, 'lifecycle_state', 'Unknown')} | "
+                            f"File: {getattr(ev, 'file_name', 'N/A')}")
+                else:
+                    lines.append("You do not have access to any evidence items.")
 
         #  Custody queries 
         elif intent.category == IntentCategory.CUSTODY_QUERY:
             if intent.entity_id:
-                logs = (CustodyLog.query
-                    .filter_by(evidence_id=intent.entity_id)
-                    .order_by(CustodyLog.timestamp.asc())
-                    .all())
+                ev = EvidenceItem.query.get(intent.entity_id)
+                if ev and not can_see_case(ev.case_id):
+                    lines.append(
+                        f"You do not have access to the custody chain for "
+                        f"Evidence #{intent.entity_id}.")
+                    logs = []
+                else:
+                    logs = (CustodyLog.query
+                        .filter_by(evidence_id=intent.entity_id)
+                        .order_by(CustodyLog.timestamp.asc())
+                        .all())
                 records["custody_logs"] = logs
                 if logs:
                     lines.append(
@@ -229,18 +317,23 @@ class AIInvestigationAssistant:
                 else:
                     lines.append(f"No custody transfers found for Evidence #{intent.entity_id}.")
             else:
-                logs = (CustodyLog.query
-                    .order_by(CustodyLog.timestamp.desc())
-                    .limit(15)
-                    .all())
+                logs_q = CustodyLog.query
+                if case_ids is not None:
+                    logs_q = (logs_q
+                        .join(EvidenceItem, CustodyLog.evidence_id == EvidenceItem.id)
+                        .filter(EvidenceItem.case_id.in_(case_ids or [-1])))
+                logs = logs_q.order_by(CustodyLog.timestamp.desc()).limit(15).all()
                 records["recent_custody"] = logs
-                lines.append(f"Most recent {len(logs)} custody transfer(s):")
-                for log in logs:
-                    handler = Investigator.query.get(log.to_investigator_id)
-                    name = handler.full_name if handler else "Unknown"
-                    lines.append(
-                        f"  Evidence #{log.evidence_id} -> {name} "
-                        f"on {log.timestamp.date()}")
+                if logs:
+                    lines.append(f"Most recent {len(logs)} accessible custody transfer(s):")
+                    for log in logs:
+                        handler = Investigator.query.get(log.to_investigator_id)
+                        name = handler.full_name if handler else "Unknown"
+                        lines.append(
+                            f"  Evidence #{log.evidence_id} -> {name} "
+                            f"on {log.timestamp.date()}")
+                else:
+                    lines.append("You do not have access to any custody transfers.")
                     
         #  General forensics or unknown - no DB context needed 
         else:
@@ -252,24 +345,38 @@ class AIInvestigationAssistant:
         return RetrievedContext(intent=intent, records=records, context_text=context_text)
 
     #  Stage 3: Prompt construction 
-    def build_prompt(self, user_message: str, context: RetrievedContext, conversation_history: Optional[List[Dict]] = None) -> Tuple[List[Dict], str]:
+    def build_prompt(self, user_message: str, context: RetrievedContext, conversation_history: Optional[List[Dict]] = None, user=None) -> Tuple[List[Dict], str]:
         """
         Assembles the system prompt and message list for the LLM API.
 
         The system prompt embeds the live DB context so the model answers
-        about actual case data instead of hallucinating.
+        about actual case data instead of hallucinating. It also states who
+        the current user is, so questions like "who am I?" or "my cases" are
+        answered from the authenticated identity rather than guessed.
         Previous conversation turns (up to 6) are prepended as history.
         """
+        if user is not None and getattr(user, 'is_authenticated', False):
+            identity_line = (
+                f"You are currently speaking with {user.full_name} "
+                f"(investigator ID {user.id}, role: {user.role}). "
+                f"The SYSTEM CONTEXT below is already restricted to the cases "
+                f"this user is allowed to see. When the user says 'me', 'my', "
+                f"or 'I', they mean this person.\n\n")
+        else:
+            identity_line = ""
+
         system_content = (
             "You are DEICMS-AI, an expert forensic investigation assistant embedded "
             "in the Digital Evidence Integrity & Chain-of-Custody Management System.\n"
             "Your role: help investigators understand case data, interpret risk scores, "
             "explain custody chains, and advise on digital forensics best practices.\n\n"
+            + identity_line +
             "Rules:\n"
             "- Base your answers on the SYSTEM CONTEXT block when it contains relevant data.\n"
             "- Be concise and professional. Use bullet points for lists.\n"
-            "- Never invent case IDs, investigator names, or file names "
-            "that are not in the context.\n"
+            "- Only discuss the cases and evidence present in the SYSTEM CONTEXT. "
+            "Never mention or invent case IDs, evidence IDs, investigator names, or "
+            "file names that are not in the context - the user may not have access to them.\n"
             "- If the context does not contain the answer, say so and offer general guidance.\n"
             "- Do not discuss topics unrelated to digital forensics, evidence management, "
             "or cybersecurity.\n\n"
@@ -301,14 +408,26 @@ class AIInvestigationAssistant:
 
         if api_key and api_key.startswith("nvapi-"):
             try:
-                client = OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=api_key)
+                # A per-request timeout stops a slow model from hanging the
+                # whole HTTP request; the route/UI will show a clear message.
+                timeout_s = current_app.config.get("AI_REQUEST_TIMEOUT", 60)
+                client = OpenAI(
+                    base_url="https://integrate.api.nvidia.com/v1",
+                    api_key=api_key,
+                    timeout=timeout_s)
+                # Model is configurable; default to the smaller 8B instruct
+                # model, which answers in a few seconds rather than the
+                # 1-2 minutes the 70B model takes for this workload.
+                model = current_app.config.get(
+                    "AI_MODEL", "meta/llama-3.1-8b-instruct")
+                max_tokens = current_app.config.get("AI_MAX_TOKENS", 700)
                 # Prepend system message as first user turn (NIM style)
                 full_messages = [{"role": "system", "content": system_content}] + messages
                 response = client.chat.completions.create(
-                    model="meta/llama-3.1-70b-instruct",
+                    model=model,
                     messages=full_messages,
-                    max_tokens=1024,
-                    temperature=0.7)
+                    max_tokens=max_tokens,
+                    temperature=0.4)
                 return response.choices[0].message.content or ""
             except Exception as e:
                 import traceback
@@ -386,7 +505,8 @@ class AIInvestigationAssistant:
         forensics_terms = [
             "evidence", "case", "forensic", "custody", "investigat",
             "hash", "integrity", "risk", "transfer", "file", "audit", "chain"]
-        domain_specific = intent not in (IntentCategory.GENERAL_FORENSICS, IntentCategory.UNKNOWN)
+        domain_specific = intent not in (
+            IntentCategory.GENERAL_FORENSICS, IntentCategory.UNKNOWN, IntentCategory.IDENTITY)
         if domain_specific and not any(t in raw_reply.lower() for t in forensics_terms):
             return raw_reply, True, "Response may be off-topic - review before relying on it."
 
@@ -452,15 +572,18 @@ class AIInvestigationAssistant:
         return unique_flags
 
     # Public entry point
-    def answer(self, user_message: str, conversation_history: Optional[List[Dict]] = None) -> AssistantResponse:
+    def answer(self, user_message: str, conversation_history: Optional[List[Dict]] = None, user=None) -> AssistantResponse:
         """
         Runs the full six-stage pipeline.
+        ``user`` is the current investigator; all context retrieval is scoped
+        to the cases they may access, and their identity is injected into the
+        prompt so identity questions are answered correctly.
         Degrades gracefully - always returns an AssistantResponse even on error.
         """
         try:
             intent  = self.classify_intent(user_message)
-            context = self.retrieve_context(intent)
-            messages, system_content = self.build_prompt(user_message, context, conversation_history)
+            context = self.retrieve_context(intent, user=user)
+            messages, system_content = self.build_prompt(user_message, context, conversation_history, user=user)
             raw = self.call_nvidia(messages, system_content)
             reply, passed, warning = self.validate_response(raw, intent.category)
             hallucination_flags = self.check_hallucinations(reply, context)

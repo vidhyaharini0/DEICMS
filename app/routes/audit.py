@@ -40,7 +40,9 @@ def evidence_audit(evidence_id):
 @login_required
 def formula_check(evidence_id):
     """Run all three audit formula checks and return results as JSON."""
-    EvidenceItem.query.get_or_404(evidence_id)
+    evidence = EvidenceItem.query.get_or_404(evidence_id)
+    if not CaseAccess.can_access(evidence.case_id, current_user):
+        return jsonify({'error': 'You do not have access to this case.'}), 403
     from app.logic.audit_formulas import run_all_formula_checks
     report = run_all_formula_checks(evidence_id)
     return jsonify(report)

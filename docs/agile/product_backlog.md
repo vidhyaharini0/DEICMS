@@ -55,8 +55,12 @@ Feature categories follow the course requirement and the accepted proposal:
 | US-25 | Encryption at rest & magic-byte checks | SEC/B | Should | 3 | 3 |
 | US-26 | Tamper-evident signed ZIP export | B | Should | 2 | 3 |
 | US-27 | PDF chain-of-custody report | B | Could | 2 | 3 |
+| US-28 | Role-scoped dashboard & aggregated views | A/SEC | Must | 5 | M1 |
+| US-29 | Access-scoped AI assistant & chat isolation | C/SEC | Must | 5 | M1 |
 
-**Increment totals:** Increment 1 = 40 pts · Increment 2 = 38 pts · Increment 3 = 42 pts
+**Increment totals:** Increment 1 = 40 pts · Increment 2 = 38 pts · Increment 3 = 42 pts · Maintenance M1 = 10 pts
+
+**Maintenance iteration M1** (post-acceptance change requests raised during review testing) is described at the end of this document.
 
 ---
 
@@ -228,6 +232,32 @@ Acceptance criteria: ZIP contains decrypted evidence, manifest.json with per-fil
 **US-27 — PDF custody report (2 pts, Could, B — ReportLab)**
 *As a lead investigator, I want a printable chain-of-custody report per item, so that court submissions have a standard document.*
 Acceptance criteria: PDF contains identification block, cryptographic integrity summary with a fresh graph-verification run, full custody table, and generation footer; downloadable from the evidence page.
+
+---
+
+## Maintenance iteration M1 — access-scoping change requests
+
+During review testing after the three increments were accepted, two defects
+were found where aggregated views leaked data across case boundaries. They
+were handled as a short maintenance iteration with two change-request stories.
+
+**CR-01 / US-28 — Role-scoped dashboard & aggregated views (5 pts, Must, A/SEC)**
+*As a non-Admin investigator, I want the dashboard, risk dashboard, and anomaly views to show only the cases and evidence I have access to, so that I never see investigations outside my remit.*
+Defect: the dashboard and the risk/anomaly pages queried every case, evidence item, and audit record system-wide, regardless of the logged-in role.
+Acceptance criteria:
+- A single `CaseAccess.accessible_case_ids(user)` helper returns None for Admin (all cases) or the user's case-ID list otherwise; every aggregated view filters through it.
+- Dashboard panels are tailored per role (Admin sees system + security alerts; Lead sees pending actions; Analyst sees a workbench; Read-Only sees a review queue), and every role always has a non-empty "Your recent activity" panel.
+- A Read-Only user with no shared cases sees an explanatory empty state, not global data or a blank page.
+- Per-item risk and audit-formula endpoints enforce the same case-access check (HTTP 403 on cross-case access).
+
+**CR-02 / US-29 — Access-scoped AI assistant & chat isolation (5 pts, Must, C/SEC)**
+*As an investigator, I want the AI assistant to answer only about my accessible cases, to know who I am, and to never show me another user's conversation, so that the chatbot respects the same boundaries as the rest of the system.*
+Defects: (a) the assistant's context retrieval queried all recent cases/evidence/transfers globally, so a Lead Investigator could list every case; (b) it could not answer "who am I" or "my cases"; (c) chat history persisted in the session across logout, so the next user on the same browser saw the previous user's conversation; (d) responses took 1-2 minutes.
+Acceptance criteria:
+- Context retrieval is scoped to `accessible_case_ids(user)`; cross-case IDs return an access-denied line instead of data.
+- A new IDENTITY intent (checked with priority) answers "who am I" / "my cases" from the authenticated user and their accessible cases.
+- Chat history is tagged with the owner's user ID and cleared on login and logout, so it can never leak between users.
+- The LLM call has a request timeout and defaults to a faster model; the UI aborts and reports if a response is too slow.
 
 ---
 

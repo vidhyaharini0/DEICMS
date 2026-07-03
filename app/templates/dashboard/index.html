@@ -15,13 +15,26 @@
     </small>
   </div>
 
-  <!--  Stat cards row  -->
+  {% if not has_case_access %}
+  <!--  No shared cases yet: friendly empty state instead of a blank page  -->
+  <div class="alert alert-info d-flex align-items-center mb-4">
+    <i class="bi bi-info-circle fs-4 me-3"></i>
+    <div>
+      <strong>No cases have been shared with you yet.</strong><br>
+      A Lead Investigator or Admin can add you as a case member. Once that
+      happens, this dashboard will show the cases and evidence you may access.
+      Your own account activity is shown below.
+    </div>
+  </div>
+  {% endif %}
+
+  <!--  Stat cards row (all values scoped to your case access)  -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-xl-3">
       <div class="stat-card accent-blue">
         <i class="bi bi-folder2-open stat-icon"></i>
         <div class="stat-number">{{ total_cases }}</div>
-        <div class="stat-label">Total Cases</div>
+        <div class="stat-label">{{ scope_word }} Cases</div>
       </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -47,8 +60,10 @@
     </div>
   </div>
 
-  <!--  Analytics / visualisations  -->
+  <!--  Analytics / visualisations (role-dependent)  -->
+  {% if panels.risk_chart or panels.lifecycle_chart %}
   <div class="row g-4 mb-4">
+    {% if panels.risk_chart %}
     <div class="col-lg-5">
       <div class="card shadow-sm h-100">
         <div class="card-header">
@@ -59,7 +74,9 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-7">
+    {% endif %}
+    {% if panels.lifecycle_chart %}
+    <div class="{% if panels.risk_chart %}col-lg-7{% else %}col-lg-12{% endif %}">
       <div class="card shadow-sm h-100">
         <div class="card-header">
           <i class="bi bi-bar-chart-steps me-2"></i>Evidence Lifecycle States
@@ -69,32 +86,195 @@
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if panels.activity_chart or panels.audit_chart %}
   <div class="row g-4 mb-4">
+    {% if panels.activity_chart %}
     <div class="col-lg-7">
       <div class="card shadow-sm h-100">
         <div class="card-header">
-          <i class="bi bi-graph-up me-2"></i>Security Activity - Last 30 Days
+          <i class="bi bi-graph-up me-2"></i>{{ charts.activity_title }}
         </div>
         <div class="card-body">
           <div style="height:260px;"><canvas id="activityChart"></canvas></div>
         </div>
       </div>
     </div>
+    {% endif %}
+    {% if panels.audit_chart %}
     <div class="col-lg-5">
       <div class="card shadow-sm h-100">
         <div class="card-header">
           <i class="bi bi-clipboard-data me-2"></i>Audit Events by Type
+          {% if not current_user.is_admin() %}
+            <small class="text-muted">(your cases)</small>
+          {% endif %}
         </div>
         <div class="card-body">
           <div style="height:260px;"><canvas id="auditChart"></canvas></div>
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
+  {% endif %}
 
-  <!--  Integrity summary bar  -->
+  <!--  Role-specific panel  -->
+  {% if panels.security_alerts and security_alerts %}
+  <div class="card mb-4 shadow-sm border-danger-subtle">
+    <div class="card-header">
+      <i class="bi bi-shield-lock me-2"></i>Security Alerts
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="d-flex align-items-center mb-2">
+            <span class="fs-3 fw-bold {% if security_alerts.failed_24h %}text-danger{% else %}text-success{% endif %} me-2">
+              {{ security_alerts.failed_24h }}</span>
+            <span class="text-muted">failed login attempt(s) in the last 24 hours</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          {% if security_alerts.locked_accounts %}
+            <div class="fw-semibold text-danger mb-1">
+              <i class="bi bi-lock me-1"></i>{{ security_alerts.locked_accounts | length }} locked account(s):
+            </div>
+            <ul class="mb-0 small">
+              {% for inv in security_alerts.locked_accounts %}
+                <li>{{ inv.full_name }} ({{ inv.email }})
+                  &mdash; <a href="{{ url_for('admin.list_users') }}">manage</a></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <span class="text-success"><i class="bi bi-check-circle me-1"></i>No locked accounts</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if panels.pending_actions and pending_actions %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <i class="bi bi-exclamation-diamond me-2"></i>Pending Actions in Your Cases
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="fw-semibold mb-2 text-danger">
+            <i class="bi bi-flag me-1"></i>Flagged evidence ({{ pending_actions.flagged | length }})
+          </div>
+          {% if pending_actions.flagged %}
+          <ul class="list-unstyled mb-0 small">
+            {% for ev in pending_actions.flagged %}
+            <li class="mb-1">
+              <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
+                {{ ev.evidence_number }} — {{ ev.title }}</a>
+              <span class="text-muted">requires resolution</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}<span class="text-muted small">Nothing flagged.</span>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <div class="fw-semibold mb-2 text-warning">
+            <i class="bi bi-shuffle me-1"></i>Sitting in Transferred ({{ pending_actions.in_transfer | length }})
+          </div>
+          {% if pending_actions.in_transfer %}
+          <ul class="list-unstyled mb-0 small">
+            {% for ev in pending_actions.in_transfer %}
+            <li class="mb-1">
+              <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
+                {{ ev.evidence_number }} — {{ ev.title }}</a>
+              <span class="text-muted">awaiting next lifecycle step</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}<span class="text-muted small">No items in transfer.</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if panels.workbench %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <i class="bi bi-tools me-2"></i>My Workbench — evidence you currently hold
+    </div>
+    <div class="card-body p-0">
+      {% if workbench %}
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Evidence</th><th>State</th><th>Integrity</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for ev in workbench %}
+          <tr>
+            <td>
+              <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
+                {{ ev.evidence_number }} — {{ ev.title }}</a>
+            </td>
+            <td><span class="badge bg-secondary">{{ ev.lifecycle_state }}</span></td>
+            <td><small class="text-muted">{{ (ev.integrity_status or 'NOT_CHECKED') | replace('_',' ') | title }}</small></td>
+            <td class="text-end">
+              <a href="{{ url_for('custody.verify_integrity', evidence_id=ev.id) }}"
+                 class="btn btn-sm btn-outline-success">Verify</a>
+              <a href="{{ url_for('custody.transfer_evidence', evidence_id=ev.id) }}"
+                 class="btn btn-sm btn-outline-primary">Transfer</a>
+              <a href="{{ url_for('custody.change_state', evidence_id=ev.id) }}"
+                 class="btn btn-sm btn-outline-secondary">State</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-muted p-3 mb-0">You are not currently holding any evidence items.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if panels.review_queue %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header">
+      <i class="bi bi-eyeglasses me-2"></i>Review Queue — recently updated evidence in your shared cases
+    </div>
+    <div class="card-body p-0">
+      {% if review_queue %}
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr><th>Evidence</th><th>Case</th><th>State</th><th>Last updated</th><th class="text-end"></th></tr>
+        </thead>
+        <tbody>
+          {% for ev in review_queue %}
+          <tr>
+            <td>{{ ev.evidence_number }} — {{ ev.title }}</td>
+            <td><a href="{{ url_for('cases.view_case', case_id=ev.case_id) }}">#{{ ev.case_id }}</a></td>
+            <td><span class="badge bg-secondary">{{ ev.lifecycle_state }}</span></td>
+            <td><small class="text-muted">{{ ev.updated_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+            <td class="text-end">
+              <a href="{{ url_for('custody.view_custody_log', evidence_id=ev.id) }}"
+                 class="btn btn-sm btn-outline-secondary">Custody Log</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-muted p-3 mb-0">No evidence to review yet.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!--  Integrity summary bar (scoped)  -->
+  {% if panels.integrity %}
   <div class="card mb-4 shadow-sm">
     <div class="card-header">
       <i class="bi bi-shield-check me-2"></i>Evidence Integrity Overview
@@ -143,11 +323,12 @@
       {% endif %}
     </div>
   </div>
+  {% endif %}
 
   <!--  Main content: two-column layout  -->
   <div class="row g-4">
 
-    <!-- Left column: Risk-ranked evidence  -->
+    {% if panels.top_risk %}
     <div class="col-lg-7">
       <div class="card shadow-sm h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -218,11 +399,11 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
-    <!-- Right column: Recent cases + recent audits  -->
-    <div class="col-lg-5 d-flex flex-column gap-4">
+    <div class="{% if panels.top_risk %}col-lg-5{% else %}col-lg-12{% endif %} d-flex flex-column gap-4">
 
-      <!-- Recent cases -->
+      <!-- Recent cases (scoped) -->
       <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="bi bi-folder2-open me-2"></i>Recent Cases</span>
@@ -231,7 +412,9 @@
         </div>
         <ul class="list-group list-group-flush">
           {% if not recent_cases %}
-            <li class="list-group-item text-muted">No cases yet.</li>
+            <li class="list-group-item text-muted">
+              {% if has_case_access %}No cases yet.{% else %}No cases shared with you yet.{% endif %}
+            </li>
           {% else %}
             {% for case in recent_cases %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -260,13 +443,17 @@
         </ul>
       </div>
 
-      {% if current_user.is_admin() %}
-      <!-- Recent audit records (global trail - Admin only) -->
+      {% if panels.recent_audits %}
+      <!-- Recent audit records (scoped for non-admins) -->
       <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-journal-text me-2"></i>Recent Audit Activity</span>
+          <span><i class="bi bi-journal-text me-2"></i>Recent Audit Activity
+            {% if not current_user.is_admin() %}<small class="text-muted">(your cases)</small>{% endif %}
+          </span>
+          {% if current_user.is_admin() %}
           <a href="{{ url_for('audit.audit_trail') }}"
              class="btn btn-sm btn-outline-primary">Full Trail</a>
+          {% endif %}
         </div>
         <ul class="list-group list-group-flush">
           {% if not recent_audits %}
@@ -292,27 +479,59 @@
       </div>
       {% endif %}
 
+      <!-- Your recent activity (always shown, never empty for active users) -->
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <i class="bi bi-person-check me-2"></i>Your Recent Activity
+        </div>
+        <ul class="list-group list-group-flush">
+          {% if not my_activity %}
+            <li class="list-group-item text-muted">No activity recorded yet.</li>
+          {% else %}
+            {% for rec in my_activity %}
+            <li class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-light text-dark badge-state me-2" style="font-size:.7rem;">
+                  {{ rec.event_type }}
+                </span>
+                <small class="text-muted">{{ rec.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+              </div>
+              {% if rec.description %}
+                <small class="text-muted d-block mt-1">{{ rec.description[:80] }}{% if rec.description|length > 80 %}…{% endif %}</small>
+              {% endif %}
+            </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+
     </div>
   </div>
 
-  <!--  Quick-action buttons  -->
+  <!--  Quick-action buttons (role-gated)  -->
   <div class="card mt-4 shadow-sm">
     <div class="card-header">
       <i class="bi bi-lightning-charge me-2"></i>Quick Actions
     </div>
     <div class="card-body d-flex flex-wrap gap-2">
+      {% if current_user.can_manage() %}
       <a href="{{ url_for('cases.create_case') }}"
          class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i>New Case
       </a>
+      {% endif %}
+      {% if current_user.can_analyse() %}
       <a href="{{ url_for('risk.risk_dashboard') }}"
          class="btn btn-warning">
         <i class="bi bi-shield-exclamation me-1"></i>Risk Dashboard
       </a>
+      {% endif %}
+      {% if current_user.can_manage() %}
       <a href="{{ url_for('risk.anomaly_dashboard') }}"
          class="btn btn-info text-white">
         <i class="bi bi-robot me-1"></i>Anomaly Detection
       </a>
+      {% endif %}
       <a href="{{ url_for('assistant.chat_page') }}"
          class="btn btn-success">
         <i class="bi bi-chat-dots me-1"></i>AI Assistant
@@ -350,28 +569,17 @@
   Chart.defaults.font.family = "'Source Sans 3', sans-serif";
   Chart.defaults.color = C.muted;
 
-  // Data passed from Flask
-  const D = {
-    riskLabels:      {{ charts.risk_labels | tojson }},
-    riskValues:      {{ charts.risk_values | tojson }},
-    lifeLabels:      {{ charts.lifecycle_labels | tojson }},
-    lifeValues:      {{ charts.lifecycle_values | tojson }},
-    auditLabels:     {{ charts.audit_labels | tojson }},
-    auditValues:     {{ charts.audit_values | tojson }},
-    actLabels:       {{ charts.activity_labels | tojson }},
-    actSuccess:      {{ charts.activity_success | tojson }},
-    actAlerts:       {{ charts.activity_alerts | tojson }}
-  };
-
-  // 1) Risk distribution - doughnut (Low / Medium / High)
+  {% if panels.risk_chart %}
+  // 1) Risk distribution - doughnut
   const riskColors = { 'LOW': C.green, 'MEDIUM': C.amber, 'HIGH': C.red, 'CRITICAL': C.dark };
+  const riskLabels = {{ charts.risk_labels | tojson }};
   new Chart(document.getElementById('riskChart'), {
     type: 'doughnut',
     data: {
-      labels: D.riskLabels,
+      labels: riskLabels,
       datasets: [{
-        data: D.riskValues,
-        backgroundColor: D.riskLabels.map(l => riskColors[l] || C.muted),
+        data: {{ charts.risk_values | tojson }},
+        backgroundColor: riskLabels.map(l => riskColors[l] || C.muted),
         borderColor: '#ffffff',
         borderWidth: 2
       }]
@@ -381,15 +589,18 @@
       plugins: { legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true } } }
     }
   });
+  {% endif %}
 
-  // 2) Lifecycle states - horizontal bar (Flagged highlighted red, Archived dark)
-  const lifeColors = D.lifeLabels.map(l =>
+  {% if panels.lifecycle_chart %}
+  // 2) Lifecycle states - horizontal bar
+  const lifeLabels = {{ charts.lifecycle_labels | tojson }};
+  const lifeColors = lifeLabels.map(l =>
     l === 'Flagged' ? C.red : (l === 'Archived' ? C.dark : C.teal));
   new Chart(document.getElementById('lifecycleChart'), {
     type: 'bar',
     data: {
-      labels: D.lifeLabels,
-      datasets: [{ label: 'Evidence items', data: D.lifeValues,
+      labels: lifeLabels,
+      datasets: [{ label: 'Evidence items', data: {{ charts.lifecycle_values | tojson }},
         backgroundColor: lifeColors, borderRadius: 5, maxBarThickness: 26 }]
     },
     options: {
@@ -401,17 +612,19 @@
       }
     }
   });
+  {% endif %}
 
-  // 3) Security activity over time - line (Successful vs Security Alerts)
+  {% if panels.activity_chart %}
+  // 3) Activity over time - line
   new Chart(document.getElementById('activityChart'), {
     type: 'line',
     data: {
-      labels: D.actLabels,
+      labels: {{ charts.activity_labels | tojson }},
       datasets: [
-        { label: 'Successful', data: D.actSuccess, borderColor: C.green,
+        { label: 'Successful', data: {{ charts.activity_success | tojson }}, borderColor: C.green,
           backgroundColor: 'rgba(45,138,106,0.12)', fill: true, tension: 0.35,
           pointRadius: 0, borderWidth: 2 },
-        { label: 'Security Alerts', data: D.actAlerts, borderColor: C.red,
+        { label: 'Security Alerts', data: {{ charts.activity_alerts | tojson }}, borderColor: C.red,
           backgroundColor: 'rgba(200,80,80,0.10)', fill: true, tension: 0.35,
           pointRadius: 0, borderWidth: 2 }
       ]
@@ -426,14 +639,17 @@
       }
     }
   });
+  {% endif %}
 
-  // 4) Audit events by type - vertical bar (Failed Attempt highlighted red)
-  const auditColors = D.auditLabels.map(l => l === 'Failed Attempt' ? C.red : C.blue);
+  {% if panels.audit_chart %}
+  // 4) Audit events by type - vertical bar
+  const auditLabels = {{ charts.audit_labels | tojson }};
+  const auditColors = auditLabels.map(l => l === 'Failed Attempt' ? C.red : C.blue);
   new Chart(document.getElementById('auditChart'), {
     type: 'bar',
     data: {
-      labels: D.auditLabels,
-      datasets: [{ label: 'Events', data: D.auditValues,
+      labels: auditLabels,
+      datasets: [{ label: 'Events', data: {{ charts.audit_values | tojson }},
         backgroundColor: auditColors, borderRadius: 5, maxBarThickness: 34 }]
     },
     options: {
@@ -445,6 +661,7 @@
       }
     }
   });
+  {% endif %}
 })();
 </script>
 {% endblock %}

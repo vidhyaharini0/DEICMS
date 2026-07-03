@@ -145,6 +145,10 @@ async function sendMessage() {
   btnSend.disabled = true;
   showTyping();
 
+  // Abort if the model takes too long, so the Send button never hangs
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 75000);
+
   try {
     const res = await fetch("{{ url_for('assistant.chat') }}", {
       method: 'POST',
@@ -153,6 +157,7 @@ async function sendMessage() {
         'X-CSRFToken': CSRF_TOKEN,
       },
       body: JSON.stringify({ message: msg }),
+      signal: controller.signal,
     });
 
     const data = await res.json();
@@ -180,8 +185,13 @@ async function sendMessage() {
     }
   } catch (err) {
     hideTyping();
-    addBubble('assistant', 'Network error. Please check your connection and try again.');
+    if (err.name === 'AbortError') {
+      addBubble('assistant', 'The model took too long to respond and the request was cancelled. Please try again.');
+    } else {
+      addBubble('assistant', 'Network error. Please check your connection and try again.');
+    }
   } finally {
+    clearTimeout(timer);
     btnSend.disabled = false;
     userInput.focus();
   }

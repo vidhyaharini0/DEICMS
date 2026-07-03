@@ -69,6 +69,8 @@ def login():
 
             login_user(investigator)
             session.permanent = True
+            # Drop any assistant chat left in the session by a previous user.
+            session.pop('assistant_history', None)
             audit = AuditRecord(
                 event_type='Login',
                 investigator_id=investigator.id,
@@ -126,6 +128,9 @@ def logout():
     db.session.commit()
 
     logout_user()
+    # Clear conversation state so a shared browser never carries one
+    # investigator's AI-assistant chat into the next person's session.
+    session.pop('assistant_history', None)
     flash('You have been logged out successfully.', 'info')
     return redirect(url_for('auth.login'))
 
@@ -147,6 +152,8 @@ def verify_otp():
         if pyotp.TOTP(investigator.totp_secret).verify(code, valid_window=1):
             login_user(investigator)
             session.permanent = True
+            # Drop any assistant chat left in the session by a previous user.
+            session.pop('assistant_history', None)
             session.pop('pending_2fa_user', None)
             next_page = session.pop('pending_2fa_next', '') or url_for('dashboard.index')
             audit = AuditRecord(

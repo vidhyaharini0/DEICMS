@@ -64,6 +64,21 @@ class CaseAccess(db.Model):
         return CaseAccess.get_permission(case_id, investigator) is not None
 
     @staticmethod
+    def accessible_case_ids(investigator):
+        """
+        The list of case IDs this investigator may see, or None for Admins
+        (meaning: all cases, no filter needed). Central helper used by the
+        dashboard, risk views, and AI assistant so that every aggregated
+        view enforces the same case-level access rule as the case list.
+        """
+        if investigator is None or not getattr(investigator, 'is_authenticated', False):
+            return []
+        if investigator.is_admin():
+            return None  # unrestricted
+        return [row.case_id for row in
+                CaseAccess.query.filter_by(investigator_id=investigator.id).all()]
+
+    @staticmethod
     def can_manage_members(case_id, investigator):
         """True if the investigator may add/remove members (Admin or Owner)."""
         return CaseAccess.get_permission(case_id, investigator) in ('Admin', 'Owner')

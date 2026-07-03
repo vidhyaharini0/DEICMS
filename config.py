@@ -33,6 +33,13 @@ class Config:
     # falls back to a context-aware mock response.
     NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY', '')
 
+    # AI assistant tuning. The 8B model answers in a few seconds; the larger
+    # 70B model is more capable but took 1-2 minutes for this workload.
+    # Override via .env if you prefer the larger model.
+    AI_MODEL = os.environ.get('AI_MODEL', 'meta/llama-3.1-8b-instruct')
+    AI_MAX_TOKENS = int(os.environ.get('AI_MAX_TOKENS', 700))
+    AI_REQUEST_TIMEOUT = int(os.environ.get('AI_REQUEST_TIMEOUT', 60))
+
     # Allowed file extensions for evidence uploads
     ALLOWED_EXTENSIONS = {
         'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff',  # Images
