@@ -166,7 +166,7 @@ DEICMS applies several layers of cryptographic and web security:
 
 ---
 
-## Getting started
+## Quick Start
 
 ### Prerequisites
 
