@@ -1,5 +1,12 @@
 # DEICMS - Digital Evidence & Investigation Chain Management System
 
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-Web%20Framework-000000?style=for-the-badge&logo=flask)
+![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite)
+![Cryptography](https://img.shields.io/badge/Cryptography-Ed25519%20%7C%20AES--256--GCM-blue?style=for-the-badge)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Isolation%20Forest-orange?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
 A secure, web-based platform for managing digital forensic evidence and its **chain of custody** from intake to export. DEICMS was built as a **System Security** project to demonstrate applied cryptography, secure web-application engineering, and non-trivial application logic (custody-graph verification, risk scoring, and anomaly detection) in a realistic investigation workflow.
 
 Every action that touches evidence - uploading, viewing, transferring, changing state - is authenticated, authorised, cryptographically signed where appropriate, and written to a tamper-evident audit trail.
@@ -324,3 +331,9 @@ This project was built for **educational purposes** as part of a System Security
 - SQLite is used for development; a production deployment should use PostgreSQL and a proper secrets manager.
 
 Do not use DEICMS to handle real, sensitive, or legally significant evidence.
+
+---
+
+## Acknowledgements
+
+Developed as part of the System Security course at the University of Messina.
