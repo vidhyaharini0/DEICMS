@@ -304,6 +304,17 @@ Utility scripts also included: `check_db.py`, `clear_evidence.py`, `deicms_db_au
 
 ---
 
+## Future Enhancements
+
+- PostgreSQL support for production deployments.
+- Docker Compose environment.
+- Multi-instance deployment.
+- AI explainability for anomaly detection.
+- REST API for external integrations.
+- Comprehensive logging and monitoring.
+
+---
+
 ## Security notes & disclaimer
 
 This project was built for **educational purposes** as part of a System Security course. While it implements real cryptographic primitives and security controls, it has **not** been audited or hardened for production use. Notably:
