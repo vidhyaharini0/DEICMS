@@ -11,7 +11,7 @@ it was altered.
 
 The system was developed following the **Agile Incremental Model** in three
 increments, as defined in the accepted project proposal
-(`SE_Project_Proposal_DEICMS_v4.docx`).
+('SE_Project_Proposal_DEICMS_v4.docx').
 
 ---
 
@@ -30,13 +30,13 @@ increments, as defined in the accepted project proposal
 
 ### B. Third-party services / libraries
 
-- **SHA-256 hashing** — Python `hashlib`; fingerprints every file at upload
+- **SHA-256 hashing** — Python 'hashlib'; fingerprints every file at upload
   and at each integrity check.
-- **Ed25519 digital signatures** — `cryptography`; every custody transfer is
+- **Ed25519 digital signatures** — 'cryptography'; every custody transfer is
   signed by the outgoing investigator.
-- **File metadata extraction** — Pillow (EXIF) + `python-magic` (magic-byte
+- **File metadata extraction** — Pillow (EXIF) + 'python-magic' (magic-byte
   MIME validation; executables rejected).
-- **ORM / DB** — SQLAlchemy + SQLite (PostgreSQL-ready).
+- **ORM / DB** — SQLAlchemy + SQLite (see *Limitations* for the Postgres path).
 - **AI language model** — NVIDIA NIM API (Llama 3.1, OpenAI-compatible
   endpoint) for the investigation assistant.
 - **Anomaly detection** — scikit-learn Isolation Forest over custody
@@ -87,7 +87,7 @@ session timeout, and tamper-evident signed ZIP case export.
 | Layer | Technology |
 |---|---|
 | Backend | Python 3 + Flask (application factory, blueprints) |
-| Database | SQLite (dev) / PostgreSQL-ready via SQLAlchemy |
+| Database | SQLite (via SQLAlchemy; Postgres would require Alembic migrations — see Limitations) |
 | Auth | Flask-Login, Flask-WTF (CSRF), Flask-Limiter, PyOTP |
 | Crypto | hashlib (SHA-256), cryptography (Ed25519, AES-256-GCM, X.509) |
 | Metadata | Pillow (EXIF), python-magic (MIME) |
@@ -100,7 +100,7 @@ session timeout, and tamper-evident signed ZIP case export.
 
 ## Getting started
 
-```bash
+'''bash
 python -m venv venv
 venv\Scripts\activate          # Windows (source venv/bin/activate on Linux/macOS)
 pip install -r requirements.txt
@@ -111,16 +111,51 @@ pip install -r requirements.txt
 
 python seed.py                 # optional demo data
 python run.py                  # serves https://localhost:5001
-```
+'''
 
 The first run generates a self-signed TLS certificate and creates the SQLite
 database automatically.
 
+## Inspecting the database
+
+All application data lives in a single SQLite file, 'deicms.db', in the
+project root (see 'SQLALCHEMY_DATABASE_URI' in 'config.py'). Every action the
+app performs - logins, uploads, custody transfers, state changes, integrity
+checks - is written there in real time, primarily into the 'audit_records'
+table.
+
+Two things commonly cause confusion when opening the file in a SQLite browser:
+
+- **Seed data vs. live data.** 'python seed.py' writes an initial demo
+  dataset. Everything you then do in the running app is added on top of it in
+  the same file - the seed data is the starting point, not the whole picture.
+- **Write-Ahead Logging (WAL).** SQLite runs in WAL mode, so recent writes may
+  sit in the side files 'deicms.db-wal' / 'deicms.db-shm' rather than in
+  'deicms.db' itself. A browser opened against 'deicms.db' while the app is
+  running (or on a stale copy) will not show those pending rows - which looks
+  as though the new audit events were never saved, when in fact they were.
+
+To see the complete, up-to-date trail:
+
+'''bash
+# 1. Stop the Flask server (Ctrl+C) - shutdown flushes the WAL, or:
+python flush_db.py    # folds the WAL into deicms.db and prints a summary
+
+# 2. Open deicms.db in DB Browser for SQLite and browse audit_records,
+#    or run:  SELECT * FROM audit_records ORDER BY id DESC;
+'''
+
+'flush_db.py' performs a full WAL checkpoint and prints the row counts plus the
+five most recent audit events, so you can confirm the live trail is persisted
+in the file (not just visible in the browser UI). If you prefer not to stop the
+app, running 'PRAGMA wal_checkpoint(FULL);' inside DB Browser's *Execute SQL*
+tab has the same effect.
+
 ## Testing
 
-```bash
+'''bash
 python -m pytest tests/ -v --cov=app
-```
+'''
 
 The suite covers all three increments: models and CRUD (Increment 1), state
 machine / graph integrity / chain reconstruction (Increment 2), and risk
@@ -128,7 +163,7 @@ scoring / anomaly detection / AI assistant / routes (Increment 3).
 
 ## Project structure
 
-```
+'''
 deicms/
 ├── app/
 │   ├── __init__.py          # application factory
@@ -140,15 +175,48 @@ deicms/
 ├── tests/                   # pytest suite per increment
 ├── config.py, run.py, seed.py, generate_cert.py
 └── SE_Project_Proposal_DEICMS_v4.docx
-```
+'''
 
 ## UML artefacts
 
-The `diagrams/` folder contains the artefacts referenced by the project
+The 'diagrams/' folder contains the artefacts referenced by the project
 report: use case, class, and ER diagrams (Increment 1); sequence, activity,
 and state diagrams for the complex algorithms (Increment 2); risk-scoring
 activity, AI-orchestration sequence, component, and deployment diagrams plus
 the burndown chart (Increment 3).
+
+---
+
+## Known limitations & future work
+
+Documented honestly so scope is clear:
+
+- **Database migrations.** Schema evolution is handled by a lightweight,
+  idempotent startup routine (`_ensure_schema`) that issues SQLite-flavoured
+  `ALTER TABLE` statements. Moving to PostgreSQL would require replacing this
+  with proper Alembic migrations (already in the intended stack); the current
+  helper is SQLite-specific.
+- **Scale.** Dashboards score every accessible evidence item per request and
+  the anomaly detector fits an Isolation Forest on each load. This is fine at
+  demonstration scale; a production build would persist derived risk/anomaly
+  scores and paginate all list views (the case list is already paginated).
+- **Anomaly detection** is a *relative* outlier flag over the current data set,
+  not a model trained on a fixed baseline; results shift as data grows. It is
+  presented as "suggested for review" alongside the deterministic risk score.
+- **Per-node hash verification** checks each custody record's stored hash for
+  consistency against the immutable original hash (the system stores one
+  evidence blob, not a distinct file snapshot per event).
+- **Timestamps** are stored as naive local time via a single helper
+  (`app.utils.now_local`); a production system storing UTC and converting at
+  display time would be more robust to timezone/DST changes.
+- **Rate limiting** uses an in-memory store in development; production needs a
+  shared backend (e.g. Redis) via `RATELIMIT_STORAGE_URI` to enforce limits
+  across worker processes.
+- **Secrets.** Set `SECRET_KEY` and `KEY_ENCRYPTION_SECRET` in `.env`; running
+  with `APP_ENV=production` refuses to boot on missing/insecure-default
+  secrets. Note that `KEY_ENCRYPTION_SECRET` must not be rotated after data
+  exists, or at-rest encrypted files and private keys become unrecoverable
+  (key rotation is future work).
 
 ---
 

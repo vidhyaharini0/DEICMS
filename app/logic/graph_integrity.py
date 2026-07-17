@@ -217,21 +217,33 @@ class GraphIntegrityEngine:
 
     def _check_hash(self, node: CustodyNode) -> bool:
         """
-        Check (a): Re-read the evidence file from disk and recompute
-        its SHA-256 hash. Compare against the stored hash at this node.
+        Check (a): Hash integrity at this node.
 
-        For the Upload node (the first event), compare against the
-        evidence's original_hash. For subsequent events, compare against
-        the hash stored at the time of that specific event.
+        Two complementary verifications:
+          1. Live file check (Upload/root node): re-read the evidence file from
+             disk, recompute its SHA-256 on the plaintext, and compare it with
+             the evidence's original_hash. This is the ground-truth check that
+             the physical file has not been altered on disk.
+          2. Per-node recorded-hash check (EVERY node): each custody record
+             stores the file hash as it was at that event (file_hash_at_event).
+             For an untampered linear chain the file content never changes, so
+             every node's recorded hash must equal the immutable original_hash.
+             A node whose recorded hash diverges indicates that either the file
+             was swapped at that point in the chain or the custody record was
+             edited after the fact - both are integrity failures. This is the
+             real per-node verification (previously a no-op).
 
-        Note: For non-Upload events we cannot re-read the file at the
-        historical state - we compare the current file hash against the
-        stored hash at the upload event only, and for transfer events we
-        verify the stored hash was consistent at transfer time.
+        Note on scope: the system stores a single evidence blob (not a distinct
+        historical snapshot per event), so per-node verification is a
+        consistency check of the recorded hashes against the ground truth, not
+        a re-hash of a different historical file. This is documented honestly
+        rather than claiming per-event file snapshots that are not stored.
         """
         import os
 
-        # Only attempt file re-read for the Upload (root) event
+        node_ok = True
+
+        # 1. Ground-truth live file check on the Upload (root) event.
         if node.event_type == 'Upload':
             file_path = self.evidence.file_path
 
@@ -259,15 +271,33 @@ class GraphIntegrityEngine:
                         f'File hash mismatch at Upload node. '
                         f'Expected: {self.evidence.original_hash[:16]}... '
                         f'Got: {computed_hash[:16]}...')))
-                return False
+                node_ok = False
 
-        # For all nodes: verify the stored hash matches the original
-        # (ensures no record was tampered with after the fact)
-        if node.file_hash_at_event != self.evidence.original_hash:
-            # This is only a failure if the hashes diverged unexpectedly
-            # (legitimate transfers may update current_hash, but original stays fixed)
-            pass  # Extended hash chain verification goes here in production
-        return True
+        # 2. Per-node recorded-hash consistency check (runs for every node).
+        # A missing or divergent recorded hash is a real integrity failure.
+        recorded = node.file_hash_at_event
+        if not recorded:
+            self.failures.append(NodeFailure(
+                node_id=node.id,
+                event_type=node.event_type,
+                timestamp=node.timestamp,
+                failure_type='hash_mismatch',
+                detail='No file hash was recorded for this custody event.'))
+            node_ok = False
+        elif recorded != self.evidence.original_hash:
+            self.failures.append(NodeFailure(
+                node_id=node.id,
+                event_type=node.event_type,
+                timestamp=node.timestamp,
+                failure_type='hash_mismatch',
+                detail=(
+                    f'Recorded hash at this event diverges from the original. '
+                    f'Original: {self.evidence.original_hash[:16]}... '
+                    f'Recorded: {recorded[:16]}... '
+                    f'The file may have been swapped or the record altered.')))
+            node_ok = False
+
+        return node_ok
 
     def _check_signature(self, node: CustodyNode) -> bool:
         """

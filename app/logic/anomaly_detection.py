@@ -100,16 +100,28 @@ def compute_features(evidence, custody_logs: list) -> Dict[str, float]:
 # Anomaly detection pipeline
 class AnomalyDetectionPipeline:
     """
+    RELATIVE outlier flag over the CURRENT set of evidence items.
+
+    Honest scope note: this is not a model trained on a fixed historical
+    baseline and then applied to new data. It fits an Isolation Forest on the
+    evidence currently in scope and reports each item's relative position
+    within that set, so results shift as the data set changes. It is intended
+    as a "suggested for review" signal presented alongside the deterministic
+    multi-factor risk score, not as a standalone verdict. For a reproducible,
+    baseline-trained detector you would fit once on a labelled/period baseline
+    and persist the fitted model (e.g. joblib) - documented as future work.
+
     Full pipeline:
-      1. Fetch all EvidenceItems with their CustodyLogs.
+      1. Fetch the in-scope EvidenceItems with their CustodyLogs.
       2. Build the N * 6 feature matrix.
-      3. Fit an Isolation Forest (100 trees, 20 % contamination assumption).
+      3. Fit an Isolation Forest (100 trees, contamination='auto' - no arbitrary
+         fixed anomaly fraction is assumed).
       4. Map decision_function scores to [0, 1]:
             anomaly_score = 1 - ((raw - min) / (max - min))
-        so that 1.0 means most anomalous.
+        so that 1.0 means most anomalous within the current set.
       5. Return AnomalyRecord list sorted descending by anomaly_score.
     """
-    
+
     ANOMALY_THRESHOLD = 0.6   # score above this -> flagged as anomaly
     MIN_SAMPLES = 3           # Isolation Forest needs at least a few samples
 
@@ -124,7 +136,7 @@ class AnomalyDetectionPipeline:
         from app.models.evidence import EvidenceItem
         from app.models.custody_log import CustodyLog
 
-        query = EvidenceItem.query
+        query = EvidenceItem.query.filter_by(is_deleted=False)
         if case_ids is not None:
             query = query.filter(EvidenceItem.case_id.in_(case_ids or [-1]))
         evidence_items = query.all()
@@ -146,10 +158,14 @@ class AnomalyDetectionPipeline:
             [[fd[k] for k in feature_keys] for fd in feature_dicts],
             dtype=np.float64)
 
-        # Fit Isolation Forest
+        # Fit Isolation Forest. contamination='auto' lets the model derive the
+        # decision offset from the data instead of assuming a fixed 20 % of
+        # items are anomalous. Because we min-max renormalise the raw scores
+        # below, our reported anomaly_score is robust to this offset; 'auto'
+        # simply removes an arbitrary, unjustified assumption.
         clf = IsolationForest(
             n_estimators=100,
-            contamination=0.2,# assume ~20 % of items may be anomalous
+            contamination='auto',
             random_state=42)
         clf.fit(X)
 

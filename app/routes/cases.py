@@ -31,7 +31,10 @@ def list_cases():
             row.case_id for row in
             CaseAccess.query.filter_by(investigator_id=current_user.id).all()]
         query = query.filter(Case.id.in_(accessible_ids or [-1]))
-    cases = query.order_by(Case.created_at.desc()).all()
+    # Paginate so the list stays responsive as the case count grows.
+    page = request.args.get('page', 1, type=int)
+    cases = (query.order_by(Case.created_at.desc())
+             .paginate(page=page, per_page=20, error_out=False))
     return render_template('cases/list.html', cases=cases)
 
 @cases_bp.route('/cases/new', methods=['GET', 'POST'])
@@ -96,6 +99,7 @@ def view_case(case_id):
         return redirect(url_for('cases.list_cases'))
 
     evidence_items = (case.evidence_items
+                  .filter_by(is_deleted=False)
                   .order_by(EvidenceItem.created_at.desc())
                   .all())
 

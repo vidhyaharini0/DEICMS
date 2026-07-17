@@ -5,8 +5,11 @@ __pycache__/
 *.pyd
 .env
 deicms.db
+deicms.db-wal
+deicms.db-shm
 cert.pem
 key.pem
 uploads/
 risk_settings.json
 .pytest_cache/
+.vscode/

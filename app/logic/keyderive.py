@@ -19,6 +19,6 @@ def _master_secret() -> bytes:
 
 
 def derive_key(purpose: str, length: int = 32) -> bytes:
-    """Derive a `length`-byte key bound to `purpose` from the master secret."""
+    """Derive a 'length'-byte key bound to 'purpose' from the master secret."""
     salt = b'deicms-kdf-salt::' + purpose.encode('utf-8')
     return hashlib.pbkdf2_hmac('sha256', _master_secret(), salt, 200_000, dklen=length)

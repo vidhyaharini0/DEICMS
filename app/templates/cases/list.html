@@ -21,7 +21,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for case in cases %}
+          {% for case in cases.items %}
           <tr>
             <td><code>{{ case.case_number }}</code></td>
             <td class="fw-semibold">{{ case.title }}</td>
@@ -31,7 +31,7 @@
               <span class="badge bg-{{ colours.get(case.status,'secondary') }}">{{ case.status }}</span>
             </td>
             <td class="text-muted small">{{ case.date_opened.strftime('%d %b %Y') }}</td>
-            <td>{{ case.evidence_items.count() }}</td>
+            <td>{{ case.evidence_items.filter_by(is_deleted=False).count() }}</td>
             <td>
               <a href="{{ url_for('cases.view_case', case_id=case.id) }}"
                  class="btn btn-sm btn-outline-primary">View</a>
@@ -45,4 +45,20 @@
     </div>
   </div>
 </div>
+
+{% if cases.pages > 1 %}
+<nav class="mt-3" aria-label="Cases pagination">
+  <ul class="pagination pagination-sm justify-content-center mb-0">
+    <li class="page-item {{ 'disabled' if not cases.has_prev }}">
+      <a class="page-link" href="{{ url_for('cases.list_cases', page=cases.prev_num) if cases.has_prev else '#' }}">Previous</a>
+    </li>
+    <li class="page-item disabled">
+      <span class="page-link">Page {{ cases.page }} of {{ cases.pages }}</span>
+    </li>
+    <li class="page-item {{ 'disabled' if not cases.has_next }}">
+      <a class="page-link" href="{{ url_for('cases.list_cases', page=cases.next_num) if cases.has_next else '#' }}">Next</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
 {% endblock %}

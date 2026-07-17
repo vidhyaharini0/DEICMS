@@ -103,6 +103,30 @@ def create_app():
     def _set_security_headers(response):
         if request.is_secure:
             response.headers['Strict-Transport-Security'] = 'max-age=3600'
+
+        # Content-Security-Policy: defence-in-depth that limits where scripts,
+        # styles, fonts and images may load from, containing any residual XSS.
+        # The policy reflects what the app actually uses: Bootstrap + icons from
+        # jsDelivr, Google Fonts, and the base64 data: URI for the 2FA QR code.
+        # 'unsafe-inline' is currently required because the templates embed
+        # inline <script> and <style> blocks; tightening this to a nonce-based
+        # policy (removing 'unsafe-inline') is the documented next step.
+        response.headers.setdefault('Content-Security-Policy', "; ".join([
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
+            "https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:",
+            "img-src 'self' data:",
+            "connect-src 'self'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+        ]))
+        # Complementary hardening headers.
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        response.headers.setdefault('X-Frame-Options', 'DENY')
+        response.headers.setdefault('Referrer-Policy', 'same-origin')
         return response
 
     return app
@@ -123,6 +147,7 @@ def _ensure_schema():
 
     inspector = inspect(db.engine)
     existing = {c['name'] for c in inspector.get_columns('investigators')}
+    evidence_cols = {c['name'] for c in inspector.get_columns('evidence_items')}
 
     # 1) Add missing lockout columns
     with db.engine.begin() as conn:
@@ -136,6 +161,19 @@ def _ensure_schema():
         if 'totp_secret' not in existing:
             conn.execute(text(
                 'ALTER TABLE investigators ADD COLUMN totp_secret VARCHAR(64)'))
+
+        # Evidence: integrity_status (risk-scoring signal) and is_deleted
+        # (soft-delete flag) were added after the original schema. Backfill
+        # them for databases created earlier.
+        if 'integrity_status' not in evidence_cols:
+            conn.execute(text(
+                "ALTER TABLE evidence_items "
+                "ADD COLUMN integrity_status VARCHAR(20) NOT NULL "
+                "DEFAULT 'NOT_CHECKED'"))
+        if 'is_deleted' not in evidence_cols:
+            conn.execute(text(
+                'ALTER TABLE evidence_items '
+                'ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT 0'))
 
     # 2) Backfill case ownership for legacy cases
     cases = Case.query.all()

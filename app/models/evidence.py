@@ -54,6 +54,18 @@ class EvidenceItem(db.Model):
     risk_score = db.Column(db.Float, nullable=True, default=0.0)
     risk_level = db.Column(db.Enum('Low', 'Medium', 'High', name='risk_level'), nullable=True, default='Low')
 
+    # Latest integrity verdict, written back by the Graph Integrity Verification
+    # Algorithm (custody.verify_integrity). Feeds the risk-scoring integrity
+    # factor (the highest-weighted signal). VERIFIED = last check Intact,
+    # FAILED = last check Broken, NOT_CHECKED = never checked / partial.
+    integrity_status = db.Column(
+        db.Enum('VERIFIED', 'NOT_CHECKED', 'FAILED', name='integrity_status'),
+        nullable=False, default='NOT_CHECKED')
+
+    # Soft delete: deleting an evidence item hides it from all listings while
+    # preserving its custody log and audit trail (chain-of-custody integrity).
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+
     # Timestamps
     created_at = db.Column(db.DateTime, default=lambda: now_local(), nullable=False)
     updated_at = db.Column(db.DateTime, default=lambda: now_local(), onupdate=lambda: now_local(), nullable=False)

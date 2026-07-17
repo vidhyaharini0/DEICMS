@@ -3,7 +3,7 @@
 **Sprint goal:** Make the chain of custody provable — signed custody events, whole-chain graph verification, a formal lifecycle state machine, and honest reconstruction of gapped chains.
 **Dates:** Mon 25 May – Fri 12 Jun 2026 (14 working days, day 0–14)
 **Committed:** 6 stories · **38 story points** — all delivered
-**UML produced:** Sequence Diagram (graph integrity verification), Activity Diagram (chain reconstruction), State Diagram (evidence lifecycle) (`diagrams/increment2_*.svg`)
+**UML produced:** Sequence Diagram (graph integrity verification), Activity Diagram (chain reconstruction), State Diagram (evidence lifecycle) ('diagrams/increment2_*.svg')
 
 ## Committed stories & task breakdown
 
@@ -23,7 +23,7 @@
 | Ideal | 38.0 | 35.3 | 32.6 | 29.9 | 27.1 | 24.4 | 21.7 | 19.0 | 16.3 | 13.6 | 10.9 | 8.1 | 5.4 | 2.7 | 0 |
 | Actual | 38 | 36 | 34 | 32 | 30 | 29 | 29 | 28 | 26 | 23 | 20 | 16 | 11 | 6 | 0 |
 
-Chart: `diagrams/increment2_agile_burndown_chart.svg`
+Chart: 'diagrams/increment2_agile_burndown_chart.svg'
 
 ## Sprint review (summary)
 

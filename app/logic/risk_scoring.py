@@ -125,6 +125,13 @@ _WEIGHTS: Dict[str, float] = {
 # Default risk-level classification thresholds (admin-configurable).
 _THRESHOLDS: Dict[str, float] = {"LOW": 0.25, "MEDIUM": 0.50, "HIGH": 0.75}
 
+# Upper bound on the TOTAL additive interaction bonus. Several interaction
+# rules can fire at once; without a cap their bonuses stack and trivially push
+# any moderately-risky item to a saturated 1.0/CRITICAL score, which destroys
+# the discrimination between genuinely dangerous items and merely elevated ones.
+# The bonus can raise a score but never by more than this ceiling.
+_MAX_INTERACTION_BONUS: float = 0.30
+
 
 def get_weights() -> Dict[str, float]:
     """
@@ -361,13 +368,13 @@ class EvidenceRiskScorer:
 
     def _factor_role_mismatch(self, evidence) -> RiskFactor:
         """
-        Counts ROLE_MISMATCH_DETECTED audit records for this evidence.
-        Log normalisation with scale=5 (> 5 mismatches -> near-max risk).
+        Counts genuine role-permission mismatches for this evidence, computed
+        live by the audit formula check (an investigator accessing evidence of
+        a category their role is not permitted to handle). Log normalisation
+        with scale=5 (> 5 mismatches -> near-max risk).
         """
-        from app.models.audit_record import AuditRecord
-        count = AuditRecord.query.filter_by(
-            evidence_id=evidence.id,
-            result="Warning").count()
+        from app.logic.audit_formulas import check_role_mismatches
+        count = len(check_role_mismatches(evidence.id))
         score = _log_norm(float(count), scale=5.0)
         w = self._weights["role_mismatch_count"]
         return RiskFactor(
@@ -407,13 +414,13 @@ class EvidenceRiskScorer:
 
     def _factor_duplicates(self, evidence) -> RiskFactor:
         """
-        Counts DUPLICATE_DETECTED audit records for this evidence.
+        Counts genuine duplicate custody log entries for this evidence,
+        computed live by the audit formula check (entries sharing event type,
+        from/to investigator, and timestamp - indicative of log injection).
         Log normalisation with scale=3.
         """
-        from app.models.audit_record import AuditRecord
-        count = AuditRecord.query.filter_by(
-            evidence_id=evidence.id,
-            event_type="Integrity Check").count()
+        from app.logic.audit_formulas import check_duplicate_entries
+        count = len(check_duplicate_entries(evidence.id))
         score = _log_norm(float(count), scale=3.0)
         w = self._weights["duplicate_entry_count"]
         return RiskFactor(
@@ -467,6 +474,8 @@ class EvidenceRiskScorer:
                     multiplier=mult,
                     explanation=f"{expl} (additive bonus: +{bonus:.4f})"))
 
+        # Cap the cumulative bonus so co-firing rules cannot saturate the score.
+        total_bonus = min(total_bonus, _MAX_INTERACTION_BONUS)
         return fired, round(total_bonus, 4)
 
     #  Stage 5: Classification

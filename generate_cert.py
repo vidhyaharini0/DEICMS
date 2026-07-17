@@ -1,7 +1,7 @@
 """
 Generate a self-signed TLS certificate so DEICMS can run over HTTPS in
 development. Creates cert.pem and key.pem in the project root using the
-`cryptography` library (already a project dependency).
+'cryptography' library (already a project dependency).
 
 A self-signed certificate encrypts traffic correctly, but because it is not
 issued by a trusted Certificate Authority, the browser will show a one-time

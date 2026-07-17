@@ -27,6 +27,13 @@ from app.utils import now_local
 # Minimum plausibility score (0.0 to 1.0) for a candidate to be accepted
 PLAUSIBILITY_THRESHOLD = 0.40
 
+# A custody hand-off that is not explained by a matching from/to holder is a
+# structural gap. In addition, a period longer than this many hours between two
+# consecutive custody records with no intervening transfer is treated as a
+# temporal gap worth reconstructing (an item that sat unaccounted-for for days
+# is a chain-of-custody concern even if the holder fields happen to line up).
+TEMPORAL_GAP_HOURS = 72
+
 # Role permission matrix: which roles can hold which evidence categories
 ROLE_CUSTODY_PERMISSIONS = {
     'Admin':              ['Image', 'Video', 'Audio', 'Document', 'Database', 'Log File', 'Other'],
@@ -139,10 +146,8 @@ class ChainReconstructionEngine:
                 chain_confidence_score=0.0,
                 reconstructed_chain=[])
 
-        # Step 2: Identify gaps
-        gaps = self._identify_gaps(confirmed_logs)
-
-        # Step 3: Build the reconstructed chain by filling gaps
+        # Step 2 & 3: Build the reconstructed chain, detecting and filling gaps
+        # between each consecutive pair via _is_gap() as we go.
         reconstructed_chain = []
         position = 0
         confirmed_count = 0
@@ -167,8 +172,7 @@ class ChainReconstructionEngine:
             # Check if there is a gap after this confirmed record
             if i < len(confirmed_logs) - 1:
                 next_log = confirmed_logs[i + 1]
-                if (log.log_id, next_log.log_id) in gaps if hasattr(log, 'log_id') \
-                        else self._is_gap(log, next_log):
+                if self._is_gap(log, next_log):
 
                     # Step 3a: Generate candidates for this gap
                     candidates = self._generate_candidates(log, next_log)
@@ -257,18 +261,35 @@ class ChainReconstructionEngine:
     def _is_gap(self, log_before, log_after) -> bool:
         """
         Determine if there is a gap between two consecutive custody records.
-        A gap exists when:
-        - The expected holder (to_investigator_id of log_before) does not
-          match the actual holder (from_investigator_id of log_after)
-        - AND both are non-null
+
+        Two independent conditions flag a gap:
+        (1) Holder discontinuity: the expected holder (to_investigator_id of
+            log_before) does not match the actual holder (from_investigator_id
+            of log_after), and both are non-null - a transfer record is missing
+            between them.
+        (2) Temporal discontinuity: more than TEMPORAL_GAP_HOURS elapsed between
+            the two records with no intervening transfer - the item was
+            unaccounted-for long enough to warrant reconstruction even if the
+            holder fields happen to line up.
         """
+        # (1) Holder discontinuity
         expected_holder = log_before.to_investigator_id
         actual_from = log_after.from_investigator_id
+        if (expected_holder is not None and actual_from is not None
+                and expected_holder != actual_from):
+            return True
 
-        if expected_holder is None or actual_from is None:
-            return False
+        # (2) Temporal discontinuity
+        try:
+            elapsed_hours = (
+                (log_after.timestamp - log_before.timestamp).total_seconds()
+                / 3600.0)
+            if elapsed_hours > TEMPORAL_GAP_HOURS:
+                return True
+        except (TypeError, AttributeError):
+            pass
 
-        return expected_holder != actual_from
+        return False
 
     def _generate_candidates(self, log_before, log_after) -> List[CandidateRecord]:
         """
@@ -311,16 +332,22 @@ class ChainReconstructionEngine:
                          log_before, log_after) -> CandidateRecord:
         """
         Compute a plausibility score (0.0 to 1.0) for a candidate record.
-        Combines four independent criteria with equal weighting (0.25 each).
 
-        (a) Temporal proximity  - closer to the midpoint of the gap = higher score
-        (b) Role consistency    - correct role for this evidence category
-        (c) Location consistency - placeholder (no location in access logs)
-        (d) Behavioural consistency - has the investigator accessed this case before?
+        Combines the criteria for which the data model actually carries a
+        signal, with equal weighting, averaging only the LIVE criteria so a
+        criterion with no available data does not silently pull every score
+        toward 0.5:
+
+        (a) Temporal proximity     - closer to the midpoint of the gap = higher
+        (b) Role consistency       - correct role for this evidence category
+        (c) Behavioural consistency - other interactions with the same case
+        (d) Location consistency   - only included when the candidate actually
+            has a recorded location (access-log candidates do not, so it is
+            omitted from the average rather than hard-coded to a constant 0.5).
         """
         scores = {}
 
-        # (a) Temporal proximity
+        # (a) Temporal proximity (always available)
         gap_start = log_before.timestamp
         gap_end = log_after.timestamp
         gap_duration = (gap_end - gap_start).total_seconds()
@@ -332,19 +359,23 @@ class ChainReconstructionEngine:
         else:
             scores['temporal'] = 0.5
 
-        # (b) Role consistency
+        # (b) Role consistency (always available)
         permitted = ROLE_CUSTODY_PERMISSIONS.get(candidate.investigator_role, [])
         scores['role'] = 1.0 if self.evidence.category in permitted else 0.0
 
-        # (c) Location consistency
-        # Since access log records don't include location, we give a neutral score
-        scores['location'] = 0.5
+        # (c) Behavioural consistency (always available)
+        scores['behavioural'] = self._check_behavioural_consistency(
+            candidate.investigator_id, log_before, log_after)
 
-        # (d) Behavioural consistency
-        # Check if this investigator has accessed the same case in surrounding events
-        scores['behavioural'] = self._check_behavioural_consistency(candidate.investigator_id, log_before, log_after)
+        # (d) Location consistency - only when the candidate has a real location.
+        # Access-log candidates carry no location, so it is excluded from the
+        # average rather than diluting every score with a constant 0.5.
+        if candidate.location:
+            surrounding = [l for l in (log_before.location, log_after.location) if l]
+            scores['location'] = (
+                1.0 if candidate.location in surrounding else 0.5)
 
-        # Weighted sum (equal weights = simple average)
+        # Average only the criteria that carried a live signal.
         total = sum(scores.values()) / len(scores)
         candidate.plausibility_score = round(total, 4)
         candidate.score_breakdown = scores

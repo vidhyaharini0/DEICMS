@@ -8,6 +8,7 @@ routes.
 """
 from flask import Blueprint, render_template, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
+from app import limiter
 from app.models.evidence import EvidenceItem
 from app.models.case_access import CaseAccess
 from app.logic.risk_scoring import EvidenceRiskScorer
@@ -25,11 +26,12 @@ def _deny_if_no_access(evidence):
 
 @risk_bp.route('/dashboard')
 @login_required
+@limiter.limit('60 per minute')  # scores every item + fits an Isolation Forest
 def risk_dashboard():
     """Scores the accessible evidence items and shows them ranked by risk."""
     case_ids = CaseAccess.accessible_case_ids(current_user)
 
-    query = EvidenceItem.query
+    query = EvidenceItem.query.filter_by(is_deleted=False)
     if case_ids is not None:
         query = query.filter(EvidenceItem.case_id.in_(case_ids or [-1]))
     items = query.all()
@@ -121,6 +123,7 @@ def evidence_risk_json(evidence_id):
 
 @risk_bp.route('/anomaly')
 @login_required
+@limiter.limit('60 per minute')  # fits an Isolation Forest over the evidence
 def anomaly_dashboard():
     """Runs the Isolation Forest pipeline over the accessible evidence."""
     from app.logic.anomaly_detection import AnomalyDetectionPipeline

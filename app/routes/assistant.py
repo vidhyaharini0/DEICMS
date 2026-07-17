@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, session
 from flask_login import login_required, current_user
+from app import limiter
 from app.logic.ai_assistant import AIInvestigationAssistant
 
 assistant_bp = Blueprint('assistant', __name__, url_prefix='/assistant')
@@ -36,6 +37,7 @@ def chat_page():
 
 @assistant_bp.route('/chat', methods=['POST'])
 @login_required
+@limiter.limit('20 per minute')  # LLM calls are the most expensive endpoint
 def chat():
     data = request.get_json(force=True)
     user_message = (data.get('message') or '').strip()

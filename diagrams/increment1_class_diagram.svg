@@ -38,7 +38,7 @@
 <text x="330" y="224.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">assigned_to_id: fk</text>
 <line x1="320" y1="235" x2="550" y2="235" stroke="#AFA9EC" stroke-width="1"/>
 <text x="330" y="249.5" font-size="10.5" fill="#5B4FA8" text-anchor="start" font-weight="400" dominant-baseline="central">(managed via routes)</text>
-<rect x="580" y="80" width="250" height="233" fill="#FFFFFF" rx="7" stroke="#AFA9EC" stroke-width="1.2"/>
+<rect x="580" y="80" width="250" height="267" fill="#FFFFFF" rx="7" stroke="#AFA9EC" stroke-width="1.2"/>
 <rect x="580" y="80" width="250" height="30" fill="#3C3489" rx="7" stroke="#AFA9EC" stroke-width="1.2"/>
 <rect x="580" y="102" width="250" height="8" fill="#3C3489" rx="0"/>
 <text x="705.0" y="95.0" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="700" dominant-baseline="central">EvidenceItem</text>
@@ -52,8 +52,10 @@
 <text x="590" y="241.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">current_hash: str</text>
 <text x="590" y="258.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">risk_score: float</text>
 <text x="590" y="275.5" font-size="10.5" fill="#2D3B3A" text-anchor="start" font-weight="400" dominant-baseline="central">risk_level: enum</text>
-<line x1="580" y1="286" x2="830" y2="286" stroke="#AFA9EC" stroke-width="1"/>
-<text x="590" y="300.5" font-size="10.5" fill="#5B4FA8" text-anchor="start" font-weight="400" dominant-baseline="central">(scored &amp; state-managed)</text>
+<text x="590" y="292.5" font-size="10.5" fill="#0F6E56" text-anchor="start" font-weight="700" dominant-baseline="central">integrity_status: enum</text>
+<text x="590" y="309.5" font-size="10.5" fill="#0F6E56" text-anchor="start" font-weight="700" dominant-baseline="central">is_deleted: bool</text>
+<line x1="580" y1="320" x2="830" y2="320" stroke="#AFA9EC" stroke-width="1"/>
+<text x="590" y="334.5" font-size="10.5" fill="#5B4FA8" text-anchor="start" font-weight="400" dominant-baseline="central">(scored &amp; state-managed)</text>
 <rect x="860" y="80" width="250" height="216" fill="#FFFFFF" rx="7" stroke="#1D9E75" stroke-width="1.2"/>
 <rect x="860" y="80" width="250" height="30" fill="#0F6E56" rx="7" stroke="#1D9E75" stroke-width="1.2"/>
 <rect x="860" y="102" width="250" height="8" fill="#0F6E56" rx="0"/>

@@ -2,11 +2,11 @@
 flush_db.py - make the SQLite database file demo-ready.
 
 SQLite runs in WAL (write-ahead log) mode, so recent writes may sit in the
-side files ``deicms.db-wal`` / ``deicms.db-shm`` and are not visible when you
-open ``deicms.db`` in a SQLite browser while (or just after) the app has run.
+side files "deicms.db-wal" / "deicms.db-shm" and are not visible when you
+open "deicms.db" in a SQLite browser while (or just after) the app has run.
 
 This script performs a full WAL checkpoint, folding every pending write back
-into ``deicms.db`` itself, then prints a short summary so you can confirm the
+into "deicms.db" itself, then prints a short summary so you can confirm the
 live audit trail is really there.
 
 Usage:

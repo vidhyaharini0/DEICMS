@@ -366,15 +366,18 @@ def delete_evidence(case_id, evidence_id):
                                 case_id=case_id, evidence_id=evidence_id))
 
     evidence_number = evidence.evidence_number
+    # Soft delete: preserve the custody log and audit trail for chain-of-custody
+    # integrity, but hide the item from all listings.
+    evidence.is_deleted = True
     audit = AuditRecord(
         event_type='Data Modification',
         investigator_id=current_user.id,
+        evidence_id=evidence.id,
         case_id=case_id,
-        description=f'Evidence {evidence_number} deleted by Admin.',
+        description=f'Evidence {evidence_number} deleted (soft delete) by Admin.',
         ip_address=request.remote_addr,
         result='Success')
     db.session.add(audit)
-    evidence.is_deleted = True
     db.session.commit()
 
     flash(f'Evidence {evidence_number} has been deleted.', 'info')

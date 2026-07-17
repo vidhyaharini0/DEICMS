@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 from flask import (Blueprint, render_template, redirect, url_for,
                    flash, request, jsonify)
 from flask_login import login_required, current_user
-from app import db
+from app import db, limiter
 from app.models.evidence import EvidenceItem
 from app.models.investigator import Investigator
 from app.models.custody_log import CustodyLog
@@ -113,6 +113,14 @@ def transfer_evidence(evidence_id):
             except Exception as e:
                 flash(f'Warning: Could not sign transfer: {e}', 'warning')
 
+        # The digital_signature column is NOT NULL by design (every custody
+        # record must carry a signature slot). When signing is unavailable or
+        # fails, store the 'UNSIGNED' sentinel - the graph verifier treats an
+        # unsigned link as unverified rather than crashing the transfer.
+        signed_ok = signature_hex is not None
+        if signature_hex is None:
+            signature_hex = 'UNSIGNED'
+
         from app.logic.state_machine import EvidenceStateMachine
         sm = EvidenceStateMachine(evidence, current_user)
         result = sm.transition_to('Transferred', justification=justification or reason)
@@ -145,7 +153,7 @@ def transfer_evidence(evidence_id):
             description=(
                 f'Evidence {evidence.evidence_number} transferred '
                 f'from {current_user.full_name} to {to_investigator.full_name}. '
-                f'Signed: {"Yes" if signature_hex else "No"}'),
+                f'Signed: {"Yes" if signed_ok else "No"}'),
             ip_address=request.remote_addr,
             result='Success')
         db.session.add(audit)
@@ -154,7 +162,7 @@ def transfer_evidence(evidence_id):
         flash(
             f'Evidence {evidence.evidence_number} transferred to '
             f'{to_investigator.full_name} successfully. '
-            f'{"Transfer digitally signed." if signature_hex else ""}',
+            f'{"Transfer digitally signed." if signed_ok else "Transfer stored UNSIGNED."}',
             'success')
         return redirect(url_for('evidence.view_evidence',
                                 case_id=evidence.case_id,
@@ -181,6 +189,7 @@ def view_custody_log(evidence_id):
 
 @custody_bp.route('/evidence/<int:evidence_id>/verify')
 @login_required
+@limiter.limit('30 per minute')  # graph verification re-hashes the file
 def verify_integrity(evidence_id):
     """
     Run the Graph Integrity Verification Algorithm for an evidence item.
@@ -194,6 +203,16 @@ def verify_integrity(evidence_id):
     from app.logic.graph_integrity import GraphIntegrityEngine
     engine = GraphIntegrityEngine(evidence)
     report = engine.verify()
+
+    # Persist the verdict onto the evidence row so the risk-scoring integrity
+    # factor (its highest-weighted signal) reflects the latest check.
+    # Intact -> VERIFIED, Broken -> FAILED, anything else -> NOT_CHECKED.
+    if report.verdict == 'Intact':
+        evidence.integrity_status = 'VERIFIED'
+    elif report.verdict == 'Broken':
+        evidence.integrity_status = 'FAILED'
+    else:
+        evidence.integrity_status = 'NOT_CHECKED'
 
     audit = AuditRecord(
         event_type='Integrity Check',
@@ -212,8 +231,13 @@ def verify_integrity(evidence_id):
     if report.verdict == 'Broken' and evidence.lifecycle_state != 'Flagged':
         from app.logic.state_machine import EvidenceStateMachine
         sm = EvidenceStateMachine(evidence, current_user)
-        sm.transition_to('Flagged',
-                         justification='Auto-flagged: integrity verification failed.')
+        # Automated safety action: flag regardless of the triggering user's role
+        # (an Analyst running a check on a broken item must still get it flagged,
+        # and we must not write a misleading "rejected transition" audit row).
+        sm.transition_to(
+            'Flagged',
+            justification='Auto-flagged: integrity verification failed.',
+            system=True)
     db.session.commit()
 
     return render_template('custody/integrity_report.html', evidence=evidence, report=report)
@@ -233,6 +257,7 @@ def verify_integrity_json(evidence_id):
 
 @custody_bp.route('/evidence/<int:evidence_id>/reconstruct')
 @login_required
+@limiter.limit('30 per minute')  # heuristic search over the custody graph
 def reconstruct_chain(evidence_id):
     """Run the Custody Chain Reconstruction Algorithm."""
     evidence = EvidenceItem.query.get_or_404(evidence_id)
@@ -279,12 +304,13 @@ def change_state(evidence_id):
 
         result = sm.transition_to(target_state, justification=justification)
 
-        if result:
-            db.session.commit()
-            flash(result.message, 'success')
-        else:
-            db.session.rollback()
-            flash(result.message, 'danger')
+        # transition_to() makes no changes to the evidence on the failure path -
+        # it only appends a rejection audit record. Commit either way so the
+        # rejected-transition attempt is preserved in the audit trail (the
+        # proposal requires rejections to be logged); a rollback here would
+        # silently discard that audit row.
+        db.session.commit()
+        flash(result.message, 'success' if result else 'danger')
 
         return redirect(url_for('evidence.view_evidence', case_id=evidence.case_id, evidence_id=evidence_id))
 

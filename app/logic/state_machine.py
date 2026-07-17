@@ -121,7 +121,8 @@ class EvidenceStateMachine:
         self.investigator = investigator
 
     def transition_to(self, target_state: str,
-                      justification: str = '') -> TransitionResult:
+                      justification: str = '',
+                      system: bool = False) -> TransitionResult:
         """
         Attempt a state transition. Runs the full validation pipeline:
           1. Check the (current, target) pair exists in the transition table
@@ -129,6 +130,12 @@ class EvidenceStateMachine:
           3. Evaluate all preconditions
           4. Execute the transition and log it
           5. Recalculate the risk score for the evidence item
+
+        When ''system'' is True the transition is performed as an automated
+        system action (e.g. auto-flagging evidence when integrity verification
+        fails): the role-permission check is bypassed so the safety action does
+        not depend on which user happened to trigger it, but the (current,
+        target) validity and preconditions are still enforced.
 
         Returns a TransitionResult indicating success or failure with
         a descriptive message identifying exactly which condition failed.
@@ -150,8 +157,8 @@ class EvidenceStateMachine:
 
         transition = TRANSITION_TABLE[transition_key]
 
-        # Step 2: Check role permission
-        if self.investigator.role not in transition['required_roles']:
+        # Step 2: Check role permission (skipped for automated system actions)
+        if not system and self.investigator.role not in transition['required_roles']:
             result = TransitionResult(
                 success=False,
                 message=(

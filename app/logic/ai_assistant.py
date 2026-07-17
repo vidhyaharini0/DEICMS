@@ -102,18 +102,41 @@ class AIInvestigationAssistant:
         ],
     }
 
+    # Deterministic priority order used to break ties when two intents match
+    # the same number of keywords (earlier = higher priority). Without this the
+    # winner would depend on dict iteration order, which is an implementation
+    # detail rather than a design decision.
+    _INTENT_PRIORITY = [
+        IntentCategory.INTEGRITY_QUERY,
+        IntentCategory.CUSTODY_QUERY,
+        IntentCategory.RISK_QUERY,
+        IntentCategory.EVIDENCE_QUERY,
+        IntentCategory.CASE_QUERY,
+        IntentCategory.GENERAL_FORENSICS,
+    ]
+
     #  Stage 1: Intent classification
     def classify_intent(self, user_message: str) -> ClassifiedIntent:
         """
-        Keyword-frequency classifier.
+        Keyword-overlap classifier (a deliberately simple, transparent heuristic
+        - the "complex logic" of this feature is the orchestration pipeline as a
+        whole, not ML-grade intent accuracy).
 
         Algorithm:
           - Convert message to lowercase.
-          - For each intent category, count how many of its keywords appear.
-          - The category with the most hits wins.
-          - Confidence = (winner_hits / total_hits) * 2, clamped to [0, 1].
+          - A first-person self-reference short-circuits to IDENTITY.
+          - Otherwise, for each intent category count how many of its keywords
+            appear in the message; the category with the most hits wins.
+          - Ties are broken by a fixed priority order (_INTENT_PRIORITY) so the
+            result is deterministic and does not depend on dict ordering. More
+            specific intents (integrity, custody) outrank broader ones (case).
+          - Confidence is a HEURISTIC, not a calibrated probability: it is
+            winner_hits / total_hits scaled by 2 and clamped to [0, 1], which
+            simply expresses "how dominant was the winning category among all
+            matches". It should be read as a rough dominance ratio only.
           - Parse a numeric entity ID from the message if one is present
-            (e.g. "case 3", "evidence #7", "item id 12").
+            (e.g. "case 3", "evidence #7", "item id 12"). Only the first ID is
+            used; multi-entity questions fall back to the single parsed ID.
         """
         msg_lower = user_message.lower()
 
@@ -140,7 +163,14 @@ class AIInvestigationAssistant:
             scores[category] = len(hits)
             matched_kws[category] = hits
 
-        best_category = max(scores, key=lambda c: scores[c])
+        # Winner = most keyword hits, ties broken by the fixed priority order
+        # (lower index = higher priority) so classification is deterministic.
+        def _priority(cat):
+            try:
+                return self._INTENT_PRIORITY.index(cat)
+            except ValueError:
+                return len(self._INTENT_PRIORITY)
+        best_category = max(scores, key=lambda c: (scores[c], -_priority(c)))
         best_score = scores[best_category]
 
         if best_score == 0:
@@ -167,7 +197,7 @@ class AIInvestigationAssistant:
 
         All record retrieval is scoped to the cases the *current* investigator
         may access (via CaseAccess), so the assistant never reveals cases or
-        evidence outside the logged-in user's remit. ``user`` is the current
+        evidence outside the logged-in user's remit. "user" is the current
         investigator; when None (e.g. isolated unit tests) no scope filter is
         applied.
         """
@@ -186,6 +216,7 @@ class AIInvestigationAssistant:
             return q if case_ids is None else q.filter(Case.id.in_(case_ids or [-1]))
 
         def scope_evidence(q):
+            q = q.filter(EvidenceItem.is_deleted.is_(False))
             return q if case_ids is None else q.filter(EvidenceItem.case_id.in_(case_ids or [-1]))
 
         def can_see_case(cid):
@@ -226,13 +257,14 @@ class AIInvestigationAssistant:
                     case = None
                 if case:
                     records["case"] = case
+                    case_evidence = case.evidence_items.filter_by(is_deleted=False)
                     lines.append(
                         f"Case #{case.id}: '{case.title}' | "
                         f"Status: {case.status} | "
                         f"Created: {case.created_at.date()} | "
-                        f"Evidence items: {case.evidence_items.count()}"
+                        f"Evidence items: {case_evidence.count()}"
                     )
-                    for ev in case.evidence_items.all():
+                    for ev in case_evidence.all():
                         lines.append(
                             f"  Evidence #{ev.id}: '{ev.title}' "
                             f"[{getattr(ev, 'lifecycle_state', 'Unknown')}]")
@@ -258,6 +290,8 @@ class AIInvestigationAssistant:
             IntentCategory.INTEGRITY_QUERY):
             if intent.entity_id:
                 ev = EvidenceItem.query.get(intent.entity_id)
+                if ev and ev.is_deleted:
+                    ev = None
                 if ev and not can_see_case(ev.case_id):
                     lines.append(
                         f"You do not have access to Evidence #{intent.entity_id}, "
@@ -575,7 +609,7 @@ class AIInvestigationAssistant:
     def answer(self, user_message: str, conversation_history: Optional[List[Dict]] = None, user=None) -> AssistantResponse:
         """
         Runs the full six-stage pipeline.
-        ``user`` is the current investigator; all context retrieval is scoped
+        "user" is the current investigator; all context retrieval is scoped
         to the cases they may access, and their identity is injected into the
         prompt so identity questions are answered correctly.
         Degrades gracefully - always returns an AssistantResponse even on error.

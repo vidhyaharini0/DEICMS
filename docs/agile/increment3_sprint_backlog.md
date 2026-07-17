@@ -3,7 +3,7 @@
 **Sprint goal:** Turn records into judgement — risk scoring, AI-assisted querying with hallucination protection, anomaly detection, security hardening, and court-ready exports.
 **Dates:** Mon 15 Jun – Fri 3 Jul 2026 (14 working days, day 0–14)
 **Committed:** 10 stories · **42 story points** — all delivered
-**UML produced:** Activity Diagram (risk scoring), Sequence Diagram (AI orchestration), Component Diagram, Deployment Diagram (`diagrams/increment3_*.svg`)
+**UML produced:** Activity Diagram (risk scoring), Sequence Diagram (AI orchestration), Component Diagram, Deployment Diagram ('diagrams/increment3_*.svg')
 
 ## Committed stories & task breakdown
 
@@ -27,7 +27,7 @@
 | Ideal | 42 | 39 | 36 | 33 | 30 | 27 | 24 | 21 | 18 | 15 | 12 | 9 | 6 | 3 | 0 |
 | Actual | 42 | 40 | 37 | 34 | 30 | 28 | 25 | 22 | 19 | 16 | 13 | 10 | 7 | 4 | 0 |
 
-Chart: `diagrams/increment3_agile_burndown_chart.svg`
+Chart: 'diagrams/increment3_agile_burndown_chart.svg'
 
 ## Sprint review (summary)
 

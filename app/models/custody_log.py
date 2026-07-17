@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from app import db
+from app.utils import now_local
 
 class CustodyLog(db.Model):
     """
@@ -15,7 +16,14 @@ class CustodyLog(db.Model):
     # Which evidence item this log entry belongs to
     evidence_id = db.Column(db.Integer, db.ForeignKey('evidence_items.id'), nullable=False)
 
-    # Type of custody event
+    # Type of custody event.
+    # Behaviour note: the application writes 'Upload' (at registration) and
+    # 'Transfer' (on custody hand-off). 'Access' and 'Verification' are RESERVED
+    # values - file-access and integrity-verification events are recorded in the
+    # AuditRecord table (the append-only audit trail), NOT as custody-graph
+    # nodes, so that the custody chain stays a clean sequence of ownership
+    # hand-offs. They are kept in the enum for forward-compatibility should
+    # access ever be promoted to a first-class custody node.
     event_type = db.Column(db.Enum('Upload', 'Transfer', 'Access', 'Verification', name='custody_event_type'), nullable=False)
 
     # Who transferred FROM (Null for the initial upload event)
@@ -23,8 +31,15 @@ class CustodyLog(db.Model):
     # Who transferred TO (null for access-only events)
     to_investigator_id = db.Column(db.Integer, db.ForeignKey('investigators.id'), nullable=True)
 
-    # When and where the event happened
-    timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    # When and where the event happened.
+    # Convention: the whole system stores NAIVE local timestamps produced by
+    # app.utils.now_local() (a single source of truth for the local offset).
+    # This default previously used tz-aware UTC, which made comparisons against
+    # the naive local timestamps elsewhere raise "can't compare offset-naive
+    # and offset-aware datetimes" and introduced a silent offset. It now matches
+    # every other model so the graph verifier's timestamp-monotonicity check and
+    # the risk scorer never mix aware and naive values.
+    timestamp = db.Column(db.DateTime, nullable=False, default=lambda: now_local())
     location = db.Column(db.String(200), nullable=True)
 
     # Why the transfer or access happened

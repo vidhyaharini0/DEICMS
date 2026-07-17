@@ -98,10 +98,10 @@ Acceptance criteria:
 - A unique evidence number is generated; uploader becomes the first custody holder.
 - An Upload custody-log entry is created atomically with the evidence record.
 
-**US-05 — SHA-256 fingerprint (2 pts, Must, B — `hashlib`)**
+**US-05 — SHA-256 fingerprint (2 pts, Must, B — 'hashlib')**
 *As an investigator, I want every uploaded file fingerprinted with SHA-256, so that any later modification is detectable.*
 Acceptance criteria:
-- `original_hash` is computed at upload and never changes; `current_hash` tracks the latest verified state.
+- 'original_hash' is computed at upload and never changes; 'current_hash' tracks the latest verified state.
 - The hash is shown on the evidence page and stored in the custody log entry.
 
 **US-06 — Metadata extraction (3 pts, Must, B — Pillow / python-magic)**
@@ -140,12 +140,12 @@ Acceptance criteria:
 **US-11 — Admin-only account creation (1 pt, Must, A)**
 *As an admin, I want to be the only one who can create investigator accounts, so that no one self-registers into an evidence system.*
 Acceptance criteria:
-- No public registration route exists; `/admin/users/new` requires the Admin role.
+- No public registration route exists; '/admin/users/new' requires the Admin role.
 - New accounts get a role, a strong password (policy-checked), and an Ed25519 key pair.
 
 ### Increment 2 — Integrity Algorithms & State Machine
 
-**US-12 — Ed25519-signed custody events (5 pts, Must, B — `cryptography`)**
+**US-12 — Ed25519-signed custody events (5 pts, Must, B — 'cryptography')**
 *As a lead investigator, I want each custody event digitally signed by the outgoing holder, so that records cannot be forged or repudiated.*
 Acceptance criteria:
 - A canonical JSON payload (evidence, event type, timestamp, parties, file hash) is signed at every Upload and Transfer.
@@ -245,7 +245,7 @@ were handled as a short maintenance iteration with two change-request stories.
 *As a non-Admin investigator, I want the dashboard, risk dashboard, and anomaly views to show only the cases and evidence I have access to, so that I never see investigations outside my remit.*
 Defect: the dashboard and the risk/anomaly pages queried every case, evidence item, and audit record system-wide, regardless of the logged-in role.
 Acceptance criteria:
-- A single `CaseAccess.accessible_case_ids(user)` helper returns None for Admin (all cases) or the user's case-ID list otherwise; every aggregated view filters through it.
+- A single 'CaseAccess.accessible_case_ids(user)' helper returns None for Admin (all cases) or the user's case-ID list otherwise; every aggregated view filters through it.
 - Dashboard panels are tailored per role (Admin sees system + security alerts; Lead sees pending actions; Analyst sees a workbench; Read-Only sees a review queue), and every role always has a non-empty "Your recent activity" panel.
 - A Read-Only user with no shared cases sees an explanatory empty state, not global data or a blank page.
 - Per-item risk and audit-formula endpoints enforce the same case-access check (HTTP 403 on cross-case access).
@@ -254,7 +254,7 @@ Acceptance criteria:
 *As an investigator, I want the AI assistant to answer only about my accessible cases, to know who I am, and to never show me another user's conversation, so that the chatbot respects the same boundaries as the rest of the system.*
 Defects: (a) the assistant's context retrieval queried all recent cases/evidence/transfers globally, so a Lead Investigator could list every case; (b) it could not answer "who am I" or "my cases"; (c) chat history persisted in the session across logout, so the next user on the same browser saw the previous user's conversation; (d) responses took 1-2 minutes.
 Acceptance criteria:
-- Context retrieval is scoped to `accessible_case_ids(user)`; cross-case IDs return an access-denied line instead of data.
+- Context retrieval is scoped to 'accessible_case_ids(user)'; cross-case IDs return an access-denied line instead of data.
 - A new IDENTITY intent (checked with priority) answers "who am I" / "my cases" from the authenticated user and their accessible cases.
 - Chat history is tagged with the owner's user ID and cleared on login and logout, so it can never leak between users.
 - The LLM call has a request timeout and defaults to a faster model; the UI aborts and reports if a response is too slow.

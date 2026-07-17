@@ -3,7 +3,7 @@
 **Sprint goal:** A working evidence repository — investigators log in, manage cases, upload hashed evidence, and every action is audited.
 **Dates:** Mon 4 May – Fri 22 May 2026 (14 working days, day 0–14)
 **Committed:** 11 stories · **40 story points** — all delivered
-**UML produced:** Use Case Diagram, Class Diagram, ER Diagram (`diagrams/increment1_*.svg`)
+**UML produced:** Use Case Diagram, Class Diagram, ER Diagram ('diagrams/increment1_*.svg')
 
 ## Committed stories & task breakdown
 
@@ -28,7 +28,7 @@
 | Ideal | 40.0 | 37.1 | 34.3 | 31.4 | 28.6 | 25.7 | 22.9 | 20.0 | 17.1 | 14.3 | 11.4 | 8.6 | 5.7 | 2.9 | 0 |
 | Actual | 40 | 40 | 38 | 36 | 33 | 30 | 28 | 26 | 23 | 20 | 16 | 12 | 8 | 4 | 0 |
 
-Chart: `diagrams/increment1_agile_burndown_chart.svg`
+Chart: 'diagrams/increment1_agile_burndown_chart.svg'
 
 ## Sprint review (summary)
 

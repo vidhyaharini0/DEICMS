@@ -18,7 +18,7 @@ import os
 import zipfile
 from flask import Blueprint, redirect, send_file, url_for, flash, request
 from flask_login import login_required, current_user
-from app import db
+from app import db, limiter
 from app.models.audit_record import AuditRecord
 from app.models.case import Case
 from app.models.case_access import CaseAccess
@@ -39,6 +39,7 @@ def _can_access_case(case):
 
 @export_bp.route('/cases/<int:case_id>/export')
 @login_required
+@limiter.limit('10 per minute')  # builds a full signed ZIP of all evidence
 def export_case(case_id):
     """Generate and download a tamper-evident signed ZIP for a case."""
     case = Case.query.get_or_404(case_id)
@@ -184,6 +185,7 @@ def export_case(case_id):
 
 @export_bp.route('/evidence/<int:evidence_id>/custody-report.pdf')
 @login_required
+@limiter.limit('20 per minute')  # renders a PDF + runs a fresh integrity check
 def custody_report_pdf(evidence_id):
     """
     Download a printable chain-of-custody PDF for one evidence item

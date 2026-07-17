@@ -20,7 +20,7 @@ def _key() -> bytes:
     return derive_key('evidence-file', 32)
 
 def encrypt_file(path: str) -> None:
-    """Encrypt the file at `path` in place (plaintext -> AES-256-GCM)."""
+    """Encrypt the file at 'path' in place (plaintext -> AES-256-GCM)."""
     with open(path, 'rb') as f:
         plaintext = f.read()
     nonce = os.urandom(NONCE_LEN)

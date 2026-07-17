@@ -92,21 +92,27 @@ const metaBar     = document.getElementById('metaBar');
 function addBubble(role, text) {
   const isUser = role === 'user';
   const wrap = document.createElement('div');
-  wrap.className = `d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}`;
+  wrap.className = 'd-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}';
 
   const bubble = document.createElement('div');
-  bubble.className = `px-3 py-2 ${isUser
+  bubble.className = 'px-3 py-2 ${isUser
     ? 'chat-bubble-user'
     : 'chat-bubble-assistant'
-  }`;
+  }';
   bubble.style.maxWidth = '75%';
   bubble.style.whiteSpace = 'pre-wrap';
   bubble.style.wordBreak = 'break-word';
 
-  // Convert **bold** to <strong> and bullet lines to cleaner display
-  bubble.innerHTML = text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^- /gm, '- ');
+  // SECURITY: never inject raw message text as HTML. Both the user's input
+  // and the LLM reply are untrusted (a model can be prompted to emit markup),
+  // so we HTML-escape first, then re-introduce only our own <strong> tags for
+  // **bold**. Escaping runs before the bold pass, so any <, >, & or quote in
+  // the text is neutralised and cannot execute.
+  const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+  bubble.innerHTML = escapeHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
   wrap.appendChild(bubble);
   chatWindow.appendChild(wrap);
@@ -118,10 +124,10 @@ function showTyping() {
   const wrap = document.createElement('div');
   wrap.id = 'typingIndicator';
   wrap.className = 'd-flex justify-content-start';
-  wrap.innerHTML = `
+  wrap.innerHTML = '
     <div class="rounded px-3 py-2 bg-white border text-muted fst-italic">
       DEICMS-AI is thinking…
-    </div>`;
+    </div>';
   chatWindow.appendChild(wrap);
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
@@ -164,7 +170,7 @@ async function sendMessage() {
     hideTyping();
 
     if (data.error) {
-      addBubble('assistant', `Error: ${data.error}`);
+      addBubble('assistant', 'Error: ${data.error}');
     } else {
       addBubble('assistant', data.reply);
 
@@ -174,13 +180,13 @@ async function sendMessage() {
       document.getElementById('metaContext').textContent    = data.context_used ? 'Yes' : 'No';
       document.getElementById('metaValidation').textContent = data.validation_passed ? 'Passed' : 'Failed';
       const warnEl = document.getElementById('metaWarning');
-      warnEl.textContent = data.warning ? `Warning: ${data.warning}` : '';
+      warnEl.textContent = data.warning ? 'Warning: ${data.warning}' : '';
 
       // Hallucination detection (stage 6): list any entity references
       // in the answer that were not found in the database context.
       if (data.hallucination_flags && data.hallucination_flags.length) {
-        const items = data.hallucination_flags.map(f => `⚠️ ${f}`).join('\n');
-        addBubble('assistant', `Hallucination check flagged the following:\n${items}`);
+        const items = data.hallucination_flags.map(f => '⚠️ ${f}').join('\n');
+        addBubble('assistant', 'Hallucination check flagged the following:\n${items}');
       }
     }
   } catch (err) {
@@ -203,10 +209,10 @@ async function clearChat() {
     method: 'POST',
     headers: { 'X-CSRFToken': CSRF_TOKEN },
   });
-  chatWindow.innerHTML = `
+  chatWindow.innerHTML = '
     <div class="text-center text-muted small mt-auto">
       Chat cleared. Start a new conversation below.
-    </div>`;
+    </div>';
   metaBar.classList.add('d-none');
 }
 

@@ -74,8 +74,12 @@ class Config:
     # Minimum length enforced by the password-strength policy.
     PASSWORD_MIN_LENGTH = 12
 
-    # Flask-Limiter - use in-memory store for development
-    RATELIMIT_STORAGE_URI = 'memory://'
+    # Flask-Limiter storage. The in-memory store is fine for single-process
+    # development, but it resets on restart and is NOT shared across worker
+    # processes, so limits are not enforced consistently under a multi-worker
+    # production server (gunicorn/uWSGI). In production set RATELIMIT_STORAGE_URI
+    # to a shared backend, e.g. 'redis://localhost:6379'.
+    RATELIMIT_STORAGE_URI = os.environ.get('RATELIMIT_STORAGE_URI', 'memory://')
 
     # 
     # Magic-byte MIME type -> allowed extension mapping
@@ -113,16 +117,44 @@ class ProductionConfig(Config):
     DEBUG = False
     # In production, use PostgreSQL instead of SQLite
     # SQLALCHEMY_DATABASE_URI = 'postgresql://user:password@localhost/deicms'
-    
+
     # Enforce strict secrets in production (crashes on startup if missing)
     SECRET_KEY = os.environ.get('SECRET_KEY')
     KEY_ENCRYPTION_SECRET = os.environ.get('KEY_ENCRYPTION_SECRET')
     NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY')
 
-# The config the app will use (development by default)
-config = DevelopmentConfig
 
-if config == ProductionConfig:
+# Known-weak fallback values that must never be used in production.
+_INSECURE_DEFAULTS = {
+    'dev-secret-key-change-in-production',
+    'dev-encryption-secret-change-in-production',
+}
+
+# Select the active config from the environment (APP_ENV or FLASK_ENV);
+# defaults to development so existing local setups keep working unchanged.
+# Set APP_ENV=production to activate the strict production profile.
+_env = (os.environ.get('APP_ENV') or os.environ.get('FLASK_ENV') or 'development').lower()
+config = ProductionConfig if _env in ('production', 'prod') else DevelopmentConfig
+
+if config is ProductionConfig:
+    # Fail fast: production must not boot without real, non-default secrets.
     for key in ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET', 'NVIDIA_API_KEY']:
-        if not getattr(config, key):
-            raise ValueError(f"FATAL: Missing required environment variable for production: {key}")
+        value = getattr(config, key)
+        if not value:
+            raise ValueError(
+                f"FATAL: Missing required environment variable for production: {key}")
+        if value in _INSECURE_DEFAULTS:
+            raise ValueError(
+                f"FATAL: {key} is set to a known insecure default value in production.")
+else:
+    # Development: don't crash (existing data may have been encrypted with the
+    # fallback), but warn loudly so the weak secret is never mistaken for safe.
+    import warnings
+    for key in ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET']:
+        if getattr(config, key) in _INSECURE_DEFAULTS:
+            warnings.warn(
+                f"SECURITY: {key} is using an insecure development default. "
+                f"Set it in your .env before any real deployment "
+                f"(and never rotate KEY_ENCRYPTION_SECRET after data exists, "
+                f"or encrypted files and private keys become unrecoverable).",
+                stacklevel=2)

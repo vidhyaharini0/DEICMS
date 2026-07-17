@@ -37,7 +37,9 @@ def _scoped_queries(case_ids):
     Base queries filtered to the accessible cases.
     case_ids is None for Admins (no restriction) or a list of case IDs.
     """
-    case_q, ev_q, audit_q = Case.query, EvidenceItem.query, AuditRecord.query
+    case_q, audit_q = Case.query, AuditRecord.query
+    # Exclude soft-deleted evidence from every dashboard aggregate.
+    ev_q = EvidenceItem.query.filter_by(is_deleted=False)
     custody_q = CustodyLog.query
     if case_ids is not None:
         ids = case_ids or [-1]  # empty access list matches nothing
