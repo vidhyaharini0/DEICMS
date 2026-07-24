@@ -60,7 +60,7 @@ Feature categories follow the course requirement and the accepted proposal:
 
 **Increment totals:** Increment 1 = 40 pts · Increment 2 = 38 pts · Increment 3 = 42 pts · Maintenance M1 = 10 pts
 
-**Maintenance iteration M1** (post-acceptance change requests raised during review testing) is described at the end of this document.
+**Maintenance iterations M1 and M2** are described at the end of this document: M1 (post-acceptance change requests raised during review testing, US-28/US-29, 10 pts) and M2 (correctness & security defects found through a structured code review, catalogued as findings rather than point-estimated stories).
 
 ---
 
@@ -258,6 +258,40 @@ Acceptance criteria:
 - A new IDENTITY intent (checked with priority) answers "who am I" / "my cases" from the authenticated user and their accessible cases.
 - Chat history is tagged with the owner's user ID and cleared on login and logout, so it can never leak between users.
 - The LLM call has a request timeout and defaults to a faster model; the UI aborts and reports if a response is too slow.
+
+---
+
+## Maintenance iteration M2 — correctness & security hardening
+
+A structured code-review pass over the whole system (proposal vs. implementation, every logic module, model, and route) produced a findings document; the fixes below were then applied and validated against the full regression suite. Unlike M1, this iteration is defect-repair driven and is catalogued as findings rather than as point-estimated user stories. All fixes shipped together; the suite stands at 172 tests passing.
+
+| # | Finding | Theme | Severity |
+|---|---|---|---|
+| D1 | Evidence "delete" set a non-existent attribute and persisted nothing (audit trail then falsely claimed deletion) | Correctness | Critical |
+| D2 | Highest-weighted risk factor read an `integrity_status` column that did not exist (a quarter of the scorer was dead) | Correctness | Critical |
+| D3 | Cross-case IDOR: evidence loaded by `evidence_id` while access was checked against the URL `case_id` | Correctness / Security | Critical |
+| D4 | Custody signing failure could abort a transfer (NOT NULL) or leave an unverifiable record | Correctness | High |
+| D5 | Duplicate/role-mismatch risk factors counted the wrong audit events, raising risk when items were merely scrutinised | Correctness | High |
+| D6 | Custody timestamp default was tz-aware UTC while the rest of the system used naive local time | Correctness | Medium |
+| H1 | Untrusted LLM output rendered as HTML in the chat (stored XSS) | Security | High |
+| H2 | No Content-Security-Policy or complementary hardening headers | Security | Medium |
+| H3 | No startup warning when running with insecure default secrets | Security | Low |
+| R1 | Case and evidence listings were unbounded | Robustness | Low |
+| R2 | Intent classifier mis-ranked self-referential ("assigned to me") questions | Robustness | Low |
+
+Resolutions:
+
+- **D1:** added a real `is_deleted` boolean to `EvidenceItem` (+ `_ensure_schema` migration); `delete_evidence` now soft-deletes and every listing (case view, dashboards, risk/anomaly, export) filters it out, preserving the custody/audit history.
+- **D2:** added a real `integrity_status` enum (VERIFIED/NOT_CHECKED/FAILED) written back by `verify_integrity` from the graph-integrity verdict (Intact→VERIFIED, Broken→FAILED); the highest-weighted risk factor is now genuinely live and closes the loop between the Increment 2 verifier and the Increment 3 scorer.
+- **D3:** evidence routes now confirm the loaded item's `case_id` matches the access that was checked, so an item can only be reached through the case it belongs to.
+- **D4:** upload and transfer events are signed in normal operation; if signing is unavailable the record carries an explicit `UNSIGNED` sentinel + user warning (fail-visible), which the graph verifier reports as unverified — no crash, no silent placeholder.
+- **D5:** the duplicate and role-mismatch factors now call the live Category A audit-formula checks, so the simple formulas feed the complex scorer (a deliberate A→C integration).
+- **D6:** the custody timestamp default now uses the shared `now_local()` helper, so the whole system uses one consistent naive-local representation.
+- **H1:** LLM output is escaped before display, with lightweight formatting applied safely afterwards.
+- **H2:** added Content-Security-Policy + `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` (with the `unsafe-inline` allowance documented as a known next step).
+- **H3:** startup warnings when `SECRET_KEY` / `KEY_ENCRYPTION_SECRET` use dev defaults.
+- **R1:** case and evidence listings paginated (sequential numbering left as-is; made collision-free by soft-delete, with concurrency noted as a known limitation).
+- **R2:** intent classifier given a priority rule for self-referential questions, pinned by a dedicated `test_intent_classifier` module.
 
 ---
 
