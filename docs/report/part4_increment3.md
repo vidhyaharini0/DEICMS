@@ -43,7 +43,7 @@ This was the largest increment, budgeted at **forty-two story points** across te
 
 ### 15.3 Increment 3 UML Artefacts
 
-The increment produced four UML artefacts. The **activity diagram** of the risk scoring (`diagrams/increment3_activity_diagram_multifactor_evidence_risk_scoring.svg`) traces the eight-factor extraction and normalisation, the weighted sum, the interaction detection, the classification, and the recommendation generation. The **sequence diagram** of the AI orchestration (`diagrams/increment3_sequence_diagram_ai_assistant_orchestration_workflow.svg`) traces the six-stage pipeline from the investigator's question to the validated, hallucination-checked answer. The **component diagram** and the **deployment diagram** (`diagrams/increment3_component_diagram_deicms_system_architecture.svg` and `diagrams/increment3_deployment_diagram_deicms_development_environment.svg`), discussed in Part I, give the whole-system structural views that were completed once the last modules were in place.
+The increment produced four UML artefacts. The **activity diagram** of the risk scoring (Figure 16.1) traces the eight-factor extraction and normalisation, the weighted sum, the interaction detection, the classification, and the recommendation generation. The **sequence diagram** of the AI orchestration (Figure 16.2) traces the six-stage pipeline from the investigator's question to the validated, hallucination-checked answer. The **component diagram** and the **deployment diagram** (Figure 4.1 and Figure 4.2), discussed in Part I, give the whole-system structural views that were completed once the last modules were in place.
 
 ---
 
@@ -117,7 +117,7 @@ At the review, all ten stories were demonstrated and all forty-two points accept
 
 ### 19.2 Burndown
 
-The burndown chart (`diagrams/increment3_agile_burndown_chart.svg`) shows the steadiest of the three increments, tracking within about two points of the ideal throughout, with a slight early slip on days one to three that was recovered by day four. The steadiness is directly attributable to the two retrospective actions carried in from Increment 2: writing the risk-scoring tests before the implementation caught the normalisation edge cases before they could reach a route and cause a late surprise, and hiding the language model behind a mock seam meant the assistant pipeline could be built and tested continuously rather than being blocked on external credits or network availability. The security stories integrated cleanly because the audit and custody layers from the earlier increments already exposed the hooks they needed.
+The burndown chart (Figure 19.1) shows the steadiest of the three increments, tracking within about two points of the ideal throughout, with a slight early slip on days one to three that was recovered by day four. The steadiness is directly attributable to the two retrospective actions carried in from Increment 2: writing the risk-scoring tests before the implementation caught the normalisation edge cases before they could reach a route and cause a late surprise, and hiding the language model behind a mock seam meant the assistant pipeline could be built and tested continuously rather than being blocked on external credits or network availability. The security stories integrated cleanly because the audit and custody layers from the earlier increments already exposed the hooks they needed.
 
 ### 19.3 Retrospective
 

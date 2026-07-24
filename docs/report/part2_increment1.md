@@ -54,7 +54,7 @@ The eleven stories are stated below with the acceptance criteria that made "done
 
 ### 5.3 Increment 1 UML Artefacts
 
-The increment produced three UML artefacts, each addressing a different view of the foundation. The **use-case diagram** (`diagrams/increment1_use_case_diagram.svg`) captures the actors and the actions available to each, showing how the four investigator roles and the external authenticator relate to the system's use cases and how higher roles inherit the capabilities of lower ones. The **class diagram** (`diagrams/increment1_class_diagram.svg`) captures the static structure — the six entity classes with their attributes and methods, together with the logic-layer modules — and is the reference for the implementation that follows. The **entity-relationship diagram** (`diagrams/increment1_er_diagram.svg`) captures the database schema in detail, including the field types and the relationships that encode the domain rules. These three artefacts are discussed in the next chapter as the design that the implementation realises.
+The increment produced three UML artefacts, each addressing a different view of the foundation. The **use-case diagram** (Figure 6.1) captures the actors and the actions available to each, showing how the four investigator roles and the external authenticator relate to the system's use cases and how higher roles inherit the capabilities of lower ones. The **class diagram** (Figure 6.2) captures the static structure — the six entity classes with their attributes and methods, together with the logic-layer modules — and is the reference for the implementation that follows. The **entity-relationship diagram** (Figure 4.3) captures the database schema in detail, including the field types and the relationships that encode the domain rules. These three artefacts are discussed in the next chapter as the design that the implementation realises.
 
 ---
 
@@ -128,7 +128,7 @@ At the review, all eleven stories were demonstrated against their acceptance cri
 
 ### 9.2 Burndown
 
-The burndown chart for the increment (`diagrams/increment1_agile_burndown_chart.svg`) plots the ideal and actual story points remaining across the fourteen-day cycle. The actual line runs above the ideal for the first several days: days zero to two produced no burned points at all, because environment setup — the Flask application factory, the SQLAlchemy configuration, and the Git repository — took longer than planned and the first story was not completed until day two. From about day nine the actual line converges back toward the ideal, and all forty points were delivered by day fourteen. The chart's shape is therefore a slow start followed by a recovery, and the annotation on the chart records exactly this.
+The burndown chart for the increment (Figure 9.1) plots the ideal and actual story points remaining across the fourteen-day cycle. The actual line runs above the ideal for the first several days: days zero to two produced no burned points at all, because environment setup — the Flask application factory, the SQLAlchemy configuration, and the Git repository — took longer than planned and the first story was not completed until day two. From about day nine the actual line converges back toward the ideal, and all forty points were delivered by day fourteen. The chart's shape is therefore a slow start followed by a recovery, and the annotation on the chart records exactly this.
 
 ### 9.3 Retrospective
 
