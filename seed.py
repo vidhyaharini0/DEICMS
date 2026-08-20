@@ -8,8 +8,9 @@ Usage:
 Safe to re-run - checks before creating anything.
 """
 import hashlib
+import json
 from app import create_app, db
-from app.logic.crypto import generate_key_pair
+from app.logic.crypto import generate_key_pair, encrypt_private_key, sign_payload
 from app.models.investigator import Investigator
 from app.models.case import Case
 from app.models.evidence import EvidenceItem
@@ -27,18 +28,66 @@ def ts(days_ago: float, hours_ago: float = 0) -> datetime:
     """Return a utc datetime offset from now."""
     return now_local() - timedelta(days=days_ago, hours=hours_ago)
 
+def build_custody_payload(evidence_id, event_type, timestamp, from_id, to_id, file_hash):
+    """
+    Canonical byte payload signed for a custody event.
+
+    MUST match app/routes/custody.py::_build_transfer_payload() and
+    app/logic/graph_integrity.py::_build_payload() exactly, otherwise the
+    seeded signatures will not verify and the graph integrity engine will
+    report every seeded node as tampered.
+    """
+    payload_dict = {
+        'evidence_id': evidence_id,
+        'event_type': event_type,
+        'timestamp': timestamp.isoformat(),
+        'from_investigator_id': from_id,
+        'to_investigator_id': to_id,
+        'file_hash': file_hash,
+    }
+    return json.dumps(payload_dict, sort_keys=True).encode('utf-8')
+
+
 def add_custody(db, evidence, event_type, to_inv, from_inv=None,
                 when=None, reason='Standard transfer', location='Digital Lab'):
-    """Add a CustodyLog entry and return it."""
+    """
+    Add a CustodyLog entry and return it.
+
+    The custody record is genuinely Ed25519-signed by the responsible
+    investigator (the outgoing holder, or the uploader for an Upload event),
+    exactly as the application signs live transfers. This is required because
+    custody_logs.digital_signature is NOT NULL by design, and it means the
+    seeded demo data verifies as 'Intact' in the graph integrity engine.
+    """
+    timestamp = when or now_local()
+    from_id = from_inv.id if from_inv else None
+    to_id = to_inv.id if to_inv else None
+    signer = from_inv or to_inv
+
+    payload = build_custody_payload(
+        evidence_id=evidence.id,
+        event_type=event_type,
+        timestamp=timestamp,
+        from_id=from_id,
+        to_id=to_id,
+        file_hash=evidence.original_hash)
+
+    try:
+        signature = sign_payload(signer.private_key_encrypted, payload)
+    except Exception as exc:  # pragma: no cover - seeding should never hit this
+        print(f'   ! could not sign custody event for {evidence.evidence_number}: {exc}')
+        signature = 'UNSIGNED'
+
     log = CustodyLog(
         evidence_id=evidence.id,
         event_type=event_type,
-        from_investigator_id=from_inv.id if from_inv else None,
-        to_investigator_id=to_inv.id if to_inv else None,
-        timestamp=when or now_local(),
+        from_investigator_id=from_id,
+        to_investigator_id=to_id,
+        timestamp=timestamp,
         location=location,
         reason=reason,
-        file_hash_at_event=evidence.original_hash)
+        file_hash_at_event=evidence.original_hash,
+        digital_signature=signature)
     db.session.add(log)
     return log
 
@@ -72,7 +121,7 @@ def seed():
                     email=email,
                     role=role,
                     public_key=pub,
-                    private_key_encrypted=priv,
+                    private_key_encrypted=encrypt_private_key(priv),
                     is_active=True)
                 inv.set_password(password)
                 db.session.add(inv)
@@ -469,16 +518,9 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         (admin,   analyst, 140, 'Return to admin custody'),
         (lead,    admin,   170, 'Final custody before flagging')]):
         evt = 'Upload' if i == 0 else 'Transfer'
-        log = CustodyLog(
-            evidence_id=ev7.id,
-            event_type=evt,
-            from_investigator_id=from_inv.id if from_inv else None,
-            to_investigator_id=to_inv.id,
-            timestamp=base + timedelta(minutes=mins),
-            location='Forensic Lab A',
-            reason=reason,
-            file_hash_at_event=ev7.original_hash)
-        db.session.add(log)
+        add_custody(db, ev7, evt, to_inv, from_inv,
+                    when=base + timedelta(minutes=mins),
+                    reason=reason, location='Forensic Lab A')
 
     # 3 role mismatch warnings + 2 duplicate integrity checks
     for i in range(3):
@@ -537,16 +579,9 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         (lead,    analyst, 185, 'Final lead custody')]
     for i, (to_inv, from_inv, mins, reason) in enumerate(transfer_plan):
         evt = 'Upload' if i == 0 else 'Transfer'
-        log = CustodyLog(
-            evidence_id=ev8.id,
-            event_type=evt,
-            from_investigator_id=from_inv.id if from_inv else None,
-            to_investigator_id=to_inv.id,
-            timestamp=base8 + timedelta(minutes=mins),
-            location='Forensic Lab B',
-            reason=reason,
-            file_hash_at_event=ev8.original_hash)
-        db.session.add(log)
+        add_custody(db, ev8, evt, to_inv, from_inv,
+                    when=base8 + timedelta(minutes=mins),
+                    reason=reason, location='Forensic Lab B')
 
     # 5 role mismatch warnings + 2 duplicate entries
     for i in range(5):
@@ -636,16 +671,9 @@ def _seed_evidence(db, admin, lead, analyst, readonly,
         (lead,    admin,   60,  'Lead sign-off'),
         (analyst, lead,    80,  'Dynamic analysis environment')]):
         evt = 'Upload' if i == 0 else 'Transfer'
-        log = CustodyLog(
-            evidence_id=ev10.id,
-            event_type=evt,
-            from_investigator_id=from_inv.id if from_inv else None,
-            to_investigator_id=to_inv.id,
-            timestamp=base10 + timedelta(minutes=mins),
-            location='Forensic Lab A',
-            reason=reason,
-            file_hash_at_event=ev10.original_hash)
-        db.session.add(log)
+        add_custody(db, ev10, evt, to_inv, from_inv,
+                    when=base10 + timedelta(minutes=mins),
+                    reason=reason, location='Forensic Lab A')
 
     for i in range(3):
         add_audit(db, 'File Access', readonly, ev10, case6,
