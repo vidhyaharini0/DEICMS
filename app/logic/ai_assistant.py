@@ -23,6 +23,17 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple
 from flask import current_app
 
+# Candidate models tried, in order, when the configured AI_MODEL is
+# unavailable. Hosted models are retired periodically by the provider (the
+# API answers HTTP 410 Gone), so keeping an ordered fallback list means one
+# retirement cannot disable the assistant. Newest/most capable first.
+AI_MODEL_FALLBACKS = [
+    "meta/llama-3.3-70b-instruct",
+    "meta/llama-3.1-70b-instruct",
+    "mistralai/mistral-7b-instruct-v0.3",
+    "meta/llama-3.2-3b-instruct",
+]
+
 # Data structures
 class IntentCategory(str, Enum):
     IDENTITY        = "IDENTITY"        # "who am I", "my cases", "assigned to me"
@@ -441,33 +452,56 @@ class AIInvestigationAssistant:
         api_key = current_app.config.get("NVIDIA_API_KEY", "")
 
         if api_key and api_key.startswith("nvapi-"):
-            try:
-                # A per-request timeout stops a slow model from hanging the
-                # whole HTTP request; the route/UI will show a clear message.
-                timeout_s = current_app.config.get("AI_REQUEST_TIMEOUT", 60)
-                client = OpenAI(
-                    base_url="https://integrate.api.nvidia.com/v1",
-                    api_key=api_key,
-                    timeout=timeout_s)
-                # Model is configurable; default to the smaller 8B instruct
-                # model, which answers in a few seconds rather than the
-                # 1-2 minutes the 70B model takes for this workload.
-                model = current_app.config.get(
-                    "AI_MODEL", "meta/llama-3.1-8b-instruct")
-                max_tokens = current_app.config.get("AI_MAX_TOKENS", 700)
-                # Prepend system message as first user turn (NIM style)
-                full_messages = [{"role": "system", "content": system_content}] + messages
-                response = client.chat.completions.create(
-                    model=model,
-                    messages=full_messages,
-                    max_tokens=max_tokens,
-                    temperature=0.4)
-                return response.choices[0].message.content or ""
-            except Exception as e:
-                import traceback
-                print("LLM CALL FAILED:", repr(e))
-                traceback.print_exc()
-                pass  # fall through to mock
+            # A per-request timeout stops a slow model from hanging the
+            # whole HTTP request; the route/UI will show a clear message.
+            timeout_s = current_app.config.get("AI_REQUEST_TIMEOUT", 60)
+            client = OpenAI(
+                base_url="https://integrate.api.nvidia.com/v1",
+                api_key=api_key,
+                timeout=timeout_s)
+            max_tokens = current_app.config.get("AI_MAX_TOKENS", 700)
+            # Prepend system message as first user turn (NIM style)
+            full_messages = [{"role": "system", "content": system_content}] + messages
+
+            # Hosted models are periodically retired by the provider, which
+            # returns HTTP 410 Gone and would otherwise silently drop the
+            # assistant back to the mock. Try the configured model first, then
+            # the documented fallbacks, so a single retirement cannot disable
+            # the feature. Set AI_MODEL in .env to pin a specific model.
+            candidates = []
+            configured = current_app.config.get("AI_MODEL")
+            if configured:
+                candidates.append(configured)
+            for fallback in AI_MODEL_FALLBACKS:
+                if fallback not in candidates:
+                    candidates.append(fallback)
+
+            last_error = None
+            for model in candidates:
+                try:
+                    response = client.chat.completions.create(
+                        model=model,
+                        messages=full_messages,
+                        max_tokens=max_tokens,
+                        temperature=0.4)
+                    if model != candidates[0]:
+                        print(f"LLM: '{candidates[0]}' unavailable; used '{model}'. "
+                              f"Set AI_MODEL={model} in your .env to make this the default.")
+                    return response.choices[0].message.content or ""
+                except Exception as exc:
+                    last_error = exc
+                    # 410 Gone / 404 => model retired or unknown: try the next one.
+                    # Anything else (auth, network, rate limit) will fail the
+                    # same way for every model, so stop and report it.
+                    status = getattr(exc, "status_code", None)
+                    if status in (404, 410):
+                        print(f"LLM: model '{model}' unavailable ({status}); trying next candidate.")
+                        continue
+                    break
+
+            print("LLM CALL FAILED:", repr(last_error))
+            print("The assistant is returning a structured mock response. "
+                  "Check the model name (AI_MODEL in .env) and the API key.")
         return self._mock_response(messages, system_content)
     
     def _mock_response(self, messages: List[Dict], system_content: str) -> str:
@@ -496,11 +530,14 @@ class AIInvestigationAssistant:
             reply = (
                 f"Based on the current database records, here is what I found:\n\n"
                 f"{summary}\n\n"
-                f"[Note: This is a structured mock response. "
-                f"The full 5-stage orchestration pipeline ran successfully - "
-                f"intent was classified, database context was retrieved and injected, "
-                f"and the prompt was constructed. "
-                f"Connect a live API key to receive a natural-language answer.]")
+                f"[Note: This is a structured mock response. The orchestration "
+                f"pipeline ran successfully - intent was classified, database "
+                f"context was retrieved (scoped to the cases you may access) "
+                f"and injected, the prompt was constructed, and the reply was "
+                f"validated and checked for hallucinated references. Only the "
+                f"language-model call itself was unavailable, so the retrieved "
+                f"records are shown directly rather than as natural-language "
+                f"prose.]")
         else:
             reply = (
                 "I can answer general digital forensics questions. "

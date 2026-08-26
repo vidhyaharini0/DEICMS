@@ -1,6 +1,6 @@
 # Part V — Maintenance Iterations: Access-Scoping (M1) and Correctness & Hardening (M2)
 
-Two maintenance iterations followed the three delivery increments. The first, M1, resolved two access-scoping defects found during review testing. The second, M2, resolved a set of correctness and security defects found during a structured code-review pass. Both are documented here as first-class iterations, because the way a project handles change and defect repair after its planned scope is complete is as much a part of the software-engineering story as the original construction.
+Two maintenance iterations followed the three delivery increments. The first, M1, resolved two access-scoping defects found during review testing. The second, M2, resolved a set of correctness and security defects found during a final review pass. Both are documented here as first-class iterations, because the way a project handles change and defect repair after its planned scope is complete is as much a part of the software-engineering story as the original construction.
 
 ---
 
@@ -48,11 +48,13 @@ The iteration delivered both change requests, closed the two defects, and left t
 
 ## 21. Maintenance Iteration M2 — Correctness and Security Hardening
 
-### 21.1 Origin: a Structured Code-Review Pass
+### 21.1 Origin: a Final Review and Regression Pass
 
-Where M1 was triggered by exploratory review testing, M2 was triggered by a deliberate, structured **code review** of the whole system carried out after the access-scoping fixes had settled. The review read the accepted proposal against the implementation, walked every logic module, model, and route, and produced a findings document that catalogued each defect together with its cause and a recommended remedy, without changing any code. Reviewing a working system against its own specification is a distinct engineering activity from testing it: testing asks whether the system does what a test expects, whereas review asks whether the code *means* what it appears to mean and whether it honours the intent of the requirements. Several of the defects M2 fixed are of a kind that testing is structurally poor at catching — a feature that silently does nothing, a computation that reads a field that does not exist, a permission check applied to the wrong identifier — because the positive tests around them pass while the underlying behaviour is wrong. This is the complement of M1's lesson: M1 showed that authorisation defects need adversarial testing, and M2 shows that certain correctness defects need reading rather than running.
+Where M1 was triggered by exploratory review testing, M2 came out of a final review pass over the whole system once the access-scoping fixes had settled — a deliberate read of every logic module, model, and route, together with a full re-run of the test suite, before the project was considered finished. The review produced a findings list that recorded each defect with its cause and a recommended remedy, and no code was changed until the whole list existed, so that the fixes could be prioritised by severity rather than patched in the order they happened to be noticed.
 
-The iteration grouped its findings into three themes — correctness defects, security hardening, and robustness improvements — summarised in Table 21.1 and detailed in the sections that follow. As with M1, every fix was accompanied by tests and validated against the full regression suite before being considered done.
+Reading a working system is a different activity from testing it, and that difference is the reason this pass was worth doing. Testing asks whether the code does what a test expects; reading asks whether the code actually *means* what it appears to mean. Several of the defects found here are of a kind that testing is structurally poor at catching — a feature that silently does nothing, a computation that reads a field which does not exist, a permission check applied to the wrong identifier — because the tests around them pass happily while the underlying behaviour is wrong. This is the complement of M1's lesson: M1 showed that authorisation defects need adversarial testing, and M2 showed that certain correctness defects need reading rather than running.
+
+The findings fall into three themes — correctness defects, security hardening, and robustness improvements — summarised in Table 21.1 and detailed in the sections that follow. As with M1, every fix was accompanied by tests and validated against the full regression suite before being considered done.
 
 **Table 21.1 — M2 findings overview**
 

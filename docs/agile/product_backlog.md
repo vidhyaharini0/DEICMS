@@ -163,7 +163,7 @@ Acceptance criteria:
 **US-14 — Lifecycle state machine (8 pts, Must, C)**
 *As a lead investigator, I want evidence to move only through legally meaningful states, so that procedural rules are enforced by the system.*
 Acceptance criteria:
-- States: Collected → Submitted → Under Analysis ↔ Transferred → Archived; any state → Flagged.
+- States: Collected -> Submitted -> Under Analysis ↔ Transferred -> Archived; any state -> Flagged.
 - Each transition has a minimum role and preconditions (e.g. custody log must exist before analysis).
 - Rejected transitions return the exact unmet condition and are audited.
 - Every successful transition requires a justification and triggers a risk-score recalculation.
@@ -282,10 +282,10 @@ A structured code-review pass over the whole system (proposal vs. implementation
 Resolutions:
 
 - **D1:** added a real `is_deleted` boolean to `EvidenceItem` (+ `_ensure_schema` migration); `delete_evidence` now soft-deletes and every listing (case view, dashboards, risk/anomaly, export) filters it out, preserving the custody/audit history.
-- **D2:** added a real `integrity_status` enum (VERIFIED/NOT_CHECKED/FAILED) written back by `verify_integrity` from the graph-integrity verdict (Intact→VERIFIED, Broken→FAILED); the highest-weighted risk factor is now genuinely live and closes the loop between the Increment 2 verifier and the Increment 3 scorer.
+- **D2:** added a real `integrity_status` enum (VERIFIED/NOT_CHECKED/FAILED) written back by `verify_integrity` from the graph-integrity verdict (Intact->VERIFIED, Broken->FAILED); the highest-weighted risk factor is now genuinely live and closes the loop between the Increment 2 verifier and the Increment 3 scorer.
 - **D3:** evidence routes now confirm the loaded item's `case_id` matches the access that was checked, so an item can only be reached through the case it belongs to.
 - **D4:** upload and transfer events are signed in normal operation; if signing is unavailable the record carries an explicit `UNSIGNED` sentinel + user warning (fail-visible), which the graph verifier reports as unverified — no crash, no silent placeholder.
-- **D5:** the duplicate and role-mismatch factors now call the live Category A audit-formula checks, so the simple formulas feed the complex scorer (a deliberate A→C integration).
+- **D5:** the duplicate and role-mismatch factors now call the live Category A audit-formula checks, so the simple formulas feed the complex scorer (a deliberate A->C integration).
 - **D6:** the custody timestamp default now uses the shared `now_local()` helper, so the whole system uses one consistent naive-local representation.
 - **H1:** LLM output is escaped before display, with lightweight formatting applied safely afterwards.
 - **H2:** added Content-Security-Policy + `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` (with the `unsafe-inline` allowance documented as a known next step).

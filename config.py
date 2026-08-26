@@ -33,10 +33,11 @@ class Config:
     # falls back to a context-aware mock response.
     NVIDIA_API_KEY = os.environ.get('NVIDIA_API_KEY', '')
 
-    # AI assistant tuning. The 8B model answers in a few seconds; the larger
-    # 70B model is more capable but took 1-2 minutes for this workload.
-    # Override via .env if you prefer the larger model.
-    AI_MODEL = os.environ.get('AI_MODEL', 'meta/llama-3.1-8b-instruct')
+    # AI assistant tuning. Hosted models are retired by the provider from time
+    # to time (the API then answers HTTP 410 Gone), so ai_assistant.py keeps an
+    # ordered fallback list and tries the next candidate automatically. Pin a
+    # specific model by setting AI_MODEL in .env.
+    AI_MODEL = os.environ.get('AI_MODEL', 'meta/llama-3.3-70b-instruct')
     AI_MAX_TOKENS = int(os.environ.get('AI_MAX_TOKENS', 700))
     AI_REQUEST_TIMEOUT = int(os.environ.get('AI_REQUEST_TIMEOUT', 60))
 

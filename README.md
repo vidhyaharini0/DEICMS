@@ -63,7 +63,7 @@ increments, as defined in the accepted project proposal
    behavioural consistency) and labels every link Confirmed / Inferred /
    Unresolved with an overall confidence score.
 4. **Evidence Lifecycle State Machine** — formal automaton over the states
-   Collected → Submitted → Under Analysis ↔ Transferred → Archived (+ Flagged),
+   Collected -> Submitted -> Under Analysis ↔ Transferred -> Archived (+ Flagged),
    with role-gated transitions, precondition validation, mandatory
    justification, audit logging of both successes and rejections, and
    automatic full risk-score recalculation on every transition.
