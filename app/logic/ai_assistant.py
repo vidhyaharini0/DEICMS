@@ -28,10 +28,13 @@ from flask import current_app
 # API answers HTTP 410 Gone), so keeping an ordered fallback list means one
 # retirement cannot disable the assistant. Newest/most capable first.
 AI_MODEL_FALLBACKS = [
-    "meta/llama-3.3-70b-instruct",
-    "meta/llama-3.1-70b-instruct",
-    "mistralai/mistral-7b-instruct-v0.3",
-    "meta/llama-3.2-3b-instruct",
+    # Fast NVIDIA MoE, text-to-text, free endpoint - the default choice.
+    "nvidia/nemotron-3.5-lightning-30b-a3b",
+    # Widely used general chat/reasoning models on the same catalogue.
+    "minimaxai/minimax-m3",
+    "stepfun-ai/step-3.7-flash",
+    # Most capable, but noticeably slower for interactive use.
+    "nvidia/nemotron-3-ultra-550b-a55b",
 ]
 
 # Data structures

@@ -37,7 +37,7 @@ class Config:
     # to time (the API then answers HTTP 410 Gone), so ai_assistant.py keeps an
     # ordered fallback list and tries the next candidate automatically. Pin a
     # specific model by setting AI_MODEL in .env.
-    AI_MODEL = os.environ.get('AI_MODEL', 'meta/llama-3.3-70b-instruct')
+    AI_MODEL = os.environ.get('AI_MODEL', 'nvidia/nemotron-3.5-lightning-30b-a3b')
     AI_MAX_TOKENS = int(os.environ.get('AI_MAX_TOKENS', 700))
     AI_REQUEST_TIMEOUT = int(os.environ.get('AI_REQUEST_TIMEOUT', 60))
 
