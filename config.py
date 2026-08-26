@@ -39,7 +39,12 @@ class Config:
     # specific model by setting AI_MODEL in .env.
     AI_MODEL = os.environ.get('AI_MODEL', 'nvidia/nemotron-3.5-lightning-30b-a3b')
     AI_MAX_TOKENS = int(os.environ.get('AI_MAX_TOKENS', 700))
-    AI_REQUEST_TIMEOUT = int(os.environ.get('AI_REQUEST_TIMEOUT', 60))
+    # Per-model timeout, and the total budget for the whole call stage
+    # (including any fallback attempts). The total is kept below the browser's
+    # abort so a slow model shows a clear message rather than a cancelled
+    # request, and so several candidates can be tried within one page request.
+    AI_REQUEST_TIMEOUT = int(os.environ.get('AI_REQUEST_TIMEOUT', 20))
+    AI_TOTAL_BUDGET = int(os.environ.get('AI_TOTAL_BUDGET', 60))
 
     # Allowed file extensions for evidence uploads
     ALLOWED_EXTENSIONS = {

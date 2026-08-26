@@ -153,7 +153,10 @@ async function sendMessage() {
 
   // Abort if the model takes too long, so the Send button never hangs
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 75000);
+  // Must exceed the server's AI_TOTAL_BUDGET (60s) plus request overhead, so
+  // the server always finishes and reports a real result rather than having
+  // the browser cancel a request that was still working.
+  const timer = setTimeout(() => controller.abort(), 90000);
 
   try {
     const res = await fetch("{{ url_for('assistant.chat') }}", {

@@ -455,9 +455,19 @@ class AIInvestigationAssistant:
         api_key = current_app.config.get("NVIDIA_API_KEY", "")
 
         if api_key and api_key.startswith("nvapi-"):
-            # A per-request timeout stops a slow model from hanging the
-            # whole HTTP request; the route/UI will show a clear message.
-            timeout_s = current_app.config.get("AI_REQUEST_TIMEOUT", 60)
+            import time
+
+            # Two budgets, deliberately distinct:
+            #   * per-model timeout - how long any single model may take;
+            #   * total budget - how long the whole stage may take, including
+            #     every fallback attempt.
+            # The total must stay comfortably below the browser's abort (75s)
+            # or the user sees "took too long" even though the server is still
+            # working through candidates.
+            timeout_s = current_app.config.get("AI_REQUEST_TIMEOUT", 20)
+            total_budget_s = current_app.config.get("AI_TOTAL_BUDGET", 60)
+            started = time.monotonic()
+
             client = OpenAI(
                 base_url="https://integrate.api.nvidia.com/v1",
                 api_key=api_key,
@@ -481,30 +491,47 @@ class AIInvestigationAssistant:
 
             last_error = None
             for model in candidates:
+                elapsed = time.monotonic() - started
+                if elapsed >= total_budget_s:
+                    print(f"LLM: total budget ({total_budget_s}s) exhausted after "
+                          f"{elapsed:.0f}s; not trying '{model}'.")
+                    break
                 try:
+                    attempt_started = time.monotonic()
                     response = client.chat.completions.create(
                         model=model,
                         messages=full_messages,
                         max_tokens=max_tokens,
-                        temperature=0.4)
+                        temperature=0.4,
+                        # Never let one attempt run past the remaining budget.
+                        timeout=min(timeout_s, total_budget_s - elapsed))
+                    took = time.monotonic() - attempt_started
                     if model != candidates[0]:
-                        print(f"LLM: '{candidates[0]}' unavailable; used '{model}'. "
-                              f"Set AI_MODEL={model} in your .env to make this the default.")
+                        print(f"LLM: '{candidates[0]}' unavailable; used '{model}' "
+                              f"({took:.1f}s). Set AI_MODEL={model} in your .env "
+                              f"to make this the default and avoid the retry delay.")
+                    else:
+                        print(f"LLM: '{model}' responded in {took:.1f}s.")
                     return response.choices[0].message.content or ""
                 except Exception as exc:
                     last_error = exc
-                    # 410 Gone / 404 => model retired or unknown: try the next one.
-                    # Anything else (auth, network, rate limit) will fail the
-                    # same way for every model, so stop and report it.
                     status = getattr(exc, "status_code", None)
-                    if status in (404, 410):
-                        print(f"LLM: model '{model}' unavailable ({status}); trying next candidate.")
+                    reason = (f"HTTP {status}" if status
+                              else type(exc).__name__)
+                    # Retired/unknown model or a timeout on this particular
+                    # model: try the next candidate. Auth, quota and network
+                    # errors fail identically for every model, so stop early.
+                    retryable = status in (404, 410) or "timeout" in type(exc).__name__.lower()
+                    print(f"LLM: model '{model}' failed ({reason})"
+                          f"{'; trying next candidate.' if retryable else '.'}")
+                    if retryable:
                         continue
                     break
 
             print("LLM CALL FAILED:", repr(last_error))
-            print("The assistant is returning a structured mock response. "
-                  "Check the model name (AI_MODEL in .env) and the API key.")
+            print("Returning a structured mock response. If this persists, open a "
+                  "model page on build.nvidia.com, copy the exact model id from its "
+                  "code sample, and set AI_MODEL=<that id> in your .env.")
         return self._mock_response(messages, system_content)
     
     def _mock_response(self, messages: List[Dict], system_content: str) -> str:
