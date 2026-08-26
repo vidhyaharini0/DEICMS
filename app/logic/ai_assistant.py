@@ -581,15 +581,87 @@ class AIInvestigationAssistant:
 
         return reply
 
-    #  Stage 5: Response validation 
+    #  Stage 5: Response validation
+    @staticmethod
+    def strip_reasoning(raw_reply: str) -> str:
+        """
+        Remove a reasoning model's visible chain-of-thought, keeping only the
+        final answer.
+
+        Many current hosted models are reasoning models: they emit their
+        deliberation before the answer, either wrapped in tags such as
+        <think>...</think> or introduced by a heading like "Here's a thinking
+        process:". That deliberation is not part of the answer and must not be
+        shown to an investigator - it is verbose, it exposes prompt internals,
+        and it makes the reply hard to read.
+
+        The stripping is deliberately conservative: if removing the preamble
+        would leave nothing useful, the original text is returned unchanged,
+        so a non-reasoning model's answer can never be destroyed by this step.
+        """
+        if not raw_reply:
+            return raw_reply
+
+        cleaned = raw_reply
+        # Tracks whether an explicit reasoning marker was found. When one was,
+        # the stripped text is trusted even if short, because we know exactly
+        # what was removed; without a marker we fall back more cautiously.
+        found_marker = False
+
+        # 1. Tag-delimited reasoning: <think>...</think>, <reasoning>...</reasoning>
+        cleaned, n = re.subn(r'<(think|thinking|reasoning|thought)>.*?</\1>',
+                             '', cleaned, flags=re.S | re.I)
+        found_marker = found_marker or n > 0
+        # An unclosed opening tag: drop everything up to the last closing tag.
+        cleaned, n = re.subn(r'^.*?</(think|thinking|reasoning|thought)>',
+                             '', cleaned, flags=re.S | re.I)
+        found_marker = found_marker or n > 0
+
+        # 2. Heading-introduced reasoning, e.g. "Here's a thinking process:".
+        #    The final answer usually follows a marker such as "Draft:",
+        #    "Final answer:", or "Response:" - keep the text after the LAST one.
+        if re.search(r"(here'?s|here is) (a|my) (thinking process|reasoning|thought process)",
+                     cleaned, re.I):
+            found_marker = True
+            marker = None
+            for pattern in (r'\n\s*(?:final answer|final response|answer|response|output)\s*:\s*',
+                            r'\n\s*draft\s*:\s*'):
+                matches = list(re.finditer(pattern, cleaned, re.I))
+                if matches:
+                    marker = matches[-1]
+                    break
+            if marker:
+                cleaned = cleaned[marker.end():]
+            else:
+                # No explicit marker: drop the numbered analysis section and
+                # keep the trailing prose, which is normally the answer.
+                parts = re.split(r'\n\s*\d+\.\s+[A-Z][^\n]*:\s*\n', cleaned)
+                if len(parts) > 1 and len(parts[-1].strip()) > 40:
+                    cleaned = parts[-1]
+
+        # 3. Tidy leftover scaffolding lines and trailing verification marks.
+        cleaned = re.sub(r'^\s*(?:draft|final answer|answer)\s*:\s*', '',
+                         cleaned.strip(), flags=re.I)
+        cleaned = re.sub(r'\s*[✅✓]\s*$', '', cleaned).strip()
+
+        # Conservative guard. When an explicit reasoning marker was found we
+        # know precisely what was removed, so any non-empty remainder is the
+        # answer. Without a marker, only accept a substantial remainder, so a
+        # normal reply can never be mangled by the heuristics above.
+        if found_marker:
+            return cleaned if cleaned else raw_reply.strip()
+        return cleaned if len(cleaned) >= 20 else raw_reply.strip()
+
     def validate_response(self, raw_reply: str, intent: IntentCategory) -> Tuple[str, bool, Optional[str]]:
         """
-        Checks the reply for:
+        Removes any reasoning preamble, then checks the reply for:
         - Minimum length (> 20 chars)
         - Refusal patterns (model declined to answer)
         - Off-topic signals (no forensics terms in a domain-specific reply)
         Returns (reply_text, passed: bool, warning_message | None)
         """
+        raw_reply = self.strip_reasoning(raw_reply)
+
         if len(raw_reply.strip()) < 20:
             return raw_reply, False, "Response too short - the model may have failed."
 
@@ -614,26 +686,47 @@ class AIInvestigationAssistant:
         return raw_reply, True, None
 
     #  Stage 6: Hallucination detection
-    def check_hallucinations(self, reply: str, context: RetrievedContext) -> List[str]:
+    def check_hallucinations(self, reply: str, context: RetrievedContext,
+                             user=None, user_message: str = "") -> List[str]:
         """
         Cross-checks every entity reference in the LLM reply against the
-        retrieved database context (proposal section 2C.5).
+        information that was genuinely available to the model (proposal 2C.5).
 
         Algorithm:
           1. Extract all case and evidence ID references from the reply
              using regex patterns (e.g. "Case #12", "evidence item 7").
           2. Extract all known investigator full names from the database
              and detect which of them the reply mentions.
-          3. Each extracted reference is looked up in the context text that
-             was actually injected into the prompt. A reference that does
-             NOT appear in the context is a potential hallucination.
+          3. Each extracted reference is looked up in the "known" set. A
+             reference that is NOT known is a potential hallucination.
           4. Return the list of flagged references (empty list = clean).
 
+        The "known" set is deliberately wider than the retrieved context
+        block alone, because two other sources legitimately put entity names
+        in front of the model, and treating either as invented produces false
+        positives that undermine trust in the check:
+
+          * the current user's own identity, which build_prompt() injects into
+            the system prompt so that "who am I?" can be answered - the
+            assistant naming the person it is talking to is correct, not
+            fabricated; and
+          * the investigator's own question, since a model echoing back a
+            name the user just typed has invented nothing.
+
         The mock backend can never trigger this check (it only echoes the
-        context), so any flag indicates the live model invented an entity.
+        context), so any flag indicates the live model introduced an entity
+        from none of these sources.
         """
         flags: List[str] = []
-        known = context.context_text.lower()
+
+        known_parts = [context.context_text]
+        # The current user's identity is injected into the system prompt.
+        if user is not None and getattr(user, 'is_authenticated', False):
+            known_parts.append(f"{user.full_name} {user.role} {user.id}")
+        # Anything the user themselves wrote is, by definition, not invented.
+        if user_message:
+            known_parts.append(user_message)
+        known = " \n ".join(known_parts).lower()
 
         # 1. Case / evidence ID references
         id_patterns = [
@@ -687,7 +780,8 @@ class AIInvestigationAssistant:
             messages, system_content = self.build_prompt(user_message, context, conversation_history, user=user)
             raw = self.call_nvidia(messages, system_content)
             reply, passed, warning = self.validate_response(raw, intent.category)
-            hallucination_flags = self.check_hallucinations(reply, context)
+            hallucination_flags = self.check_hallucinations(
+                reply, context, user=user, user_message=user_message)
 
             if hallucination_flags and not warning:
                 warning = (
