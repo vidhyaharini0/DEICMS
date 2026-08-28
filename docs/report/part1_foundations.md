@@ -134,6 +134,35 @@ The requirements were prioritised using **MoSCoW** — must-have, should-have, c
 
 Each story carries acceptance criteria that make "done" objective, a MoSCoW priority, a story-point estimate, a feature-category tag, and the increment in which it was delivered. The full catalogue of twenty-nine stories — the twenty-seven original stories plus the two change-request stories from the first maintenance iteration — is reproduced in the appendix, and the stories are presented with their acceptance criteria in the planning chapter of each increment; the second maintenance iteration's work is catalogued as defect findings rather than as backlog stories. The backlog totalled one hundred and twenty points of original scope, distributed as forty, thirty-eight, and forty-two points across the three increments, with a further ten points in the first maintenance iteration; the distribution was chosen so that no increment was overloaded and so that the riskiest work — the algorithms in Increment 2 — sat in the middle, after the foundation was stable but before the project's schedule pressure peaked.
 
+### 3.6 Estimation Method
+
+Because the sprint backlogs and burndown charts that follow are expressed in story points, it is worth setting out precisely how those numbers were arrived at, so that the figures quoted throughout the report are understood as the product of a method rather than as arbitrary values.
+
+Estimation used **story points on a Fibonacci scale** — 1, 2, 3, 5, 8, 13 — rather than hours. The distinction matters. An hour estimate claims to predict how long something will take, which is a prediction developers are famously poor at making; a story point claims only that one piece of work is about twice the size of another, which is a judgement people make far more reliably. The Fibonacci sequence is used because its gaps widen as the numbers grow: it is possible to distinguish a 3 from a 5 with some confidence, but nobody can honestly distinguish a 7 from an 8, and the absence of those intermediate values prevents false precision. The widening gaps also encode a real property of estimation — that uncertainty grows with size, so large items deserve coarser buckets.
+
+Each point value was given a consistent meaning, applied uniformly across all twenty-nine stories, as set out in Table 3.1.
+
+**Table 3.1 — Story-point scale and its application**
+
+| Points | Meaning | Representative stories |
+|---|---|---|
+| 1 | Trivial; a single small piece that reuses existing patterns | US-11 admin-only account creation |
+| 2 | Simple; essentially a library call plus its wiring | US-05 SHA-256 fingerprint, US-26 signed ZIP export, US-27 PDF report, US-16 and US-17 report interfaces |
+| 3 | Small; a few parts, but no new design work | US-01 login, US-06 metadata extraction, US-10 formula checks, US-19 configurable weights, US-21 hallucination detection, US-23 dashboards |
+| 5 | Moderate; multi-part and substantial, but well understood | US-02 role-based access control, US-03 case CRUD, US-04 evidence upload, US-08 custody logging, US-09 audit trail, US-12 digital signing, US-22 anomaly detection, US-24 two-factor authentication |
+| 8 | Large; genuine design work, typically a new algorithm | US-14 state machine, US-15 chain reconstruction, US-18 risk scoring, US-20 AI orchestration |
+| 13 | Very large; significant unknowns at the time of estimation | US-13 graph integrity verification |
+
+Estimates were assigned **relatively**, anchored on a reference story rather than judged in isolation. US-05, the SHA-256 fingerprint — call a hashing function, store the result in a column, display it — served as the natural 2, and every other story was sized by asking whether it was about the same, roughly twice as large, or several times larger. This anchoring is what keeps a scale internally consistent when one person applies it across several months.
+
+The resulting distribution is itself evidence that the method was applied honestly rather than retrofitted. Every story estimated at 8 is one of the five complex Category C algorithms; every story estimated at 2 is a thin wrapper over a third-party library; and the single 13 in the entire project went to the graph integrity verifier, the one item whose difficulty genuinely could not be predicted in advance. That last judgement proved correct in a way the estimate could not have anticipated: US-13 is precisely where Increment 2's three-day mid-sprint plateau occurred, as the burndown chart in Chapter 14 records.
+
+It is important to note that **story points and MoSCoW priority are independent dimensions**, even though they appear side by side in the same backlog tables. A point value answers *how large is this?*; a MoSCoW priority answers *what happens if time runs out?*. The two do not correlate, and deliberately so. US-11, admin-only account creation, is the smallest story in the project at 1 point yet is a Must, because a forensic system that permits self-registration is unacceptable regardless of how little code the restriction requires. Conversely US-22, the Isolation Forest anomaly detection, is a 5-point story but only a Could, because it represents real work whose absence would leave the system coherent. Keeping size and importance separate is what allows scope to be cut sensibly under pressure: one drops the least important work, not the largest.
+
+Finally, the **increment totals were not chosen; they are simply the sums** of the stories selected into each increment. Increment 1's forty points are the sum of its eleven stories (3+5+5+5+2+3+3+5+5+3+1), Increment 2's thirty-eight the sum of its six (5+13+8+8+2+2), and Increment 3's forty-two the sum of its ten (8+3+8+3+5+3+5+3+2+2), with the maintenance iteration adding ten (5+5) for a project total of one hundred and thirty points. The reason these totals cluster so closely, between thirty-eight and forty-two, is **capacity rather than coincidence**: each increment was a fourteen-working-day cycle for a single developer, and once Increment 1 had delivered forty points in that time, forty became the observed velocity — the empirical answer to how much fits in one cycle — against which the following increments were loaded. This is the intended relationship between estimation and planning in an agile process: capacity is measured from what was actually delivered rather than assumed in advance, and the plan is fitted to it.
+
+The honest caveat, already noted in Section 2.1 and revisited in the velocity analysis of Chapter 25, is that a single-developer project places the estimator and the implementer in the same person, so estimates can be adjusted with perfect knowledge of the implementer's pace. This is why the report treats the *shape* of each burndown chart — where progress stalled and where it recovered — as more informative than the fact that each increment's total was met.
+
 ---
 
 ## 4. System-Wide Architecture

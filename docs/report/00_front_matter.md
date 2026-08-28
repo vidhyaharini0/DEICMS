@@ -43,6 +43,7 @@ Development followed the **Agile Incremental Model** across three increments —
    3.3 Non-Functional Requirements
    3.4 Feature Categorisation (A / B / C) and Balance Rationale
    3.5 Prioritisation and the Product Backlog
+   3.6 Estimation Method
 4. System-Wide Architecture
    4.1 Technology Stack and Justification
    4.2 Application Architecture (Factory and Blueprints)
