@@ -28,7 +28,7 @@ Seven principles may be applied in all phases of software development. Modularit
 |---|---|---|---|
 | P1 | **Rigour and formality** | Creativity practised systematically; formality is rigour at its highest degree | Ed25519 signature payload defined as an exact canonical byte sequence |
 | P2 | **Separation of concerns** | Divide and conquer: separate issues to concentrate on one at a time | Four-layer architecture; routes never contain business logic |
-| P3 | **Modularity** | Decompose a complex system into simpler pieces with well-defined interfaces | Ten blueprints, six model modules, eight logic modules |
+| P3 | **Modularity** | Decompose a complex system into simpler pieces with well-defined interfaces | Ten blueprints, six model modules, twelve logic modules |
 | P4 | **Abstraction** | Identify the important aspects of a phenomenon and ignore its details | The custody history modelled as a directed graph |
 | P5 | **Anticipation of change** | Support evolution by anticipating potential future changes | Admin-configurable risk weights; ORM for database portability |
 | P6 | **Generality** | Look for the general problem behind the specific one, balancing against cost | The factor–normalise–weight–amplify structure of the risk engine |

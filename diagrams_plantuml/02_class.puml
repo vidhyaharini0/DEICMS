@@ -1,5 +1,5 @@
 @startuml
-' Figure 8.2 - DEICMS Class Diagram
+' Figure 8.3 - DEICMS Class Diagram
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

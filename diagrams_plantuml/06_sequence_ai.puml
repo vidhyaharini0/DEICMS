@@ -1,5 +1,5 @@
 @startuml
-' Figure 8.5 - Sequence Diagram: AI Assistant Orchestration Workflow
+' Figure 8.6 - Sequence Diagram: AI Assistant Orchestration Workflow
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

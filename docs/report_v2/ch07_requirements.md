@@ -72,9 +72,10 @@ User requirements are stated in natural language, from the user's point of view,
 | UR-07 | Lead Investigator | Grant and revoke other investigators' access to a case |
 | UR-08 | Lead Investigator | See the items in my cases that need my attention, ranked by risk |
 | UR-09 | Lead Investigator | Produce a tamper-evident export package of a case for court |
-| UR-10 | Analyst | Upload a digital file and register it as evidence within a case |
+| UR-10 | Lead Investigator | Upload a digital file and register it as evidence within a case |
 | UR-11 | Analyst | Transfer custody of an item to another investigator, recording why |
 | UR-12 | Analyst | Verify that an item's entire custody history is intact |
+| UR-12a | Analyst | Examine the evidence items in the cases I am assigned to |
 | UR-13 | Analyst | See a plausible reconstruction when custody records are incomplete |
 | UR-14 | Analyst | Ask questions in plain English about the data I am permitted to see |
 | UR-15 | Analyst | Move an item through its lifecycle only in ways procedure allows |

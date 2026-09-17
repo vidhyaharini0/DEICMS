@@ -1,5 +1,5 @@
 @startuml
-' Figure 8.10 - Deployment Diagram: DEICMS Development Environment
+' Figure 8.11 - Deployment Diagram: DEICMS Development Environment
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

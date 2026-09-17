@@ -47,6 +47,8 @@ The M2 defect findings (D1–D6, H1–H3, R1–R2) are catalogued in Table 5.9 r
 
 Routes grouped by blueprint. Methods are shown as G (GET) and P (POST). All routes require authentication except the login and one-time-password routes.
 
+The **minimum role** column was derived by reading the authorisation guard in each route handler, not from design intent; it matches Table 8.5 exactly. "Case member" means no role guard applies but the requester must belong to the item's case (Administrators are exempt).
+
 | Method | Path | Purpose | Minimum role |
 |---|---|---|---|
 | G/P | `/login` (and `/`) | Log in | — |
@@ -55,24 +57,24 @@ Routes grouped by blueprint. Methods are shown as G (GET) and P (POST). All rout
 | G/P | `/2fa/setup`, `/2fa/disable` | Enrol or disable TOTP | Any (own account) |
 | G | `/dashboard` | Role-tailored dashboard | Any |
 | G | `/cases` | List accessible cases (paginated) | Any |
-| G/P | `/cases/new` | Create a case | Lead Investigator |
+| G/P | `/cases/new` | Create a case | Lead Investigator or Admin |
 | G | `/cases/<id>` | View a case and its evidence | Case member |
-| G/P | `/cases/<id>/edit` | Edit a case | Lead Investigator |
-| P | `/cases/<id>/archive` | Archive a case (soft) | Lead Investigator |
-| P | `/cases/<id>/members/add`, `/members/remove` | Manage case membership | Lead Investigator |
-| G | `/cases/<id>/export` | Download the signed ZIP export | Lead Investigator |
-| G/P | `/cases/<id>/evidence/upload` | Upload and register evidence | Analyst |
+| G/P | `/cases/<id>/edit` | Edit a case | Lead Investigator or Admin |
+| P | `/cases/<id>/archive` | Archive a case (soft) | **Admin only** |
+| P | `/cases/<id>/members/add`, `/members/remove` | Manage case membership | Admin or case Owner |
+| G | `/cases/<id>/export` | Download the signed ZIP export | Lead Investigator or Admin |
+| G/P | `/cases/<id>/evidence/upload` | Upload and register evidence | Lead Investigator |
 | G | `/cases/<id>/evidence/<eid>` | View an evidence item | Case member |
-| G/P | `/cases/<id>/evidence/<eid>/edit` | Edit evidence metadata | Analyst |
-| P | `/cases/<id>/evidence/<eid>/delete` | Soft-delete an evidence item | Lead Investigator |
+| G/P | `/cases/<id>/evidence/<eid>/edit` | Edit evidence metadata | Lead Investigator |
+| P | `/cases/<id>/evidence/<eid>/delete` | Soft-delete an evidence item | **Admin only** |
 | G/P | `/evidence/<eid>/transfer` | Record a signed custody transfer | Current holder or Admin |
 | G/P | `/evidence/<eid>/change-state` | Trigger a lifecycle transition | Per transition table |
 | G | `/evidence/<eid>/custody-log` | View the custody log | Case member |
-| G | `/evidence/<eid>/verify` (+ `/verify/json`) | Run graph integrity verification | Analyst |
-| G | `/evidence/<eid>/reconstruct` | Run custody-chain reconstruction | Analyst |
+| G | `/evidence/<eid>/verify` (+ `/verify/json`) | Run graph integrity verification | Case member |
+| G | `/evidence/<eid>/reconstruct` | Run custody-chain reconstruction | Case member |
 | G | `/evidence/<eid>/custody-report.pdf` | Download the PDF custody report | Case member |
-| G | `/risk/dashboard` | Risk-ranked evidence (scoped) | Any |
-| G | `/risk/anomaly` | Isolation Forest anomaly view | Lead Investigator |
+| G | `/risk/dashboard` | Risk-ranked evidence (scoped) | Any (scoped) |
+| G | `/risk/anomaly` | Isolation Forest anomaly view | Any (scoped) |
 | G | `/risk/evidence/<eid>` (+ `/json`) | Per-item risk report | Case member |
 | G | `/audit` | Global audit trail | **Admin only** |
 | G | `/audit/evidence/<eid>` (+ `/formula-check`) | Per-item trail and formula checks | Case member |
@@ -86,7 +88,7 @@ Routes grouped by blueprint. Methods are shown as G (GET) and P (POST). All rout
 
 ## Appendix C — Database Schema Reference
 
-The six entities and their principal columns. Primary keys are integer surrogates; unique business keys and foreign keys are noted. The visual form is Figure 8.3.
+The six entities and their principal columns. Primary keys are integer surrogates; unique business keys and foreign keys are noted. The visual form is Figure 8.4.
 
 **INVESTIGATORS**
 

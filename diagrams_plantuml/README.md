@@ -33,16 +33,20 @@ black line art on white, with no green/blue differentiation.
 
 | File | Figure | Diagram type |
 |---|---|---|
-| `01_use_case.puml` | 8.1 | Use case |
-| `02_class.puml` | 8.2 | Class |
-| `03_er.puml` | 8.3 | Entity-relationship |
-| `04_state_lifecycle.puml` | 8.8 | State machine |
-| `05_sequence_integrity.puml` | 8.4 | Sequence |
-| `06_sequence_ai.puml` | 8.5 | Sequence |
-| `07_activity_risk.puml` | 8.6 | Activity |
-| `08_activity_reconstruction.puml` | 8.7 | Activity |
-| `09_component.puml` | 8.9 | Component |
-| `10_deployment.puml` | 8.10 | Deployment |
+| `01_use_case_core.puml` | 8.1 | Use case (a) — auth, cases, evidence, custody |
+| `02_use_case_analysis.puml` | 8.2 | Use case (b) — analysis, assistant, administration |
+| `02_class.puml` | 8.3 | Class |
+| `03_er.puml` | 8.4 | Entity-relationship |
+| `05_sequence_integrity.puml` | 8.5 | Sequence |
+| `06_sequence_ai.puml` | 8.6 | Sequence |
+| `07_activity_risk.puml` | 8.7 | Activity |
+| `08_activity_reconstruction.puml` | 8.8 | Activity |
+| `04_state_lifecycle.puml` | 8.9 | State machine |
+| `09_component.puml` | 8.10 | Component |
+| `10_deployment.puml` | 8.11 | Deployment |
+
+Rendered PNGs of all eleven are in `../diagrams_png/`, produced with
+`java -jar plantuml.jar -tpng -o ../diagrams_png *.puml`.
 
 The three burndown charts are not UML and remain as the existing SVG files
 in `diagrams/`.

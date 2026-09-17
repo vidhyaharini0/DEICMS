@@ -18,10 +18,10 @@ Architectural design is a creative process, but the decisions it involves are th
 | How will the system be distributed? | **Not distributed** — a single application host with one external service dependency | A single-developer academic project; distribution would add operational complexity without demonstrating additional engineering |
 | What architectural patterns are appropriate? | **Layered**, **MVC** and **Repository**, combined | Analysed in Section 9.3 |
 | What approach will be used to structure the system? | Decomposition into **layers**, then into **feature modules** within each layer | Serves separation of concerns along both axes (Section 3.4) |
-| How will the structural units be decomposed into modules? | Ten routing blueprints, thirteen logic modules, six model modules, three utility modules | Each module owns one concern; assessed for cohesion and coupling in Table 3.4 |
+| How will the structural units be decomposed into modules? | Ten routing blueprints, twelve logic modules, six model modules, three utility modules | Each module owns one concern; assessed for cohesion and coupling in Table 3.4 |
 | What control strategy should be used? | **Event-driven** at the outer edge (HTTP request dispatch), **call-return** within | The web framework dispatches; everything beneath it is ordinary procedural invocation |
 | How will the design be evaluated? | Against the quality priorities of Table 2.3, and by the four-level QA strategy of Table 6.6 | Security, correctness and verifiability are the criteria that dominate |
-| How should the architecture be documented? | Component and deployment diagrams (Figures 8.9, 8.10) plus this chapter | Two structural views plus the decisions behind them |
+| How should the architecture be documented? | Component and deployment diagrams (Figures 8.10, 8.10) plus this chapter | Two structural views plus the decisions behind them |
 
 A note on **Conway's law** is appropriate here, since it governs the relationship between organisation and architecture: a system's structure tends to mirror the communication structure of the organisation that produced it. A single-developer project is the degenerate case — there are no inter-team communication boundaries for the architecture to mirror — and the consequence is worth stating honestly. The architecture of DEICMS is layered because layering was chosen deliberately, not because organisational pressure produced it; but equally, no organisational pressure existed to *prevent* modules from becoming entangled, so the discipline that kept them separate was entirely self-imposed. The M1 defect is a small illustration: with no second developer to ask *"where does the case-scoping rule live?"*, the rule was duplicated inline rather than extracted, and the omission went unnoticed until adversarial testing found it.
 
@@ -49,13 +49,13 @@ No single view conveys everything about a system's architecture. The standard an
 
 | View | Shows | Concerned reader | DEICMS artefact |
 |---|---|---|---|
-| **Logical** | The key abstractions of the system as objects or object classes | Designers, analysts | Class diagram (Figure 8.2); Section 9.4 |
+| **Logical** | The key abstractions of the system as objects or object classes | Designers, analysts | Class diagram (Figure 8.3); Section 9.4 |
 | **Process** | How the system is composed of interacting processes at run time | Integrators, performance engineers | Single-process; discussed in Section 9.1 (no distribution) |
-| **Development / implementation** | How the software is decomposed for development — modules, packages, layers | Programmers, configuration managers | Component diagram (Figure 8.9); Sections 9.4 and 9.5 |
-| **Physical / deployment** | How the software's components are distributed across hardware | System engineers, operators | Deployment diagram (Figure 8.10); Chapter 17 |
-| **+1 Scenarios (use cases)** | How the other four views work together for a given piece of behaviour | Everyone — it validates the rest | Use-case model and descriptions (Sections 8.2, 8.3); sequence diagrams (Figures 8.4, 8.5) |
+| **Development / implementation** | How the software is decomposed for development — modules, packages, layers | Programmers, configuration managers | Component diagram (Figure 8.10); Sections 9.4 and 9.5 |
+| **Physical / deployment** | How the software's components are distributed across hardware | System engineers, operators | Deployment diagram (Figure 8.11); Chapter 17 |
+| **+1 Scenarios (use cases)** | How the other four views work together for a given piece of behaviour | Everyone — it validates the rest | Use-case model and descriptions (Sections 8.2, 8.3); sequence diagrams (Figures 8.5, 8.5) |
 
-The **+1 view is not decoration**: it is the view that exposes whether the other four are consistent. The integrity-verification sequence diagram (Figure 8.4) is the clearest instance — it shows the route (development view), the engine object (logical view), the database and file store (physical view) cooperating on one use case, and it is where a contradiction between those views would become visible.
+The **+1 view is not decoration**: it is the view that exposes whether the other four are consistent. The integrity-verification sequence diagram (Figure 8.5) is the clearest instance — it shows the route (development view), the engine object (logical view), the database and file store (physical view) cooperating on one use case, and it is where a contradiction between those views would become visible.
 
 ## 9.3 Architectural Patterns Applied
 
@@ -89,7 +89,7 @@ The system is organised into four layers plus a cross-cutting utility set, each 
 |---|---|---|---|
 | **Presentation** | Jinja2 templates, static assets | Render data for a specific role; contain no logic beyond formatting | Nothing — receives prepared data |
 | **Routing / control** | Ten Flask blueprints | Validate input, enforce authorisation, call into logic, select a template | Logic, models, utilities |
-| **Business logic** | Thirteen modules in `app/logic/` | All algorithms and domain rules; contains no framework or HTTP concepts | Models, utilities |
+| **Business logic** | Twelve modules in `app/logic/` | All algorithms and domain rules; contains no framework or HTTP concepts | Models, utilities |
 | **Data access** | Six model classes over the SQLAlchemy ORM | Entities, relationships, constraints, ORM-level enforcement | The database |
 | **Cross-cutting utilities** | Authorisation decorators, audit recorder, local-time helper | Concerns that cannot be localised to one layer or feature | Models |
 
@@ -97,7 +97,7 @@ Two rules are enforced throughout, and both are checkable rather than aspiration
 
 **Rule 1 — routes contain no algorithms.** A route handler validates its input, performs its authorisation check, calls a single logic function, and renders. The consequence is that every algorithm in the system can be tested by constructing an object and calling a method, with no HTTP machinery involved — which is the direct reason the test suite runs in seconds and contains 172 tests rather than a handful of slow end-to-end ones.
 
-**Rule 2 — logic modules import no framework.** The `logic/` package knows nothing of requests, sessions or templates. This is what makes the algorithms portable, testable and readable, and it is the property that the component diagram (Figure 8.9) exists to make visible.
+**Rule 2 — logic modules import no framework.** The `logic/` package knows nothing of requests, sessions or templates. This is what makes the algorithms portable, testable and readable, and it is the property that the component diagram (Figure 8.10) exists to make visible.
 
 The layering is not perfectly clean, and the standard criticism of the pattern applies here too: a high-level layer sometimes needs to bypass an intermediate one. In DEICMS the exception is that route handlers query models directly for simple lookups — fetching a case by its identifier, for example — rather than routing every read through a logic function. This is a deliberate concession: inserting a pass-through logic function for every trivial read would add a layer of indirection that conveys no information. It is recorded here rather than hidden, because an architecture chapter that claims perfect layer discipline is usually describing an intention rather than a system.
 

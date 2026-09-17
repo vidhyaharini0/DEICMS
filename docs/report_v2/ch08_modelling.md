@@ -29,9 +29,9 @@ A system may be modelled from four perspectives, and DEICMS provides a model fro
 | Perspective | Question answered | Diagram type | DEICMS figure |
 |---|---|---|---|
 | **External / context** | What is the system's environment, and who interacts with it? | Use case | Figure 8.1 |
-| **Structural** | How is the system organised — what are its parts and how do they relate? | Class, entity-relationship, component | Figures 8.2, 8.3, 8.9 |
-| **Interaction** | How do the parts communicate to achieve a task? | Sequence | Figures 8.4, 8.5 |
-| **Behavioural** | How does the system respond to events and stimuli over time? | Activity, state machine | Figures 8.6, 8.7, 8.8 |
+| **Structural** | How is the system organised — what are its parts and how do they relate? | Class, entity-relationship, component | Figures 8.3, 8.3, 8.9 |
+| **Interaction** | How do the parts communicate to achieve a task? | Sequence | Figures 8.5, 8.5 |
+| **Behavioural** | How does the system respond to events and stimuli over time? | Activity, state machine | Figures 8.7, 8.7, 8.8 |
 
 ### 8.1.2 UML Diagram Taxonomy
 
@@ -60,36 +60,166 @@ All diagrams were produced in **PlantUML**, a text-based notation from which the
 
 The use-case model takes the **external perspective**: it shows the boundary of the system, the actors outside it, and the services it offers them. It answers *who uses this system and what for?* and deliberately says nothing about how any of it works.
 
-**[FIGURE 8.1 — Use Case Diagram]**
+The system has **forty-one use cases**, which is too many for one readable diagram — and readability matters here for a practical reason: a diagram that cannot be redrawn by hand is not a communication artefact. The model is therefore split across two figures along the natural seam between *working with evidence* and *analysing and administering it*, and both use **actor generalisation** to exploit the strict nesting of role capability established in Table 8.6.
 
-The four actors correspond exactly to the four roles of the access-control model and the four personas of Section 7.2. Fourteen use cases are shown, grouped so that the progression from authentication through case management, evidence handling, analysis and reporting is visible.
+**[FIGURE 8.1 — Use Case Diagram (a): Authentication, Cases, Evidence and Custody]**
 
-Two relationship types appear. The **«include»** relationships show behaviour that is always part of the including use case: registering evidence, transferring custody and verifying integrity all include logging in, because none can occur without an authenticated session; exporting a signed package includes verifying integrity, because the export is worthless if the chain it certifies has not been checked. The single **«extend»** relationship shows optional behaviour: reconstructing a custody chain extends verification, because reconstruction is invoked only when verification reveals gaps.
+**[FIGURE 8.2 — Use Case Diagram (b): Analysis, Reporting, Assistant and Administration]**
 
-The diagram also encodes the least-privilege model negatively — by what is absent. No line runs from the Read-Only Auditor to any use case that changes state, and none runs from the Analyst to account management. These absences are requirements FR-06 and FR-21 in visual form.
+Four actors correspond exactly to the four roles of the access-control model and the four personas of Section 7.2, and they are connected by **generalisation** rather than drawn independently: the Analyst generalises the Read-Only Auditor, the Lead Investigator generalises the Analyst, and the Administrator generalises the Lead Investigator. Each actor is therefore joined only to the use cases it **adds** to the role beneath it, and inherits the rest.
 
-## 8.3 Use-Case Descriptions
+This is the correct UML construction for a nesting role model and it has a large practical benefit: instead of 116 association lines it needs 33, and the inheritance triangles themselves communicate the policy — *an Administrator can do everything a Lead can, and more* — which a flat diagram states only by exhaustion.
 
-A use-case diagram names the services; the descriptions specify them. Table 8.4 gives the structured description of the four most significant use cases. The remainder follow the same template and derive directly from the acceptance criteria in Appendix A.
+Two relationship types appear. The **«include»** relationships show behaviour that is always part of the including use case: registering evidence, transferring custody and verifying integrity all include an authenticated session, because none can occur without one; exporting a signed package includes verifying integrity, because the export is worthless if the chain it certifies has not been checked. The **«extend»** relationship shows optional behaviour: reconstructing a custody chain extends verification, because reconstruction is invoked only when verification reveals gaps.
 
-**Table 8.4 — Structured use-case descriptions**
+The second figure repays a moment's attention for what it does *not* contain: the Analyst adds **no** use case there at all. Analysis and reporting are read activities available to every role within its accessible cases, so the Analyst's two extra capabilities over the auditor — UC-18 and UC-23 — are both custody actions and both appear in the first figure. That asymmetry is the domain's own logic made visible.
 
-| Field | UC-05 Register Evidence | UC-06 Transfer Custody | UC-07 Verify Integrity | UC-08 Change Lifecycle State |
+The diagrams also encode the least-privilege model **negatively — by what is absent**. No line runs from the Analyst or the Read-Only Auditor to any administration use case; no line runs from the Read-Only Auditor to any use case that creates, modifies or deletes a record; and no actor at all connects to a registration use case, because none exists (FR-21). These absences are as much a part of the specification as the lines that are present.
+
+## 8.3 The Complete Use-Case Catalogue
+
+A use-case diagram names the services; this section specifies them. The catalogue below is **exhaustive**: every route the application exposes appears here exactly once, and the authorisation columns were derived by reading the guard in each route handler rather than from the design intent. Where the two differ, the code is recorded, and Section 8.3.4 discusses the two places where that produced a surprise.
+
+Two authorisation dimensions apply independently, as established in Section 10.3.3. The **role guard** answers *what kind of action may this user perform?*; the **case guard** answers *on which data?*. A use case may carry one, both, or neither.
+
+### 8.3.1 Authorisation Legend
+
+**Table 8.4 — Authorisation notation used in the catalogue**
+
+| Notation | Meaning | Implemented as |
+|---|---|---|
+| *(none)* | No authentication required | The route is reachable before login |
+| **Any** | Any authenticated investigator | `@login_required` only |
+| **Analyst+** | Admin, Lead Investigator or Analyst | `can_analyse()` |
+| **Lead+** | Admin or Lead Investigator | `can_manage()` |
+| **Admin** | Administrator only | `is_admin()` |
+| **Holder** | The item's current custodian, or an Admin | Explicit holder check |
+| **Owner** | An Admin, or the case's Owner in the access table | `CaseAccess.can_manage_members()` |
+| **Member** | Must belong to the case (Admin exempt) | `accessible_case_ids` / access guard |
+| **Scoped** | Permitted for all, but the data returned is filtered to accessible cases | `accessible_case_ids` applied to the query |
+
+### 8.3.2 The Catalogue
+
+**Table 8.5 — Complete use-case catalogue (41 use cases)**
+
+| UC | Use case | Role guard | Case guard | Actors | Requirement |
+|---|---|---|---|---|---|
+| **Package 1 — Authentication and Session** | | | | | |
+| UC-01 | Log in | *(none)* | — | All four roles | FR-01, FR-02 |
+| UC-02 | Verify one-time password (second factor) | *(none, mid-login)* | — | All four roles | FR-47 |
+| UC-03 | Log out | Any | — | All four roles | FR-01 |
+| UC-04 | Enrol two-factor authentication | Any (own account) | — | All four roles | FR-47 |
+| UC-05 | Disable two-factor authentication | Any (own account) | — | All four roles | FR-47 |
+| **Package 2 — Dashboard** | | | | | |
+| UC-06 | View role-tailored dashboard | Any | Scoped | All four roles | FR-51, FR-52 |
+| **Package 3 — Case Management** | | | | | |
+| UC-07 | List accessible cases | Any | Scoped | All four roles | FR-07, FR-09 |
+| UC-08 | Create a case | **Lead+** | — | Admin, Lead | FR-07 |
+| UC-09 | View a case and its evidence | Any | Member | All four roles | FR-07, FR-09 |
+| UC-10 | Edit case metadata | **Lead+** | Member | Admin, Lead | FR-07 |
+| UC-11 | Archive a case (soft) | **Admin** | — | Admin | FR-08 |
+| UC-12 | Grant an investigator access to a case | **Owner** | Owner | Admin, Lead (as case Owner) | FR-09 |
+| UC-13 | Revoke an investigator's case access | **Owner** | Owner | Admin, Lead (as case Owner) | FR-09 |
+| **Package 4 — Evidence Management** | | | | | |
+| UC-14 | Upload and register an evidence item | **Lead+** | Member | Admin, Lead | FR-10 to FR-14, FR-48 |
+| UC-15 | View an evidence item | Any | Member | All four roles | FR-11, FR-13 |
+| UC-16 | Edit evidence metadata | **Lead+** | Member | Admin, Lead | FR-15 |
+| UC-17 | Soft-delete an evidence item | **Admin** | Member | Admin | FR-55 |
+| **Package 5 — Custody and Integrity** | | | | | |
+| UC-18 | Transfer custody of an item | **Holder** | Member | Admin, Lead, Analyst (as holder) | FR-16, FR-17, FR-23 |
+| UC-19 | View an item's custody log | Any | Member | All four roles | FR-16 |
+| UC-20 | Verify chain-of-custody integrity | Any | Member | All four roles | FR-25 to FR-27, FR-56 |
+| UC-21 | Retrieve a verification result as JSON | Any | Member | All four roles | FR-34 |
+| UC-22 | Reconstruct a gapped custody chain | Any | Member | All four roles | FR-31 to FR-33, FR-35 |
+| UC-23 | Change an item's lifecycle state | **Per transition** | Member | Per Table 8.7 | FR-28 to FR-30 |
+| **Package 6 — Analysis and Reporting** | | | | | |
+| UC-24 | View the risk-ranked dashboard | Any | Scoped | All four roles | FR-46 |
+| UC-25 | View a per-item risk report | Any | Member | All four roles | FR-36 to FR-38 |
+| UC-26 | Retrieve a risk report as JSON | Any | Member | All four roles | FR-46 |
+| UC-27 | View the anomaly dashboard | Any | Scoped | All four roles | FR-44, FR-45 |
+| UC-28 | View the global audit trail | **Admin** | — | Admin | FR-18 |
+| UC-29 | View an item's audit trail | Any | Member | All four roles | FR-18 |
+| UC-30 | Run the three formula checks on an item | Any | Member | All four roles | FR-20 |
+| UC-31 | Export a tamper-evident signed case package | **Lead+** | Member | Admin, Lead | FR-49 |
+| UC-32 | Download a per-item PDF custody report | Any | Member | All four roles | FR-50 |
+| **Package 7 — AI Investigation Assistant** | | | | | |
+| UC-33 | Open the assistant chat interface | Any | — | All four roles | FR-40 |
+| UC-34 | Ask the assistant a question | Any | Scoped | All four roles | FR-40 to FR-43, FR-53 |
+| UC-35 | Clear the conversation history | Any | — | All four roles | FR-54 |
+| **Package 8 — Administration** | | | | | |
+| UC-36 | List investigator accounts | **Admin** | — | Admin | FR-04 |
+| UC-37 | Create an investigator account | **Admin** | — | Admin | FR-21, FR-22 |
+| UC-38 | Change an account's role | **Admin** | — | Admin | FR-04 |
+| UC-39 | Activate or deactivate an account | **Admin** | — | Admin | FR-04 |
+| UC-40 | Unlock a locked account | **Admin** | — | Admin | FR-47 |
+| UC-41 | Configure risk weights and thresholds | **Admin** | — | Admin | FR-39 |
+
+### 8.3.3 Use Cases by Role
+
+The same catalogue, inverted. This is the view that answers *what can this person actually do?* and it is the form in which the least-privilege claim is checkable.
+
+**Table 8.6 — Use cases available to each role**
+
+| Role | Count | Use cases |
+|---|---|---|
+| **Administrator** | **41 of 41** | Every use case. The only role that may archive a case (UC-11), soft-delete evidence (UC-17), read the global audit trail (UC-28), or perform any of the six administration use cases (UC-36 to UC-41). Exempt from case-membership guards throughout |
+| **Lead Investigator** | **28 of 41** | UC-01 to UC-10, UC-12 to UC-16, UC-18 to UC-27, UC-29 to UC-35 — subject to case membership. **Cannot:** archive a case, soft-delete evidence, read the global audit trail, or perform any administration use case |
+| **Analyst** | **24 of 41** | UC-01 to UC-07, UC-09, UC-15, UC-18 to UC-27, UC-29, UC-30, UC-32 to UC-35 — subject to case membership. **Cannot:** create or edit cases, manage case membership, upload or edit evidence, export a case package, or perform any administration use case |
+| **Read-Only Auditor** | **23 of 41** | UC-01 to UC-07, UC-09, UC-15, UC-19 to UC-22, UC-24 to UC-27, UC-29, UC-30, UC-32 to UC-35 — subject to case membership. **Cannot:** transfer custody (UC-18), change lifecycle state (UC-23), or do anything the Analyst cannot |
+
+The nesting of role capability is visible in the counts: 41 ⊃ 28 ⊃ 24 ⊃ 23. This strict nesting is what allows the entire role policy to be expressed in the three predicates of Section 10.3.3 rather than in a permission matrix, and it is the reason the numbers are worth stating — a policy that did not nest would require a far larger and more error-prone structure.
+
+The difference between the Analyst and the Read-Only Auditor is exactly two use cases, UC-18 and UC-23, and both are custody actions. That is the correct distinction for the domain: an auditor may *examine* a chain of custody in every respect but may not *participate* in it.
+
+**Table 8.7 — Lifecycle transitions available within UC-23, by role**
+
+| Transition | Admin | Lead | Analyst | Read-Only |
 |---|---|---|---|---|
-| **Actors** | Analyst, Lead Investigator | Analyst, Lead Investigator, Admin | Analyst, Lead Investigator, Admin | Lead Investigator, Admin (Analyst for some transitions) |
+| Collected → Submitted | ✔ | ✔ | — | — |
+| Collected → Transferred | ✔ | ✔ | ✔ | — |
+| Submitted → Under Analysis *(requires a custody log entry)* | ✔ | ✔ | ✔ | — |
+| Submitted → Transferred | ✔ | ✔ | ✔ | — |
+| Submitted → Archived *(emergency path)* | ✔ | — | — | — |
+| Under Analysis → Transferred | ✔ | ✔ | ✔ | — |
+| Under Analysis → Archived *(requires an Intact verdict)* | ✔ | ✔ | — | — |
+| Transferred → Under Analysis | ✔ | ✔ | ✔ | — |
+| *any state* → Flagged | ✔ | ✔ | — | — |
+| Flagged → Under Analysis | ✔ | — | — | — |
+
+A Read-Only investigator has **no row at all**, which is why the system presents such a user with no available transitions rather than offering transitions that would be refused. That is a deliberate interface choice: offering an action the system will reject teaches the user nothing except that the interface is not to be trusted.
+
+### 8.3.4 Two Findings from Deriving This Catalogue
+
+Building the catalogue from the guards rather than from the design intent produced two observations worth recording, because both are the kind of thing a use-case model is supposed to surface.
+
+**The Analyst cannot upload evidence.** UC-14 is guarded by `can_manage()`, which admits only Admin and Lead Investigator. The persona description of Nadia the Analyst (Table 7.3) says she "works on the evidence within the cases she is assigned to" — which is consistent — but an earlier draft of the user requirements had her registering evidence, and that draft was wrong about the system. The code is the stricter and, on reflection, the more defensible position: registration is the moment an item enters the chain of custody, and restricting it to Lead Investigators keeps intake accountable to case ownership. The requirement (UR-10) has been corrected to match.
+
+**A Read-Only auditor can trigger integrity verification, and verification writes to the database.** UC-20 carries no role guard, so an auditor may run it; and since M2 (finding D2) a verification writes the item's `integrity_status` back so that the risk scorer can read it. Strictly, therefore, a "read-only" role can cause a database write.
+
+This is defensible and is not a defect: verifying a chain of custody is precisely what an auditor exists to do, the write is a derived status rather than substantive data, no evidence content or custody record is altered, and the verification is itself audited. But the role's *name* over-promises, and the honest statement is that Read-Only means **may not create, modify or delete a record**, not that the role has no effect on the database whatsoever. The report states it that way rather than leaving the name to imply more than the code delivers.
+
+### 8.3.5 Structured Descriptions of the Principal Use Cases
+
+The catalogue names all forty-one; the four below are specified in full because they carry the system's central obligations. The remainder follow the same template and derive directly from the acceptance criteria in Sections 7.5 and 7.6.
+
+**Table 8.8 — Structured use-case descriptions**
+
+| Field | UC-14 Register Evidence | UC-18 Transfer Custody | UC-20 Verify Integrity | UC-23 Change Lifecycle State |
+|---|---|---|---|---|
+| **Actors** | Admin, Lead Investigator | Current holder, or Admin | All four roles | Per Table 8.7 |
 | **Goal** | Bring a digital file under managed custody | Hand responsibility for an item to another investigator | Establish whether the custody history is intact | Move an item to the next procedurally valid state |
-| **Preconditions** | Authenticated; member of the target case | Authenticated; current holder of the item, or Admin | Authenticated; member of the item's case | Authenticated; holds the required role for the transition |
-| **Main flow** | Select case → upload file → system validates extension and magic bytes → computes SHA-256 → extracts EXIF → encrypts at rest → generates evidence number → creates the item and its first custody entry atomically → signs that entry | Select item → choose recipient, location and reason → system constructs the canonical payload → signs it with the sender's private key → writes the custody record → updates the current holder | Select item → system builds the custody graph → traverses depth-first from the upload root → at each node checks hash continuity, signature validity and timestamp monotonicity → accumulates all failures → computes a completeness score → writes back the integrity status | Select item and target state → system looks up the transition in the table → checks the required role → evaluates each precondition → applies the transition → requires a justification → recalculates the risk score |
-| **Alternative flows** | Disallowed extension, or extension not matching magic bytes → upload rejected with reason | Signing unavailable → unsigned sentinel recorded and the user warned | Any check fails → verdict downgraded, failure located and listed | — |
-| **Exceptions** | Case not accessible → authorisation error | Not the current holder → refused | Item has no custody records → verdict Broken | Transition absent from the table, role insufficient, or precondition unmet → rejected with the exact unmet condition, and the rejection audited |
-| **Postconditions** | Item exists with an immutable original hash and a signed first custody entry | A new signed custody record exists; the holder has changed | An integrity report exists; the item's integrity status is updated | The item is in the new state; the transition is audited; the risk score is current |
+| **Preconditions** | Authenticated; `can_manage()`; member of the target case | Authenticated; current holder of the item or Admin; member of the case | Authenticated; member of the item's case | Authenticated; member of the case; holds the role the transition requires |
+| **Main flow** | Select case → upload file → system checks the extension allow-list → inspects magic bytes and rejects a mismatch → computes SHA-256 over the plaintext → extracts EXIF → encrypts with AES-256-GCM → generates an evidence number → **creates the item and its first custody entry in one transaction** → signs that entry → writes an audit record | Select item → choose recipient, location and reason → system builds the canonical payload → signs it with the sender's private key → writes the custody record → updates the current holder → writes an audit record | Select item → system loads the custody logs and builds the graph → traverses depth-first from the upload root → at each node checks hash continuity, signature validity and timestamp monotonicity → **accumulates all failures rather than stopping** → computes the completeness score → assigns a verdict → writes back `integrity_status` → writes an audit record | Select item and target state → system looks up the ordered pair in the transition table → checks the required role → evaluates each precondition → applies the transition, the audit write and the risk recalculation **atomically**, with a mandatory justification |
+| **Alternative flows** | Extension not allow-listed, or not matching the magic bytes → upload rejected with the reason | Signing unavailable → unsigned sentinel recorded and the user warned (fail-visible) | Any check fails → verdict downgraded to Partially Verified or Broken; every failure located and listed | Verification reveals a problem → the item may be moved to Flagged |
+| **Exceptions** | Case not accessible → authorisation error; `can_manage()` fails → refused with a message | Not the current holder and not Admin → refused | Item has no custody records → verdict Broken | Transition absent from the table, role insufficient, or a precondition unmet → **rejected with the exact unmet condition, and the rejection audited** |
+| **Postconditions** | Item exists with an immutable `original_hash` and a signed first custody entry; audit trail updated | A new signed custody record exists; the holder has changed; audit trail updated | An integrity report exists; `integrity_status` is current; the item's risk reflects it | The item is in the new state; the transition is audited; the risk score is current |
 | **Requirements** | FR-10 to FR-14, FR-48 | FR-16, FR-17, FR-23, FR-24 | FR-25 to FR-27, FR-56 | FR-28 to FR-30 |
 
 ## 8.4 Structural Model: the Class Diagram
 
 The class diagram takes the **structural perspective** on the application's object model: the classes, their attributes and operations, and the associations between them with their multiplicities.
 
-**[FIGURE 8.2 — Class Diagram]**
+**[FIGURE 8.3 — Class Diagram]**
 
 Six classes correspond to the six domain entities. Three features of the model are worth drawing out, because each encodes a requirement rather than merely a fact about the code.
 
@@ -105,11 +235,11 @@ The operations shown are limited to those that carry domain meaning — `verify_
 
 Where the class diagram models objects, the entity-relationship diagram models the **relational realisation** of those objects: tables, columns with their SQL types, primary and foreign keys, and cardinalities in crow's-foot notation.
 
-**[FIGURE 8.3 — Entity-Relationship Diagram]**
+**[FIGURE 8.4 — Entity-Relationship Diagram]**
 
 The two diagrams describe the same six entities and are related by the object-relational mapping (Section 9.3): the ORM is what makes the class model and the table model two views of one thing rather than two separate designs to be kept in step manually. Where they differ, the difference is informative.
 
-**Table 8.5 — Where the class model and the relational model differ**
+**Table 8.10 — Where the class model and the relational model differ**
 
 | Aspect | Class diagram | ER diagram | Reason |
 |---|---|---|---|
@@ -132,7 +262,7 @@ Sequence diagrams take the **interaction perspective**, showing the messages exc
 
 ### 8.6.1 Chain-of-Custody Integrity Verification
 
-**[FIGURE 8.4 — Sequence Diagram: Integrity Verification]**
+**[FIGURE 8.5 — Sequence Diagram: Integrity Verification]**
 
 Six participants appear: the Analyst, the integrity route, the verification engine, the database, the file store and the cryptographic primitives. The diagram shows the route performing authorisation *before* delegating, then the engine loading the item and its ordered custody logs, building the graph, and entering the traversal loop.
 
@@ -144,7 +274,7 @@ The **separation of the file store from the database** makes visible that verifi
 
 ### 8.6.2 AI Assistant Orchestration
 
-**[FIGURE 8.5 — Sequence Diagram: AI Assistant Orchestration]**
+**[FIGURE 8.6 — Sequence Diagram: AI Assistant Orchestration]**
 
 This diagram traces the six-stage pipeline from question to validated answer, and it is the clearest visual statement of what makes the assistant a Category C feature rather than a Category B one. The call to the language model is a **single message in the middle of the diagram**; the five stages surrounding it — intent classification, access-scoped retrieval, prompt construction, response validation, hallucination detection — are the application's own work.
 
@@ -158,7 +288,7 @@ Activity diagrams take the **behavioural perspective** on a single activity, sho
 
 ### 8.7.1 Multi-Factor Risk Scoring
 
-**[FIGURE 8.6 — Activity Diagram: Multi-Factor Risk Scoring]**
+**[FIGURE 8.7 — Activity Diagram: Multi-Factor Risk Scoring]**
 
 The diagram is partitioned into the algorithm's five stages. The **fork and join** in stage one is used deliberately and is not decorative: the eight factor extractions are genuinely independent of one another and could execute in any order or in parallel, and the fork states that property. A sequential chain of eight actions would have implied an ordering constraint the algorithm does not have.
 
@@ -168,7 +298,7 @@ The note that the interaction bonus is **capped** records a design decision expl
 
 ### 8.7.2 Custody Chain Reconstruction
 
-**[FIGURE 8.7 — Activity Diagram: Custody Chain Reconstruction]**
+**[FIGURE 8.8 — Activity Diagram: Custody Chain Reconstruction]**
 
 This diagram shows a heuristic search, and its distinguishing feature is the number of **paths that end in an honest admission of failure**. Three separate branches lead to a link being labelled *Unresolved*: an empty chain, a gap with no candidates, and a gap whose best candidate scores below the plausibility threshold of 0.40.
 
@@ -178,11 +308,13 @@ That structure is the visual form of domain requirement DR-07. An algorithm desi
 
 The state machine diagram models an object's **lifecycle**: the states it may occupy, the events that move it between them, and the guards that constrain those movements.
 
-**[FIGURE 8.8 — State Machine Diagram: Evidence Lifecycle]**
+**[FIGURE 8.9 — State Machine Diagram: Evidence Lifecycle]**
 
-Six states are shown. Every transition is annotated with the roles permitted to trigger it, and two carry additional **guard conditions** in guillemets.
+Six states are shown, connected by fourteen transitions. Every transition is annotated with the roles permitted to trigger it, and two carry additional **guard conditions** in guillemets.
 
-**Table 8.6 — The transition table in tabular form**
+The transition table contains **fourteen entries**; the ten rows below present them, with the five *any state → Flagged* entries collapsed into one row for readability.
+
+**Table 8.9 — The transition table in tabular form**
 
 | From | To | Permitted roles | Guard |
 |---|---|---|---|
@@ -212,7 +344,7 @@ The absence of a transition is as meaningful as its presence. There is no transi
 
 ### 8.9.1 Component Diagram
 
-**[FIGURE 8.9 — Component Diagram: System Architecture]**
+**[FIGURE 8.10 — Component Diagram: System Architecture]**
 
 The component diagram takes the structural perspective at the level of **modules rather than classes**, showing the system's packages and the dependencies between them. Five packages are shown — presentation, routing, business logic, cross-cutting utilities and data access — together with the three external elements the system touches: the database, the encrypted file store and the inference API.
 
@@ -222,7 +354,7 @@ The diagram is also where the cross-cutting utilities are visible as such. `deco
 
 ### 8.9.2 Deployment Diagram
 
-**[FIGURE 8.10 — Deployment Diagram: Development Environment]**
+**[FIGURE 8.11 — Deployment Diagram: Development Environment]**
 
 The deployment diagram shows the **physical topology**: the nodes on which the system runs and the artefacts deployed on each. Three nodes appear — the client workstation, the application host, and the cloud inference service — with the protocol on each connection.
 
@@ -230,25 +362,26 @@ This diagram documents the development configuration honestly rather than an asp
 
 ## 8.10 Diagram Index
 
-**Table 8.7 — Complete diagram index**
+**Table 8.11 — Complete diagram index**
 
 | Figure | Diagram | Type | Perspective | Produced in | Source file |
 |---|---|---|---|---|---|
-| 8.1 | Use Case | Behavioural | External / context | Increment 1 | `01_use_case.puml` |
-| 8.2 | Class | Structural | Structural | Increment 1 | `02_class.puml` |
-| 8.3 | Entity-Relationship | Structural | Structural | Increment 1 | `03_er.puml` |
-| 8.4 | Sequence — Integrity Verification | Behavioural | Interaction | Increment 2 | `05_sequence_integrity.puml` |
-| 8.5 | Sequence — AI Orchestration | Behavioural | Interaction | Increment 3 | `06_sequence_ai.puml` |
-| 8.6 | Activity — Risk Scoring | Behavioural | Behavioural | Increment 3 | `07_activity_risk.puml` |
-| 8.7 | Activity — Chain Reconstruction | Behavioural | Behavioural | Increment 2 | `08_activity_reconstruction.puml` |
-| 8.8 | State Machine — Evidence Lifecycle | Behavioural | Behavioural | Increment 2 | `04_state_lifecycle.puml` |
-| 8.9 | Component — System Architecture | Structural | Structural | Increment 3 | `09_component.puml` |
-| 8.10 | Deployment — Development Environment | Structural | Physical | Increment 3 | `10_deployment.puml` |
+| 8.1 | Use Case (a) — Auth, Cases, Evidence, Custody | Behavioural | External / context | Increment 1 | `01_use_case_core.puml` |
+| 8.2 | Use Case (b) — Analysis, Assistant, Administration | Behavioural | External / context | Increment 1 | `02_use_case_analysis.puml` |
+| 8.3 | Class | Structural | Structural | Increment 1 | `02_class.puml` |
+| 8.4 | Entity-Relationship | Structural | Structural | Increment 1 | `03_er.puml` |
+| 8.5 | Sequence — Integrity Verification | Behavioural | Interaction | Increment 2 | `05_sequence_integrity.puml` |
+| 8.6 | Sequence — AI Orchestration | Behavioural | Interaction | Increment 3 | `06_sequence_ai.puml` |
+| 8.7 | Activity — Risk Scoring | Behavioural | Behavioural | Increment 3 | `07_activity_risk.puml` |
+| 8.8 | Activity — Chain Reconstruction | Behavioural | Behavioural | Increment 2 | `08_activity_reconstruction.puml` |
+| 8.9 | State Machine — Evidence Lifecycle | Behavioural | Behavioural | Increment 2 | `04_state_lifecycle.puml` |
+| 8.10 | Component — System Architecture | Structural | Structural | Increment 3 | `09_component.puml` |
+| 8.11 | Deployment — Development Environment | Structural | Physical | Increment 3 | `10_deployment.puml` |
 | 5.1 | Increment 1 Burndown | *Not UML* | Process | Increment 1 | `increment1_agile_burndown_chart` |
 | 5.2 | Increment 2 Burndown | *Not UML* | Process | Increment 2 | `increment2_agile_burndown_chart` |
 | 5.3 | Increment 3 Burndown | *Not UML* | Process | Increment 3 | `increment3_agile_burndown_chart` |
 
-The ten UML diagrams cover all four modelling perspectives and both diagram families, and every one was produced in the increment whose work it describes rather than retrofitted at the end.
+The eleven UML diagrams cover all four modelling perspectives and both diagram families, and every one was produced in the increment whose work it describes rather than retrofitted at the end.
 
 ## 8.11 Summary
 

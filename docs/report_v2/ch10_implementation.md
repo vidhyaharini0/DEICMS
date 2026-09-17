@@ -35,7 +35,7 @@ The final two standards were not present from the start. Single-source-of-truth 
 
 ## 10.2 The Data Layer
 
-The data layer comprises six model classes mapped by SQLAlchemy onto six tables, whose schema is documented in Figure 8.3 and Appendix C.
+The data layer comprises six model classes mapped by SQLAlchemy onto six tables, whose schema is documented in Figure 8.4 and Appendix C.
 
 **Table 10.3 — The six entities**
 
