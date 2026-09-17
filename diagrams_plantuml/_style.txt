@@ -1,0 +1,9 @@
+Shared style header used by every diagram in this folder.
+Every .puml file already contains these lines; this file is only a reference.
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor black
+skinparam backgroundColor white

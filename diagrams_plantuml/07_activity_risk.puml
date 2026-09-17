@@ -1,0 +1,74 @@
+@startuml
+' Figure 7.7 - Activity Diagram: Multi-Factor Evidence Risk Scoring
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+start
+:Load evidence item
+and its custody logs;
+
+partition "Stage 1 - Extract eight factors" {
+  fork
+    :integrity_status;
+  fork again
+    :file_type_risk;
+  fork again
+    :custody_transfer_frequency;
+  fork again
+    :distinct_investigators;
+  fork again
+    :role_mismatch_count;
+  fork again
+    :time_since_last_activity;
+  fork again
+    :duplicate_entry_count;
+  fork again
+    :lifecycle_state;
+  end fork
+}
+
+partition "Stage 2 - Normalise" {
+  :Apply the curve suited to each
+  factor's distribution
+  (linear / logarithmic / categorical);
+  :Clamp every factor to [0, 1];
+}
+
+partition "Stage 3 - Weighted sum" {
+  :Load weights (admin-configurable);
+  :Re-normalise weights to sum to 1.0;
+  :base_score = sum(weight_i * factor_i);
+}
+
+partition "Stage 4 - Interaction rules" {
+  :Evaluate five interaction rules;
+  if (any rule fires?) then (yes)
+    :Add its bonus;
+    :Cap the TOTAL bonus
+    to prevent saturation;
+  else (no)
+  endif
+  :final_score = min(base + bonus, 1.0);
+}
+
+partition "Stage 5 - Classify" {
+  if (score >= 0.75?) then (yes)
+    :level = CRITICAL;
+  elseif (score >= 0.50?) then (yes)
+    :level = HIGH;
+  elseif (score >= 0.25?) then (yes)
+    :level = MEDIUM;
+  else (no)
+    :level = LOW;
+  endif
+}
+
+:Generate per-factor explanations;
+:Generate recommendations;
+:Persist risk_score and risk_level;
+:Return ranked report;
+stop
+@enduml

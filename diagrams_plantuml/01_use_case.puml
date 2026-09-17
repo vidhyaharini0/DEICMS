@@ -1,0 +1,58 @@
+@startuml
+' Figure 7.1 - DEICMS Use Case Diagram
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+left to right direction
+
+actor "Administrator" as ADM
+actor "Lead Investigator" as LEAD
+actor "Analyst" as ANA
+actor "Read-Only Auditor" as RO
+
+rectangle DEICMS {
+  usecase "Log in / Log out" as UC1
+  usecase "Manage accounts\nand roles" as UC2
+  usecase "Manage cases" as UC3
+  usecase "Grant case access" as UC4
+  usecase "Register evidence" as UC5
+  usecase "Transfer custody" as UC6
+  usecase "Verify integrity" as UC7
+  usecase "Change lifecycle state" as UC8
+  usecase "Reconstruct custody chain" as UC9
+  usecase "View risk score" as UC10
+  usecase "Query AI assistant" as UC11
+  usecase "View audit trail" as UC12
+  usecase "Export signed package" as UC13
+  usecase "Configure risk weights" as UC14
+}
+
+ADM --> UC1
+ADM --> UC2
+ADM --> UC12
+ADM --> UC14
+LEAD --> UC1
+LEAD --> UC3
+LEAD --> UC4
+LEAD --> UC5
+LEAD --> UC6
+LEAD --> UC8
+LEAD --> UC10
+LEAD --> UC13
+ANA --> UC1
+ANA --> UC5
+ANA --> UC6
+ANA --> UC7
+ANA --> UC9
+ANA --> UC11
+RO --> UC1
+RO --> UC12
+
+UC5 ..> UC1 : <<include>>
+UC6 ..> UC1 : <<include>>
+UC7 ..> UC1 : <<include>>
+UC13 ..> UC7 : <<include>>
+UC9 ..> UC7 : <<extend>>
+@enduml

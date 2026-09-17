@@ -1,0 +1,48 @@
+@startuml
+' Figure 7.10 - Sequence Diagram: AI Assistant Orchestration Workflow
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+actor Investigator
+participant "Chat UI" as UI
+participant "Assistant\nRoute" as R
+participant "AIAssistant\nOrchestrator" as A
+database "Database" as DB
+participant "NVIDIA NIM\n(LLM)" as LLM
+
+Investigator -> UI : types question
+UI -> R : POST /assistant/chat
+activate R
+R -> A : process(message, user)
+activate A
+
+A -> A : Stage 1 - classify intent\n(7 intents + UNKNOWN)
+
+A -> DB : Stage 2 - retrieve context\nscoped by accessible_case_ids
+DB --> A : cases, evidence, custody (permitted only)
+
+A -> A : Stage 3 - construct prompt\n(system + context + trimmed history)
+
+A -> LLM : Stage 4 - invoke model
+alt model responds
+  LLM --> A : reply text
+else model retired / timeout
+  A -> LLM : try next candidate model
+  LLM --> A : reply text
+else all candidates fail
+  A -> A : fall back to context-aware mock
+end
+
+A -> A : Stage 5 - validate response\n(refusal detection, strip reasoning)
+
+A -> A : Stage 6 - hallucination check\ncross-check every entity reference\nagainst retrieved context
+
+A --> R : reply, intent, flags
+deactivate A
+R --> UI : JSON response
+deactivate R
+UI -> Investigator : renders answer\n(+ warning if flags present)
+@enduml

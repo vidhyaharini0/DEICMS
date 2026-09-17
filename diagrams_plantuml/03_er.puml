@@ -1,0 +1,106 @@
+@startuml
+' Figure 7.5 - DEICMS Entity-Relationship Diagram
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+hide circle
+skinparam linetype ortho
+
+entity "INVESTIGATORS" as INV {
+  * id : INTEGER <<PK>>
+  --
+  * full_name : VARCHAR(150)
+  * email : VARCHAR(150) <<UQ>>
+  * password_hash : VARCHAR(256)
+  * role : ENUM
+  public_key : TEXT
+  private_key_encrypted : TEXT
+  totp_secret : VARCHAR(255)
+  * is_active : BOOLEAN
+  * failed_login_count : INTEGER
+  locked_until : DATETIME
+}
+
+entity "CASES" as CASE {
+  * id : INTEGER <<PK>>
+  --
+  * case_number : VARCHAR(50) <<UQ>>
+  * title : VARCHAR(200)
+  jurisdiction : VARCHAR(150)
+  * status : ENUM
+  * is_archived : BOOLEAN
+  * date_opened : DATE
+  date_closed : DATE
+  * created_by_id : INTEGER <<FK>>
+  assigned_to_id : INTEGER <<FK>>
+}
+
+entity "EVIDENCE_ITEMS" as EV {
+  * id : INTEGER <<PK>>
+  --
+  * evidence_number : VARCHAR(50) <<UQ>>
+  * case_id : INTEGER <<FK>>
+  * title : VARCHAR(200)
+  * category : ENUM
+  * lifecycle_state : ENUM
+  * file_name : VARCHAR(255)
+  * original_hash : CHAR(64)
+  * current_hash : CHAR(64)
+  exif_metadata : TEXT
+  risk_score : FLOAT
+  integrity_status : ENUM
+  * is_deleted : BOOLEAN
+  * uploaded_by_id : INTEGER <<FK>>
+  current_holder_id : INTEGER <<FK>>
+}
+
+entity "CUSTODY_LOGS" as CL {
+  * id : INTEGER <<PK>>
+  --
+  * evidence_id : INTEGER <<FK>>
+  * event_type : ENUM
+  from_investigator_id : INTEGER <<FK>>
+  to_investigator_id : INTEGER <<FK>>
+  * timestamp : DATETIME
+  location : VARCHAR(200)
+  reason : TEXT
+  * file_hash_at_event : CHAR(64)
+  * digital_signature : TEXT
+}
+
+entity "AUDIT_RECORDS" as AR {
+  * id : INTEGER <<PK>>
+  --
+  * event_type : ENUM
+  investigator_id : INTEGER <<FK>>
+  evidence_id : INTEGER <<FK>>
+  case_id : INTEGER <<FK>>
+  * description : TEXT
+  ip_address : VARCHAR(50)
+  * result : ENUM
+  * timestamp : DATETIME
+}
+
+entity "CASE_ACCESS" as CA {
+  * id : INTEGER <<PK>>
+  --
+  * case_id : INTEGER <<FK>>
+  * investigator_id : INTEGER <<FK>>
+  * permission : ENUM
+  * granted_at : DATETIME
+  granted_by_id : INTEGER <<FK>>
+}
+
+INV ||--o{ CASE : creates
+INV ||--o{ EV : uploads
+CASE ||--o{ EV : contains
+EV ||--|{ CL : logged_by
+INV ||--o{ CL : participates
+INV ||--o{ AR : performs
+EV ||--o{ AR : concerns
+CASE ||--o{ AR : concerns
+CASE ||--o{ CA : grants
+INV ||--o{ CA : receives
+@enduml

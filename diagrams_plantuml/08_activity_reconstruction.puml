@@ -1,0 +1,62 @@
+@startuml
+' Figure 7.8 - Activity Diagram: Custody Chain Reconstruction
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+start
+:Load confirmed custody records
+in timestamp order;
+
+if (chain empty?) then (yes)
+  :confidence = 0.0;
+  stop
+endif
+
+:Scan consecutive pairs
+for custodian discontinuity;
+
+if (any gap detected?) then (no)
+  :Label every link Confirmed;
+  :confidence = 1.0;
+  stop
+else (yes)
+endif
+
+while (gaps remaining?) is (yes)
+  :Select next gap;
+  :Generate candidate filling records
+  from the access log;
+
+  if (candidates found?) then (no)
+    :Label gap Unresolved;
+  else (yes)
+    :Score each candidate on
+    temporal fit, custodian match
+    and role plausibility;
+    :Best-first search:
+    select highest-scoring candidate;
+
+    if (score >= plausibility threshold 0.40?) then (yes)
+      :Insert link, label Inferred,
+      record the reasoning;
+    else (no)
+      :Label gap Unresolved;
+    endif
+  endif
+endwhile (no)
+
+:Compute overall confidence
+from the ratio of Confirmed
+and Inferred links;
+:Return timeline with every link
+labelled Confirmed / Inferred / Unresolved;
+stop
+
+note right
+  Inferred links are never
+  presented as Confirmed.
+end note
+@enduml

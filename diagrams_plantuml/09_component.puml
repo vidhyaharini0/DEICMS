@@ -1,0 +1,85 @@
+@startuml
+' Figure 7.11 - Component Diagram: DEICMS System Architecture
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+package "Presentation Layer" {
+  component "Jinja2 Templates" as TPL
+  component "Static Assets" as STA
+}
+
+package "Routing Layer (Blueprints)" {
+  component "auth" as B_AUTH
+  component "cases" as B_CASE
+  component "evidence" as B_EV
+  component "custody" as B_CUS
+  component "audit" as B_AUD
+  component "risk" as B_RISK
+  component "assistant" as B_AI
+  component "export" as B_EXP
+  component "dashboard" as B_DASH
+  component "admin" as B_ADM
+}
+
+package "Business Logic Layer" {
+  component "graph_integrity" as L_GI
+  component "risk_scoring" as L_RS
+  component "chain_reconstruction" as L_CR
+  component "state_machine" as L_SM
+  component "ai_assistant" as L_AI
+  component "anomaly_detection" as L_AD
+  component "audit_formulas" as L_AF
+  component "crypto" as L_CR2
+  component "file_crypto" as L_FC
+  component "pdf_report" as L_PDF
+  component "validators" as L_VAL
+}
+
+package "Cross-Cutting Utilities" {
+  component "decorators (authorisation)" as U_DEC
+  component "audit recorder" as U_AUD
+  component "time helper" as U_TIME
+}
+
+package "Data Access Layer" {
+  component "SQLAlchemy ORM" as ORM
+  component "Six Model Classes" as MOD
+}
+
+database "SQLite / PostgreSQL" as DB
+folder "Encrypted File Store" as FS
+cloud "NVIDIA NIM API" as NIM
+
+TPL ..> B_DASH
+B_AUTH ..> L_CR2
+B_EV ..> L_VAL
+B_EV ..> L_FC
+B_CUS ..> L_CR2
+B_CUS ..> L_SM
+B_RISK ..> L_RS
+B_RISK ..> L_AD
+B_AUD ..> L_AF
+B_EXP ..> L_PDF
+B_EXP ..> L_GI
+B_AI ..> L_AI
+B_CASE ..> MOD
+B_ADM ..> MOD
+
+L_GI ..> L_CR2
+L_RS ..> L_AF
+L_CR ..> L_GI
+L_AI --> NIM : HTTPS (OpenAI-compatible)
+
+U_DEC ..> MOD
+U_AUD ..> MOD
+L_GI ..> ORM
+L_RS ..> ORM
+L_SM ..> ORM
+L_AI ..> ORM
+MOD ..> ORM
+ORM --> DB
+L_FC --> FS
+@enduml

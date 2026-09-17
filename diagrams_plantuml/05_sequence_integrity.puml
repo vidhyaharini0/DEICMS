@@ -1,0 +1,51 @@
+@startuml
+' Figure 7.6 - Sequence Diagram: Chain-of-Custody Integrity Verification
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+actor Analyst
+participant "Integrity\nRoute" as R
+participant "GraphIntegrity\nEngine" as E
+database "Database" as DB
+participant "File\nStore" as FS
+participant "Crypto\n(hashlib, Ed25519)" as C
+
+Analyst -> R : POST /evidence/{id}/verify
+activate R
+R -> R : check role and case access
+R -> E : verify(evidence_id)
+activate E
+
+E -> DB : load evidence item
+DB --> E : evidence
+E -> DB : load custody logs (ordered)
+DB --> E : custody log list
+
+E -> E : build directed graph\n(nodes = events, edges = transfers)
+
+loop depth-first traversal from upload root
+  E -> FS : read stored file
+  FS --> E : bytes
+  E -> C : sha256(bytes)
+  C --> E : current hash
+  E -> E : check 1 - hash continuity
+  E -> C : verify Ed25519 signature
+  C --> E : valid / invalid
+  E -> E : check 2 - signature validity
+  E -> E : check 3 - timestamp monotonicity
+  E -> E : accumulate failure (do not stop)
+end
+
+E -> E : compute completeness score
+E -> E : determine verdict\n(Intact / Partially Verified / Broken)
+E -> DB : write integrity_status
+E --> R : IntegrityReport
+deactivate E
+
+R -> DB : write AuditRecord
+R --> Analyst : verdict, score, failure list
+deactivate R
+@enduml

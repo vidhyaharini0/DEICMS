@@ -1,0 +1,40 @@
+@startuml
+' Figure 7.9 - Evidence Lifecycle State Machine
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+state UnderAnalysis as "Under Analysis"
+
+[*] --> Collected : evidence registered
+
+Collected --> Submitted : submit\n[Admin, Lead]
+Collected --> Transferred : transfer\n[Admin, Lead, Analyst]
+
+Submitted --> UnderAnalysis : begin analysis\n[Admin, Lead, Analyst]\n<<requires custody log>>
+Submitted --> Transferred : transfer\n[Admin, Lead, Analyst]
+Submitted --> Archived : emergency archive\n[Admin only]
+
+UnderAnalysis --> Transferred : transfer\n[Admin, Lead, Analyst]
+UnderAnalysis --> Archived : archive\n[Admin, Lead]\n<<requires Intact verdict>>
+
+Transferred --> UnderAnalysis : resume analysis\n[Admin, Lead, Analyst]
+
+Collected --> Flagged : integrity failure\n[Admin, Lead]
+Submitted --> Flagged : integrity failure\n[Admin, Lead]
+UnderAnalysis --> Flagged : integrity failure\n[Admin, Lead]
+Transferred --> Flagged : integrity failure\n[Admin, Lead]
+Archived --> Flagged : integrity failure\n[Admin, Lead]
+
+Flagged --> UnderAnalysis : issue resolved\n[Admin only]
+
+Archived --> [*]
+
+note right of Flagged
+  Terminal for all roles except Admin.
+  Entered automatically when the graph
+  integrity verifier returns Broken.
+end note
+@enduml

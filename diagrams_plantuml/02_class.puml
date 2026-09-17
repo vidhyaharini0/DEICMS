@@ -1,0 +1,105 @@
+@startuml
+' Figure 7.4 - DEICMS Class Diagram
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+hide circle
+
+class Investigator {
+  - id : Integer
+  - full_name : String
+  - email : String
+  - password_hash : String
+  - role : Enum
+  - public_key : Text
+  - private_key_encrypted : Text
+  - totp_secret : String
+  - is_active : Boolean
+  - failed_login_count : Integer
+  - locked_until : DateTime
+  --
+  + check_password() : Boolean
+  + has_role() : Boolean
+  + is_locked() : Boolean
+}
+
+class Case {
+  - id : Integer
+  - case_number : String
+  - title : String
+  - jurisdiction : String
+  - status : Enum
+  - is_archived : Boolean
+  - date_opened : Date
+  - date_closed : Date
+  --
+  + archive() : void
+  + evidence_count() : Integer
+}
+
+class EvidenceItem {
+  - id : Integer
+  - evidence_number : String
+  - title : String
+  - category : Enum
+  - lifecycle_state : Enum
+  - file_name : String
+  - file_path : String
+  - original_hash : String
+  - current_hash : String
+  - exif_metadata : Text
+  - risk_score : Float
+  - risk_level : Enum
+  - integrity_status : Enum
+  - is_deleted : Boolean
+  --
+  + compute_hash() : String
+  + is_intact() : Boolean
+}
+
+class CustodyLog {
+  - id : Integer
+  - event_type : Enum
+  - timestamp : DateTime
+  - location : String
+  - reason : Text
+  - file_hash_at_event : String
+  - digital_signature : Text
+  --
+  + verify_signature() : Boolean
+}
+
+class AuditRecord {
+  - id : Integer
+  - event_type : Enum
+  - description : Text
+  - ip_address : String
+  - result : Enum
+  - timestamp : DateTime
+  --
+  + record() : void
+}
+
+class CaseAccess {
+  - id : Integer
+  - permission : Enum
+  - granted_at : DateTime
+  --
+  + accessible_case_ids() : List
+}
+
+Investigator "1" -- "0..*" Case : creates >
+Investigator "1" -- "0..*" EvidenceItem : uploads >
+Investigator "1" -- "0..*" EvidenceItem : holds >
+Case "1" *-- "0..*" EvidenceItem : contains >
+EvidenceItem "1" *-- "1..*" CustodyLog : has >
+Investigator "1" -- "0..*" CustodyLog : transfers >
+Investigator "1" -- "0..*" AuditRecord : performs >
+EvidenceItem "1" -- "0..*" AuditRecord : concerns >
+Case "1" -- "0..*" AuditRecord : concerns >
+Case "1" -- "0..*" CaseAccess : grants >
+Investigator "1" -- "0..*" CaseAccess : receives >
+@enduml
