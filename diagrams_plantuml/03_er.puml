@@ -1,5 +1,5 @@
 @startuml
-' Figure 7.5 - DEICMS Entity-Relationship Diagram
+' Figure 8.3 - DEICMS Entity-Relationship Diagram
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

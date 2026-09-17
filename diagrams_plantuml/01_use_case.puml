@@ -1,5 +1,5 @@
 @startuml
-' Figure 7.1 - DEICMS Use Case Diagram
+' Figure 8.1 - DEICMS Use Case Diagram
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

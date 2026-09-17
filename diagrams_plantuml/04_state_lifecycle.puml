@@ -1,5 +1,5 @@
 @startuml
-' Figure 7.9 - Evidence Lifecycle State Machine
+' Figure 8.8 - Evidence Lifecycle State Machine
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

@@ -1,5 +1,5 @@
 @startuml
-' Figure 7.6 - Sequence Diagram: Chain-of-Custody Integrity Verification
+' Figure 8.4 - Sequence Diagram: Chain-of-Custody Integrity Verification
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial

@@ -1,5 +1,5 @@
 @startuml
-' Figure 7.7 - Activity Diagram: Multi-Factor Evidence Risk Scoring
+' Figure 8.6 - Activity Diagram: Multi-Factor Evidence Risk Scoring
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
