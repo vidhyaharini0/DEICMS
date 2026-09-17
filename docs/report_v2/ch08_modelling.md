@@ -84,19 +84,8 @@ Two authorisation dimensions apply independently, as established in Section 10.3
 
 ### 8.3.1 Authorisation Legend
 
-**Table 8.4 — Authorisation notation used in the catalogue**
-
-| Notation | Meaning | Implemented as |
-|---|---|---|
-| *(none)* | No authentication required | The route is reachable before login |
-| **Any** | Any authenticated investigator | `@login_required` only |
-| **Analyst+** | Admin, Lead Investigator or Analyst | `can_analyse()` |
-| **Lead+** | Admin or Lead Investigator | `can_manage()` |
-| **Admin** | Administrator only | `is_admin()` |
-| **Holder** | The item's current custodian, or an Admin | Explicit holder check |
-| **Owner** | An Admin, or the case's Owner in the access table | `CaseAccess.can_manage_members()` |
-| **Member** | Must belong to the case (Admin exempt) | `accessible_case_ids` / access guard |
-| **Scoped** | Permitted for all, but the data returned is filtered to accessible cases | `accessible_case_ids` applied to the query |
+**Role guard** — *(none)* no authentication · **Any** any authenticated investigator · **Analyst+** `can_analyse()` · **Lead+** `can_manage()` · **Admin** `is_admin()` · **Holder** the item's current custodian or an Admin · **Owner** an Admin or the case's Owner.
+**Case guard** — **Member** must belong to the case (Admin exempt) · **Scoped** permitted for all, but the data returned is filtered to accessible cases.
 
 ### 8.3.2 The Catalogue
 
@@ -200,20 +189,20 @@ This is defensible and is not a defect: verifying a chain of custody is precisel
 
 ### 8.3.5 Structured Descriptions of the Principal Use Cases
 
-The catalogue names all forty-one; the four below are specified in full because they carry the system's central obligations. The remainder follow the same template and derive directly from the acceptance criteria in Sections 7.5 and 7.6.
+The catalogue names all forty-one. The two below are specified in full because they carry the system's central obligations; the remainder follow the same template and derive from the acceptance criteria in Sections 7.5 and 7.6.
 
 **Table 8.8 — Structured use-case descriptions**
 
-| Field | UC-14 Register Evidence | UC-18 Transfer Custody | UC-20 Verify Integrity | UC-23 Change Lifecycle State |
-|---|---|---|---|---|
-| **Actors** | Admin, Lead Investigator | Current holder, or Admin | All four roles | Per Table 8.7 |
-| **Goal** | Bring a digital file under managed custody | Hand responsibility for an item to another investigator | Establish whether the custody history is intact | Move an item to the next procedurally valid state |
-| **Preconditions** | Authenticated; `can_manage()`; member of the target case | Authenticated; current holder of the item or Admin; member of the case | Authenticated; member of the item's case | Authenticated; member of the case; holds the role the transition requires |
-| **Main flow** | Select case → upload file → system checks the extension allow-list → inspects magic bytes and rejects a mismatch → computes SHA-256 over the plaintext → extracts EXIF → encrypts with AES-256-GCM → generates an evidence number → **creates the item and its first custody entry in one transaction** → signs that entry → writes an audit record | Select item → choose recipient, location and reason → system builds the canonical payload → signs it with the sender's private key → writes the custody record → updates the current holder → writes an audit record | Select item → system loads the custody logs and builds the graph → traverses depth-first from the upload root → at each node checks hash continuity, signature validity and timestamp monotonicity → **accumulates all failures rather than stopping** → computes the completeness score → assigns a verdict → writes back `integrity_status` → writes an audit record | Select item and target state → system looks up the ordered pair in the transition table → checks the required role → evaluates each precondition → applies the transition, the audit write and the risk recalculation **atomically**, with a mandatory justification |
-| **Alternative flows** | Extension not allow-listed, or not matching the magic bytes → upload rejected with the reason | Signing unavailable → unsigned sentinel recorded and the user warned (fail-visible) | Any check fails → verdict downgraded to Partially Verified or Broken; every failure located and listed | Verification reveals a problem → the item may be moved to Flagged |
-| **Exceptions** | Case not accessible → authorisation error; `can_manage()` fails → refused with a message | Not the current holder and not Admin → refused | Item has no custody records → verdict Broken | Transition absent from the table, role insufficient, or a precondition unmet → **rejected with the exact unmet condition, and the rejection audited** |
-| **Postconditions** | Item exists with an immutable `original_hash` and a signed first custody entry; audit trail updated | A new signed custody record exists; the holder has changed; audit trail updated | An integrity report exists; `integrity_status` is current; the item's risk reflects it | The item is in the new state; the transition is audited; the risk score is current |
-| **Requirements** | FR-10 to FR-14, FR-48 | FR-16, FR-17, FR-23, FR-24 | FR-25 to FR-27, FR-56 | FR-28 to FR-30 |
+| Field | UC-14 Register Evidence | UC-20 Verify Integrity |
+|---|---|---|
+| **Actors** | Admin, Lead Investigator | All four roles |
+| **Goal** | Bring a digital file under managed custody | Establish whether the custody history is intact |
+| **Preconditions** | Authenticated; `can_manage()`; member of the target case | Authenticated; member of the item's case |
+| **Main flow** | Select case → upload → check the extension allow-list → inspect magic bytes, reject a mismatch → SHA-256 over the plaintext → extract EXIF → encrypt with AES-256-GCM → generate an evidence number → **create the item and its first custody entry in one transaction** → sign that entry → audit | Select item → load custody logs, build the graph → depth-first traversal from the upload root → at each node check hash continuity, signature validity, timestamp monotonicity → **accumulate all failures rather than stopping** → compute completeness → assign a verdict → write back `integrity_status` → audit |
+| **Alternative flows** | Extension not allow-listed, or not matching the magic bytes → rejected with the reason | Any check fails → verdict downgraded to Partially Verified or Broken; every failure located and listed |
+| **Exceptions** | Case not accessible → authorisation error; `can_manage()` fails → refused | Item has no custody records → verdict Broken |
+| **Postconditions** | Item exists with an immutable `original_hash` and a signed first custody entry | An integrity report exists; `integrity_status` current; the item's risk reflects it |
+| **Requirements** | FR-10 to FR-14, FR-48 | FR-25 to FR-27, FR-56 |
 
 ## 8.4 Structural Model: the Class Diagram
 

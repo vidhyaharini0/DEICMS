@@ -244,17 +244,13 @@ The final system comprises approximately five thousand lines of application code
 **Chapter 18 — System Output and Screenshots**
 
 - 18.1 Purpose of this Chapter
-- 18.2 Authentication and Access Control
-- 18.3 Role-Tailored Dashboards
-- 18.4 Case and Evidence Management
-- 18.5 Chain of Custody and Integrity
-- 18.6 Lifecycle State Machine
-- 18.7 Risk Scoring and Anomaly Detection
-- 18.8 AI Investigation Assistant
-- 18.9 Audit Trail and Reporting
-- 18.10 Test Execution
-- 18.11 Code Listings
-- 18.12 Summary
+- 18.2 Access Control and Role Scoping
+- 18.3 Evidence Registration and Validation
+- 18.4 Chain of Custody and Integrity
+- 18.5 Lifecycle Enforcement
+- 18.6 Risk Scoring and the AI Assistant
+- 18.7 Audit Trail, Export and Test Execution
+- 18.8 Code Listings
 
 **Chapter 19 — Conclusion**
 

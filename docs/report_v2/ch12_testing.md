@@ -185,39 +185,26 @@ The pairing is what makes the traceability matrix in Appendix D possible: a requ
 
 **Table 12.11 — Representative test cases across the levels**
 
+Sixteen of the 172, chosen to show the range of levels and styles rather than to enumerate the suite.
+
 | ID | Level | Test | Expected result | Module |
 |---|---|---|---|---|
-| T-01 | Unit | Password hashed, never stored in plaintext | Stored value differs from input; verification succeeds | `test_increment1` |
-| T-02 | Unit | Login with unknown email vs wrong password | Identical error message in both cases | `test_increment1` |
-| T-03 | Unit | Attempt to UPDATE an audit record | Raises; record unchanged | `test_increment1` |
-| T-04 | Unit | Custody gap of 72 h vs 71 h | 72 h flagged; 71 h not | `test_day2` |
-| T-05 | Unit | Ed25519 signature over the canonical payload | Verifies against the signer's public key | `test_day2` |
-| T-06 | Component | Verify a clean custody chain | Verdict `Intact`, completeness 1.0, no failures | `test_increment2` |
-| T-07 | Component | Verify with the stored file replaced | Hash failure detected and located at the root node | `test_increment2` |
-| T-08 | Component | Verify with a non-increasing timestamp | Temporal anomaly detected at that node | `test_increment2` |
-| T-09 | Component | Verify an item with no custody records | Verdict `Broken` | `test_increment2` |
-| T-10 | Component | Transition Submitted → Under Analysis with no custody log | Rejected with the exact unmet precondition | `test_increment2` |
-| T-11 | Component | Transition Under Analysis → Archived without an Intact verdict | Rejected | `test_increment2` |
+| T-01 | Unit | Login with unknown email vs wrong password | Identical error message in both cases | `test_increment1` |
+| T-02 | Unit | Attempt to UPDATE an audit record | Raises; record unchanged | `test_increment1` |
+| T-03 | Unit | Custody gap of 72 h vs 71 h | 72 h flagged; 71 h not | `test_day2` |
+| T-04 | Unit | Ed25519 signature over the canonical payload | Verifies against the signer's public key | `test_day2` |
+| T-05 | Unit | Normalisation with equal upper and lower bounds | Defined value; no division by zero | `test_increment3` |
+| T-06 | Unit | Risk weights after re-normalisation | Sum to exactly 1.0 | `test_increment3` |
+| T-07 | Unit | Interaction bonus with one vs both thresholds met | Fires only when both are met | `test_increment3` |
+| T-08 | Unit | "What are the cases assigned to me?" | Classified as *identity*, not *case query* | `test_intent_classifier` |
+| T-09 | Component | Verify a clean custody chain | Verdict `Intact`, completeness 1.0 | `test_increment2` |
+| T-10 | Component | Verify with the stored file replaced | Hash failure detected and located at the root node | `test_increment2` |
+| T-11 | Component | Archive without an Intact verdict | Rejected with the exact unmet precondition | `test_increment2` |
 | T-12 | Component | Read-Only investigator requests available transitions | Empty set | `test_increment2` |
-| T-13 | Component | Reconstruct a gapless chain | Confidence 1.0, all links `Confirmed` | `test_increment2` |
-| T-14 | Component | Reconstruct an empty chain | Confidence 0.0 | `test_increment2` |
-| T-15 | Unit | Normalisation with equal upper and lower bounds | Returns a defined value; no division by zero | `test_increment3` |
-| T-16 | Unit | Logarithmic curve with a negative input | Clamped, not raised | `test_increment3` |
-| T-17 | Unit | Risk weights sum | Exactly 1.0 after re-normalisation | `test_increment3` |
-| T-18 | Unit | Interaction bonus with both thresholds met vs one met | Fires only when both are met | `test_increment3` |
-| T-19 | Unit | Final score bound | Always within [0, 1] | `test_increment3` |
-| T-20 | Unit | Intent classification across all seven intents | Correct intent for each | `test_intent_classifier` |
-| T-21 | Unit | "What are the cases assigned to me?" | Classified as *identity*, not *case query* | `test_intent_classifier` |
-| T-22 | Component | Full assistant pipeline against the mock backend | Reply returned; all six stages executed | `test_increment3` |
-| T-23 | Component | Executable uploaded with an image extension | Rejected on magic-byte mismatch | `test_increment3` |
-| T-24 | System | Login → case → upload → transfer → verify → export | Signed package produced; manifest verifies | `test_integration` |
-| T-25 | System | PDF custody report generation | Contains a fresh integrity verdict | `test_integration` |
-| T-26 | **Adversarial** | `accessible_case_ids` for each of the four roles | Admin sentinel; member list; empty list | `test_scoping` |
-| T-27 | **Adversarial** | Lead's dashboard with a second case present | No trace of the non-member case | `test_scoping` |
-| T-28 | **Adversarial** | Read-Only user with no memberships | Explanatory empty state, no data | `test_scoping` |
-| T-29 | **Adversarial** | Cross-case per-item risk request | Refused with an authorisation error | `test_scoping` |
-| T-30 | **Adversarial** | Assistant asked to describe an inaccessible case | Refuses; no data leaked | `test_scoping` |
-| T-31 | **Adversarial** | Chat history after logout and re-login as another user | Previous user's history absent | `test_scoping` |
+| T-13 | Component | Executable uploaded with an image extension | Rejected on magic-byte mismatch | `test_increment3` |
+| T-14 | System | Login → case → upload → transfer → verify → export | Signed package produced; manifest verifies | `test_integration` |
+| T-15 | **Adversarial** | Lead's dashboard with a second case present | No trace of the non-member case | `test_scoping` |
+| T-16 | **Adversarial** | Chat history after logout and re-login as another user | Previous user's history absent | `test_scoping` |
 
 ## 12.8 Coverage Analysis
 

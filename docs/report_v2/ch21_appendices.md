@@ -45,188 +45,51 @@ The M2 defect findings (D1–D6, H1–H3, R1–R2) are catalogued in Table 5.9 r
 
 ## Appendix B — HTTP Interface Reference
 
-Routes grouped by blueprint. Methods are shown as G (GET) and P (POST). All routes require authentication except the login and one-time-password routes.
+Thirty-three routes across ten blueprints. The authorisation of each is given in full in **Table 8.5** (the use-case catalogue), derived by reading the guard in each route handler; only the paths are listed here.
 
-The **minimum role** column was derived by reading the authorisation guard in each route handler, not from design intent; it matches Table 8.5 exactly. "Case member" means no role guard applies but the requester must belong to the item's case (Administrators are exempt).
+| Blueprint | Routes |
+|---|---|
+| `auth` | `/login` · `/logout` · `/verify-otp` · `/2fa/setup` · `/2fa/disable` |
+| `dashboard` | `/dashboard` |
+| `cases` | `/cases` · `/cases/new` · `/cases/<id>` · `/cases/<id>/edit` · `/cases/<id>/archive` · `/cases/<id>/members/add` · `/cases/<id>/members/remove` |
+| `evidence` | `/cases/<id>/evidence/upload` · `/cases/<id>/evidence/<eid>` · `…/edit` · `…/delete` |
+| `custody` | `/evidence/<eid>/transfer` · `/custody-log` · `/verify` · `/verify/json` · `/reconstruct` · `/change-state` |
+| `risk` | `/risk/dashboard` · `/risk/anomaly` · `/risk/evidence/<eid>` · `/risk/evidence/<eid>/json` |
+| `audit` | `/audit` · `/audit/evidence/<eid>` · `/audit/evidence/<eid>/formula-check` |
+| `assistant` | `/assistant/` · `/assistant/chat` · `/assistant/clear` |
+| `export` | `/cases/<id>/export` · `/evidence/<eid>/custody-report.pdf` |
+| `admin` | `/admin/users` · `/admin/users/new` · `/admin/users/<id>/change-role` · `…/toggle-active` · `…/unlock` · `/admin/risk-settings` |
 
-| Method | Path | Purpose | Minimum role |
-|---|---|---|---|
-| G/P | `/login` (and `/`) | Log in | — |
-| G | `/logout` | Log out | Any |
-| G/P | `/verify-otp` | Second-factor verification | — |
-| G/P | `/2fa/setup`, `/2fa/disable` | Enrol or disable TOTP | Any (own account) |
-| G | `/dashboard` | Role-tailored dashboard | Any |
-| G | `/cases` | List accessible cases (paginated) | Any |
-| G/P | `/cases/new` | Create a case | Lead Investigator or Admin |
-| G | `/cases/<id>` | View a case and its evidence | Case member |
-| G/P | `/cases/<id>/edit` | Edit a case | Lead Investigator or Admin |
-| P | `/cases/<id>/archive` | Archive a case (soft) | **Admin only** |
-| P | `/cases/<id>/members/add`, `/members/remove` | Manage case membership | Admin or case Owner |
-| G | `/cases/<id>/export` | Download the signed ZIP export | Lead Investigator or Admin |
-| G/P | `/cases/<id>/evidence/upload` | Upload and register evidence | Lead Investigator |
-| G | `/cases/<id>/evidence/<eid>` | View an evidence item | Case member |
-| G/P | `/cases/<id>/evidence/<eid>/edit` | Edit evidence metadata | Lead Investigator |
-| P | `/cases/<id>/evidence/<eid>/delete` | Soft-delete an evidence item | **Admin only** |
-| G/P | `/evidence/<eid>/transfer` | Record a signed custody transfer | Current holder or Admin |
-| G/P | `/evidence/<eid>/change-state` | Trigger a lifecycle transition | Per transition table |
-| G | `/evidence/<eid>/custody-log` | View the custody log | Case member |
-| G | `/evidence/<eid>/verify` (+ `/verify/json`) | Run graph integrity verification | Case member |
-| G | `/evidence/<eid>/reconstruct` | Run custody-chain reconstruction | Case member |
-| G | `/evidence/<eid>/custody-report.pdf` | Download the PDF custody report | Case member |
-| G | `/risk/dashboard` | Risk-ranked evidence (scoped) | Any (scoped) |
-| G | `/risk/anomaly` | Isolation Forest anomaly view | Any (scoped) |
-| G | `/risk/evidence/<eid>` (+ `/json`) | Per-item risk report | Case member |
-| G | `/audit` | Global audit trail | **Admin only** |
-| G | `/audit/evidence/<eid>` (+ `/formula-check`) | Per-item trail and formula checks | Case member |
-| G | `/assistant/` | AI assistant chat page | Any |
-| P | `/assistant/chat`, `/assistant/clear` | Query the assistant / clear history | Any |
-| G | `/admin/users` (+ `/new`) | List or create investigator accounts | **Admin only** |
-| P | `/admin/users/<id>/change-role`, `/toggle-active`, `/unlock` | Account management | **Admin only** |
-| G/P | `/admin/risk-settings` | Configure risk weights and thresholds | **Admin only** |
+All routes require authentication except `/login` and `/verify-otp`.
 
 ---
 
 ## Appendix C — Database Schema Reference
 
-The six entities and their principal columns. Primary keys are integer surrogates; unique business keys and foreign keys are noted. The visual form is Figure 8.4.
+The full schema — columns, SQL types, keys, constraints, cardinalities and indexes — is given graphically in **Figure 8.4**. This appendix records only the constraints that carry domain meaning and are therefore referenced elsewhere in the report.
 
-**INVESTIGATORS**
-
-| Column | Type | Constraints |
+| Table | Constraint | Why it matters |
 |---|---|---|
-| id | INTEGER | PK |
-| full_name | VARCHAR(150) | NOT NULL |
-| email | VARCHAR(150) | NOT NULL, UNIQUE |
-| password_hash | VARCHAR(256) | NOT NULL |
-| role | ENUM | NOT NULL — Admin, Lead Investigator, Analyst, Read-Only |
-| public_key | TEXT | Ed25519 public key |
-| private_key_encrypted | TEXT | Fernet-encrypted private key |
-| totp_secret | VARCHAR(255) | Nullable — set when 2FA is enrolled |
-| is_active | BOOLEAN | NOT NULL |
-| failed_login_count | INTEGER | NOT NULL |
-| locked_until | DATETIME | Nullable |
-| created_at, updated_at | DATETIME | NOT NULL |
-
-**CASES**
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INTEGER | PK |
-| case_number | VARCHAR(50) | NOT NULL, UNIQUE |
-| title | VARCHAR(200) | NOT NULL |
-| description | TEXT | |
-| jurisdiction | VARCHAR(150) | |
-| status | ENUM | NOT NULL — Open, Active, Pending, Closed, Archived |
-| is_archived | BOOLEAN | NOT NULL — soft archive |
-| date_opened | DATE | NOT NULL |
-| date_closed | DATE | Nullable |
-| created_by_id | INTEGER | FK → investigators.id, NOT NULL |
-| assigned_to_id | INTEGER | FK → investigators.id |
-
-**EVIDENCE_ITEMS**
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INTEGER | PK |
-| evidence_number | VARCHAR(50) | NOT NULL, UNIQUE |
-| case_id | INTEGER | FK → cases.id, NOT NULL |
-| title | VARCHAR(200) | NOT NULL |
-| category | ENUM | NOT NULL — Image, Video, Audio, Document, Database, Log File, Other |
-| lifecycle_state | ENUM | NOT NULL — Collected, Submitted, Under Analysis, Transferred, Archived, Flagged |
-| file_name, file_path | VARCHAR | NOT NULL |
-| file_size, file_mime_type | BIGINT / VARCHAR(100) | |
-| **original_hash** | CHAR(64) | NOT NULL — **immutable ground truth** |
-| **current_hash** | CHAR(64) | NOT NULL — latest verified state |
-| exif_metadata | TEXT | |
-| uploaded_by_id | INTEGER | FK → investigators.id, NOT NULL |
-| current_holder_id | INTEGER | FK → investigators.id |
-| risk_score, risk_level | FLOAT / ENUM | Written by the risk scorer |
-| **integrity_status** | ENUM | VERIFIED / NOT_CHECKED / FAILED — *added in M2* |
-| **is_deleted** | BOOLEAN | NOT NULL — soft delete, *added in M2* |
-
-**CUSTODY_LOGS**
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INTEGER | PK |
-| evidence_id | INTEGER | FK → evidence_items.id, NOT NULL |
-| event_type | ENUM | NOT NULL — Upload, Transfer, Access, Verification |
-| from_investigator_id, to_investigator_id | INTEGER | FK → investigators.id |
-| timestamp | DATETIME | NOT NULL |
-| location, reason, notes | VARCHAR / TEXT | |
-| file_hash_at_event | CHAR(64) | NOT NULL |
-| **digital_signature** | TEXT | **NOT NULL — an unsigned custody record cannot exist** |
-
-**AUDIT_RECORDS** — *updates and deletes are blocked at the ORM layer (append-only)*
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INTEGER | PK |
-| event_type | ENUM | NOT NULL |
-| investigator_id, evidence_id, case_id | INTEGER | FK, nullable |
-| description | TEXT | NOT NULL |
-| ip_address | VARCHAR(50) | |
-| result | ENUM | NOT NULL — Success, Failure, Warning |
-| integrity_check_result | TEXT | |
-| timestamp | DATETIME | NOT NULL |
-
-**CASE_ACCESS** — *unique on (case_id, investigator_id)*
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INTEGER | PK |
-| case_id | INTEGER | FK → cases.id, NOT NULL |
-| investigator_id | INTEGER | FK → investigators.id, NOT NULL |
-| permission | ENUM | NOT NULL — Owner, Member, ReadOnly |
-| granted_at | DATETIME | NOT NULL |
-| granted_by_id | INTEGER | FK → investigators.id |
+| `investigators` | `email` UNIQUE | Identity; prevents duplicate accounts |
+| `investigators` | `role` ENUM of exactly four values | The whole authorisation model rests on this (Table 8.6) |
+| `cases` | `case_number` UNIQUE | Business key used in court documents |
+| `cases` | `is_archived` BOOLEAN — no DELETE path | Soft archive; DR-04 |
+| `evidence_items` | **`original_hash` CHAR(64) NOT NULL, never updated** | The immutable ground truth for all integrity verification (G1) |
+| `evidence_items` | `current_hash` separate from `original_hash` | Verification is the comparison of the two; collapsing them destroys the capability |
+| `evidence_items` | `integrity_status` ENUM | Written back by the verifier; read by the risk scorer (finding D2) |
+| `evidence_items` | `is_deleted` BOOLEAN — no DELETE path | Soft delete preserves custody and audit history (finding D1) |
+| `custody_logs` | **`digital_signature` TEXT NOT NULL** | An unsigned custody record cannot be represented (FR-24) |
+| `custody_logs` | ≥ 1 row per evidence item | Enforced by atomic creation at upload (FR-12); the verifier's upload-root assumption depends on it |
+| `audit_records` | Insert-only, enforced by ORM event listeners | Not expressible in DDL; history cannot be rewritten (FR-19) |
+| `case_access` | UNIQUE (`case_id`, `investigator_id`) | Associative entity resolving the many-to-many; source of `accessible_case_ids` |
 
 ---
 
-## Appendix D — Requirements Traceability Matrix
+## Appendix D — Requirements Traceability
 
-Each functional requirement traced forward to the user story that carries it, the module that implements it, and the test module that verifies it. This is the artefact that makes the validity, consistency and completeness checks of Section 7.12 checkable rather than asserted.
+Forward traceability — requirement → user story → implementing module → verifying test — is carried **inline in Table 7.5**, which lists all fifty-six functional requirements with those columns. It is not repeated here.
 
-| FR | Story | Implemented in | Verified by | Iteration |
-|---|---|---|---|---|
-| FR-01, FR-02 | US-01 | `routes/auth.py`, `models/investigator.py` | `test_increment1` | 1 |
-| FR-03 | US-01, US-24 | `app/__init__.py` (before_request), `config.py` | `test_increment3` | 1, 3 |
-| FR-04, FR-05, FR-06 | US-02 | `models/investigator.py`, `utils/decorators.py` | `test_increment1`, `test_scoping` | 1 |
-| FR-07, FR-08 | US-03 | `routes/cases.py`, `models/case.py` | `test_increment1` | 1 |
-| FR-09 | US-02, US-28 | `models/case_access.py` | `test_scoping` | 1, M1 |
-| FR-10, FR-11, FR-12 | US-04 | `routes/evidence.py`, `logic/validators.py` | `test_increment1` | 1 |
-| FR-13 | US-05 | `logic/crypto.py` (`hashlib`) | `test_increment1` | 1 |
-| FR-14 | US-06, US-25 | `logic/validators.py` (Pillow, python-magic) | `test_increment1`, `test_increment3` | 1, 3 |
-| FR-15 | US-07 | `routes/evidence.py` | `test_increment1` | 1 |
-| FR-16, FR-17 | US-08 | `routes/custody.py`, `models/custody_log.py` | `test_increment1`, `test_increment2` | 1 |
-| FR-18, FR-19 | US-09 | `models/audit_record.py`, `utils/audit.py` | `test_increment1` | 1 |
-| FR-20 | US-10 | `logic/audit_formulas.py` | `test_day2` | 1 |
-| FR-21, FR-22 | US-11 | `routes/admin.py`, `logic/crypto.py` | `test_increment1` | 1 |
-| FR-23, FR-24 | US-12 | `logic/crypto.py`, `routes/custody.py` | `test_increment2`, `test_day2` | 2 |
-| FR-25, FR-26, FR-27 | US-13 | `logic/graph_integrity.py` | `test_increment2` | 2 |
-| FR-28, FR-29, FR-30 | US-14 | `logic/state_machine.py` | `test_increment2` | 2 |
-| FR-31, FR-32, FR-33 | US-15 | `logic/chain_reconstruction.py` | `test_increment2` | 2 |
-| FR-34 | US-16 | `routes/custody.py`, templates | `test_increment2` | 2 |
-| FR-35 | US-17 | `routes/custody.py`, templates | `test_increment2` | 2 |
-| FR-36, FR-37, FR-38 | US-18 | `logic/risk_scoring.py` | `test_increment3` | 3 |
-| FR-39 | US-19 | `routes/admin.py`, `logic/risk_scoring.py` | `test_increment3` | 3 |
-| FR-40 | US-20 | `logic/ai_assistant.py` | `test_intent_classifier` | 3 |
-| FR-41 | US-20, US-29 | `logic/ai_assistant.py`, `models/case_access.py` | `test_scoping` | 3, M1 |
-| FR-42 | US-20 | `logic/ai_assistant.py` | `test_increment3` | 3 |
-| FR-43 | US-21 | `logic/ai_assistant.py` | `test_increment3` | 3 |
-| FR-44, FR-45 | US-22 | `logic/anomaly_detection.py` (scikit-learn) | `test_increment3` | 3 |
-| FR-46 | US-23 | `routes/risk.py`, `routes/dashboard.py` | `test_increment3` | 3 |
-| FR-47 | US-24 | `routes/auth.py`, `config.py` (PyOTP) | `test_increment3` | 3 |
-| FR-48 | US-25 | `logic/file_crypto.py`, `logic/keyderive.py` | `test_increment3` | 3 |
-| FR-49 | US-26 | `routes/export.py` | `test_increment3`, `test_integration` | 3 |
-| FR-50 | US-27 | `logic/pdf_report.py` (ReportLab) | `test_integration` | 3 |
-| FR-51, FR-52 | US-28 | `models/case_access.py`, `routes/dashboard.py` | `test_scoping` | M1 |
-| FR-53 | US-29 | `logic/ai_assistant.py` | `test_intent_classifier` | M1 |
-| FR-54 | US-29 | `routes/assistant.py`, `routes/auth.py` | `test_scoping` | M1 |
-| FR-55 | D1 | `models/evidence.py`, `routes/evidence.py` | `test_integration` | M2 |
-| FR-56 | D2 | `models/evidence.py`, `logic/graph_integrity.py` | `test_integration` | M2 |
-
-**Coverage of the matrix:** all 56 functional requirements trace to at least one implementing module and at least one verifying test module. No requirement is unimplemented, and none is unverified.
+**Coverage:** every functional requirement traces to at least one implementing module and at least one verifying test module. No requirement is unimplemented, and none is unverified.
 
 ---
 

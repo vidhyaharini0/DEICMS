@@ -32,6 +32,46 @@ FIGURES = {
     "8.11": "10_deployment.png",
 }
 
+
+def balance_table_widths(text):
+    """
+    Pandoc sizes pipe-table columns from the dash count in the separator row.
+    Left to itself that follows the *header* width, which squeezes a long
+    prose column into a sliver. Recompute each separator from the actual
+    content width of the column instead.
+    """
+    out, block = [], []
+
+    def flush():
+        if not block:
+            return
+        rows = [r for r in block]
+        cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
+        ncol = len(cells[0])
+        if any(len(c) != ncol for c in cells) or ncol < 2:
+            out.extend(block); block.clear(); return
+        # mean cell length per column, ignoring the separator row
+        body = [c for i, c in enumerate(cells) if i != 1]
+        widths = []
+        for j in range(ncol):
+            lens = [len(r[j]) for r in body]
+            widths.append(max(3, int(sum(lens) / len(lens)) + 2))
+        total = sum(widths)
+        # scale to ~110 dashes overall so pandoc gets clean proportions
+        scaled = [max(3, round(w * 110 / total)) for w in widths]
+        sep = "|" + "|".join("-" * w for w in scaled) + "|"
+        out.append(rows[0]); out.append(sep); out.extend(rows[2:])
+        block.clear()
+
+    for line in text.split("\n"):
+        s = line.strip()
+        if s.startswith("|") and s.endswith("|") and s.count("|") >= 3:
+            block.append(line)
+        else:
+            flush(); out.append(line)
+    flush()
+    return "\n".join(out)
+
 def chapters():
     return sorted(SRC.glob("ch*.md"), key=lambda p: p.name)
 
@@ -66,17 +106,15 @@ def substitute(text):
 
     def shot(m):
         stats["screenshots"] += 1
-        return ("> ### PLACE SCREENSHOT HERE\n"
-                "> **%s**\n>\n"
-                "> *(delete this box once the image is inserted)*" % m.group(1).strip())
+        return ("> **PLACE SCREENSHOT HERE — %s**  *(delete this line once "
+                "the image is inserted)*" % m.group(1).strip())
 
     text = re.sub(r'\*\*\[SCREENSHOT (.+?)\]\*\*', shot, text)
 
     def listing(m):
         stats["listings"] += 1
-        return ("> ### PASTE CODE LISTING HERE\n"
-                "> **%s**\n>\n"
-                "> *(delete this box once the code is inserted)*" % m.group(1).strip())
+        return ("> **PASTE CODE LISTING HERE — %s**  *(delete this line once "
+                "the code is inserted)*" % m.group(1).strip())
 
     text = re.sub(r'\*\*\[CODE LISTING (.+?)\]\*\*', listing, text)
     return text, stats
@@ -85,6 +123,7 @@ def main():
     parts, totals = [], {"figures": 0, "screenshots": 0, "listings": 0, "missing": []}
     for p in chapters():
         body, st = substitute(p.read_text(encoding="utf-8"))
+        body = balance_table_widths(body)
         for k in ("figures", "screenshots", "listings"):
             totals[k] += st[k]
         totals["missing"] += st["missing"]
@@ -109,6 +148,7 @@ def main():
 
     cmd = ["pandoc", str(tmp), "-o", str(OUT),
            "--from", "markdown+pipe_tables+raw_attribute",
+           "--reference-doc=%s" % (ROOT / "reference_v2.docx"),
            "--toc-depth=3", "--resource-path=%s" % ROOT]
     subprocess.run(cmd, check=True)
     tmp.unlink()
@@ -117,6 +157,16 @@ def main():
     print("  diagrams embedded : %d" % totals["figures"])
     print("  screenshot slots  : %d" % totals["screenshots"])
     print("  code listing slots: %d" % totals["listings"])
+
+    # ---- page budget -------------------------------------------------
+    # Hard limit set by the submission: 150 pages. The placeholders are one
+    # line each now but become roughly a third of a page once filled, so the
+    # projected final length is estimated here rather than after the fact.
+    PAGE_LIMIT = 150
+    growth = totals["screenshots"] * 0.35 + totals["listings"] * 0.40
+    print("  projected growth once images are pasted: ~%.0f pages" % growth)
+    print("  -> convert to PDF and check: current + ~%.0f must stay under %d"
+          % (growth, PAGE_LIMIT))
     if totals["missing"]:
         print("  MISSING FIGURES   : %s" % ", ".join(totals["missing"]))
 
