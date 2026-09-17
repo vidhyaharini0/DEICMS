@@ -99,7 +99,7 @@ The one module flagged as merely acceptable is flagged deliberately. `ai_assista
 
 **Abstraction** means identifying the important aspects of a phenomenon and ignoring its details. It is a special case of separation of concerns, and the type of abstraction to apply depends on the purpose: the buttons of a watch abstract from its internals for the purpose of setting the time, but a different abstraction is needed to support repair.
 
-Abstraction **yields models**. When requirements are analysed, the product is a model of the proposed application — formal or semi-formal — and it then becomes possible to reason about the system by reasoning about the model instead. This is the justification for the entire modelling activity of Chapter 7, and the reason the report contains eight UML diagrams rather than only source code.
+Abstraction **yields models**. When requirements are analysed, the product is a model of the proposed application — formal or semi-formal — and it then becomes possible to reason about the system by reasoning about the model instead. This is the justification for the entire modelling activity of Chapter 8, and the reason the report contains eight UML diagrams rather than only source code.
 
 Abstraction also applies to the **process**: cost estimation takes only key factors into account, applying similarity with previous systems and ignoring detailed differences — which is precisely what story-point estimation does (Section 4.8).
 
@@ -125,7 +125,7 @@ Anticipation of change is a principle that can be over-applied: anticipating eve
 |---|---|---|
 | Risk weights will need tuning per organisation | Admin-configurable weights and thresholds, re-normalised on save (US-19) | Not yet, but the mechanism cost little |
 | The database engine will change for production | SQLAlchemy ORM; no engine-specific SQL in application logic | Not yet; the path is open |
-| The language model provider or model will change | Model invoked behind a single method; model name is configuration | **Yes** — the selected model was retired by the provider and returned HTTP 410; an ordered fallback list absorbed the change (Section 4.13) |
+| The language model provider or model will change | Model invoked behind a single method; model name is configuration | **Yes** — the selected model was retired by the provider and returned HTTP 410; an ordered fallback list absorbed the change (Section 5.5) |
 | The language model may be unavailable entirely | Context-aware mock fallback when no key is configured or all candidates fail | **Yes** — used throughout testing, and during the outage above |
 | New evidence categories will be needed | Category stored as a value rather than encoded in class structure | Not yet |
 | The code will need to change after delivery | Git configuration management from the first commit; 172 automated tests as a regression net | **Yes** — twice, in M1 and M2 |
@@ -146,7 +146,7 @@ DEICMS applied this principle selectively, and the selectivity is the point.
 
 Incrementality means proceeding in a stepwise fashion, in increments. Its practical content is to identify early subsets of the system, deliver partial functionality early, and obtain feedback on it — so that both the product and the understanding of the requirements grow together rather than the product being constructed against a fixed understanding formed at the start.
 
-This principle is the direct justification of the process model selected in Chapter 4, and the whole of Sections 4.9 to 4.13 is its application. Its effect in DEICMS is visible in the dependency structure: Increment 1 delivered the data model and CRUD, which gave Increment 2's algorithms a concrete schema and real records to operate on; Increment 2 delivered verified integrity primitives, which Increment 3's risk scorer and AI assistant consume. Each increment was a working, demonstrable system, so technical risk was retired continuously rather than accumulating until a single late integration.
+This principle is the direct justification of the process model selected in Chapter 4, and the whole of Chapter 5 is its application. Its effect in DEICMS is visible in the dependency structure: Increment 1 delivered the data model and CRUD, which gave Increment 2's algorithms a concrete schema and real records to operate on; Increment 2 delivered verified integrity primitives, which Increment 3's risk scorer and AI assistant consume. Each increment was a working, demonstrable system, so technical risk was retired continuously rather than accumulating until a single late integration.
 
 Incrementality also delivered the feedback the principle promises. The per-increment retrospectives produced concrete process changes — most consequentially the adoption of test-first development for complex algorithms from Increment 3 onward, which arose from the Increment 2 retrospective and measurably reduced defect-fixing time.
 
@@ -168,7 +168,7 @@ Table 3.7 consolidates the chapter by mapping each principle to the specific art
 | Modularity | Business logic free of framework dependencies | `app/logic/` |
 | Abstraction | Custody chain as a directed acyclic graph | `logic/graph_integrity.py` |
 | Abstraction | Eight heterogeneous signals as a normalised vector | `logic/risk_scoring.py` |
-| Abstraction | UML models of the system | Chapter 7 |
+| Abstraction | UML models of the system | Chapter 8 |
 | Anticipation of change | Ordered model fallback list and total time budget | `logic/ai_assistant.py`, `config.py` |
 | Anticipation of change | Configurable risk weights and thresholds | `logic/risk_scoring.py`, admin settings route |
 | Anticipation of change | Git configuration management and 172 regression tests | repository, `tests/` |

@@ -55,7 +55,7 @@ Third, the domain **rewards genuine algorithmic thinking**. Verifying that a cus
 | Role-scoped dashboards, signed export package, PDF custody report | Automated migration tooling beyond schema creation |
 | Append-only audit trail with formula-based checks | Formal accreditation against a forensic standard |
 
-The out-of-scope items are recorded explicitly in the product backlog's *won't-have-this-time* list (Section 6.11) so that the boundary of the release is transparent rather than implied.
+The out-of-scope items are recorded explicitly in the product backlog's *won't-have-this-time* list (Section 7.11) so that the boundary of the release is transparent rather than implied.
 
 Two **limitations** are worth stating at the outset because they are design constraints rather than defects, and the way the system communicates them to the user is itself part of the design. The language model is consumed as a third-party service and, like all such models, can produce plausible but incorrect text; DEICMS mitigates this with a hallucination-detection stage that cross-checks the model's output against retrieved data, but it does not eliminate the underlying risk, and the assistant is positioned as a convenience rather than an authority. The anomaly-detection model is an unsupervised Isolation Forest trained on a small dataset; its output is therefore presented as "suggested for review" alongside the deterministic risk score rather than as a confirmed judgement.
 
@@ -65,14 +65,14 @@ Two **limitations** are worth stating at the outset because they are design cons
 
 | # | Objective | Type | Met by |
 |---|---|---|---|
-| O1 | Deliver a working web application managing the full evidence lifecycle within cases | Functional | Chapters 9 and 17 |
-| O2 | Enforce role-based and case-based access control on every route and aggregate | Functional | Sections 9.3 and 12.3 |
-| O3 | Maintain a cryptographically verifiable chain of custody with an append-only audit trail | Functional | Sections 9.5, 9.6 and 10.2 |
-| O4 | Design and implement at least three non-trivial algorithms without delegating the interesting work to a library | Algorithmic | Chapter 10 (five delivered) |
-| O5 | Consume established third-party services correctly and state the boundary between library and application logic | Integration | Chapters 14 and 15 |
+| O1 | Deliver a working web application managing the full evidence lifecycle within cases | Functional | Chapters 10 and 18 |
+| O2 | Enforce role-based and case-based access control on every route and aggregate | Functional | Sections 10.3 and 13.3 |
+| O3 | Maintain a cryptographically verifiable chain of custody with an append-only audit trail | Functional | Sections 10.5, 10.6 and 11.2 |
+| O4 | Design and implement at least three non-trivial algorithms without delegating the interesting work to a library | Algorithmic | Chapter 11 (five delivered) |
+| O5 | Consume established third-party services correctly and state the boundary between library and application logic | Integration | Chapters 15 and 16 |
 | O6 | Conduct the work as a genuine agile incremental project with per-increment planning and reflection artefacts | Process | Chapter 4 |
-| O7 | Validate the system with an automated test suite of meaningful coverage | Quality | Chapter 11 |
-| O8 | Harden the system against common web-application vulnerabilities | Quality | Chapter 12 |
+| O7 | Validate the system with an automated test suite of meaningful coverage | Quality | Chapter 12 |
+| O8 | Harden the system against common web-application vulnerabilities | Quality | Chapter 13 |
 
 ## 1.6 Key Contributions
 
@@ -96,23 +96,26 @@ This report is organised to follow the discipline of software engineering rather
 | 1 | Introduction | Introduction to Software Engineering |
 | 2 | Software and Its Qualities | Software Nature and Qualities |
 | 3 | Software Engineering Principles | SE Principles |
-| 4 | Software Development Process, with all five iterations | Software Processes; Agile Development |
-| 5 | Project Management | Software Processes; project planning |
-| 6 | Requirements Engineering | Requirements Engineering |
-| 7 | System Modelling (UML) | Software Modeling |
-| 8 | Software Architecture | Architectural Design |
-| 9 | Implementation | Software Processes (development activity) |
-| 10 | Complex Algorithms and Workflows | Coursework Category C requirement |
-| 11 | Software Testing and Quality Assurance | Software Testing |
-| 12 | Security Engineering | Software Qualities (security) |
-| 13 | Software Evolution and Maintenance | Software Evolution and Maintenance |
-| 14 | Software Reuse and Components | Software Reuse and Components |
-| 15 | Feature Categorisation Self-Assessment | Coursework categorisation requirement |
-| 16 | Deployment and Operation | DevOps |
-| 17 | System Output and Screenshots | — |
-| 18 | Conclusion | — |
+| 4 | Software Development Process | Software Processes; Agile Development |
+| 5 | The Development Iterations | Agile Development (incremental delivery) |
+| 6 | Project Management | Software Processes; project planning |
+| 7 | Requirements Engineering | Requirements Engineering |
+| 8 | System Modelling (UML) | Software Modeling |
+| 9 | Software Architecture | Architectural Design |
+| 10 | Implementation | Software Processes (development activity) |
+| 11 | Complex Algorithms and Workflows | Coursework Category C requirement |
+| 12 | Software Testing and Quality Assurance | Software Testing |
+| 13 | Security Engineering | Software Qualities (security) |
+| 14 | Software Evolution and Maintenance | Software Evolution and Maintenance |
+| 15 | Software Reuse and Components | Software Reuse and Components |
+| 16 | Feature Categorisation Self-Assessment | Coursework categorisation requirement |
+| 17 | Deployment and Operation | DevOps |
+| 18 | System Output and Screenshots | — |
+| 19 | Conclusion | — |
+| 20 | References | — |
+| 21 | Appendices | — |
 
-The three development increments and the two maintenance iterations are documented inside Chapter 4, each with its own sprint goal, sprint backlog, burndown chart, review and retrospective, so that the per-increment reporting the coursework requires for an agile process is preserved while the syllabus structure of the report is maintained.
+The three development increments and the two maintenance iterations are documented in Chapter 5, each with its own sprint goal, sprint backlog, burndown chart, review and retrospective, so that the per-increment reporting the coursework requires for an agile process is preserved while the syllabus structure of the report is maintained.
 
 ## 1.8 Summary
 

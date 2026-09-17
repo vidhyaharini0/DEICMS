@@ -1,12 +1,12 @@
-# Chapter 5 — Project Management
+# Chapter 6 — Project Management
 
 ---
 
-## 5.1 Planning Approach
+## 6.1 Planning Approach
 
 Project management in an agile process differs from project management in a plan-driven one, and the difference is not that agile projects are unplanned. It is that planning happens **repeatedly at a short horizon** rather than **once at a long one**. The project was therefore planned at three levels of granularity, each with its own artefact and its own revision frequency.
 
-**Table 5.1 — The three levels of planning**
+**Table 6.1 — The three levels of planning**
 
 | Level | Horizon | Artefact | Revised |
 |---|---|---|---|
@@ -14,13 +14,13 @@ Project management in an agile process differs from project management in a plan
 | **Iteration planning** | One increment (14 working days) | Sprint backlog with story points and task breakdown | Once, at the start of each increment; scope frozen thereafter |
 | **Daily planning** | One day | A written note of yesterday, today and blockers | Daily |
 
-The rule inherited from Scrum was applied strictly: **once an increment began, its scope and end date did not change**. Work discovered mid-increment was written to the product backlog for the next planning session rather than absorbed silently. The one exception in the project's history — the access-scoping defects found at the end of Increment 3 — was handled correctly by that rule: rather than being patched into an increment that had already closed, it was raised as maintenance iteration M1 with its own planning (Section 4.12).
+The rule inherited from Scrum was applied strictly: **once an increment began, its scope and end date did not change**. Work discovered mid-increment was written to the product backlog for the next planning session rather than absorbed silently. The one exception in the project's history — the access-scoping defects found at the end of Increment 3 — was handled correctly by that rule: rather than being patched into an increment that had already closed, it was raised as maintenance iteration M1 with its own planning (Section 5.4).
 
-## 5.2 Work Breakdown Structure
+## 6.2 Work Breakdown Structure
 
-The work breakdown structure decomposes the project from deliverable to task. Three levels were used: the increment, the user story, and the task. Table 5.2 shows the decomposition of one representative story from each increment; the full story catalogue is Appendix A.
+The work breakdown structure decomposes the project from deliverable to task. Three levels were used: the increment, the user story, and the task. Table 6.2 shows the decomposition of one representative story from each increment; the full story catalogue is Appendix A.
 
-**Table 5.2 — Representative work breakdown (three levels)**
+**Table 6.2 — Representative work breakdown (three levels)**
 
 | Level 1 — Increment | Level 2 — User story | Level 3 — Tasks |
 |---|---|---|
@@ -31,9 +31,9 @@ The work breakdown structure decomposes the project from deliverable to task. Th
 
 The decomposition rule was that a **task is a unit of work completable in under one working day**. A story that could not be broken into such tasks was, by that fact, too large and was either split or flagged as carrying unquantified risk — which is exactly what happened with US-13, whose thirteen-point estimate is the record of that flag.
 
-## 5.3 Project Timeline and Milestones
+## 6.3 Project Timeline and Milestones
 
-**Table 5.3 — Project timeline and milestones**
+**Table 6.3 — Project timeline and milestones**
 
 | Phase | Duration | Milestone | Exit criterion |
 |---|---|---|---|
@@ -47,11 +47,11 @@ The decomposition rule was that a **task is a unit of work completable in under 
 
 Milestones M-1 to M-3 correspond to the sprint reviews; each is a **business milestone** in the RUP sense — a point at which the system could, in principle, have been shown to a stakeholder as a working subset — rather than a phase boundary in the waterfall sense.
 
-## 5.4 Risk Management
+## 6.4 Risk Management
 
-Risks were identified at the outset and reviewed at each increment boundary. Each carries a probability, an impact, a resulting exposure, and a mitigation. Table 5.4 is the project risk register in its final state, including the outcome of each risk — which is the column that makes a risk register evidence rather than a formality.
+Risks were identified at the outset and reviewed at each increment boundary. Each carries a probability, an impact, a resulting exposure, and a mitigation. Table 6.4 is the project risk register in its final state, including the outcome of each risk — which is the column that makes a risk register evidence rather than a formality.
 
-**Table 5.4 — Project risk register**
+**Table 6.4 — Project risk register**
 
 | ID | Risk | Category | Prob. | Impact | Exposure | Mitigation | Outcome |
 |---|---|---|---|---|---|---|---|
@@ -64,17 +64,17 @@ Risks were identified at the outset and reviewed at each increment boundary. Eac
 | R-07 | Third-party library incompatibility or deprecation | Technical / external | Low | Medium | Low | Prefer widely-used, stable libraries; pin versions in `requirements.txt` | Did not occur for libraries; see R-02 for the hosted model |
 | R-08 | Data loss during development | Operational | Low | High | Medium | Git configuration management from the first commit; all artefacts versioned alongside the code | Did not occur; the repository is the authoritative record |
 | R-09 | Test suite becomes slow or unreliable, discouraging its use | Quality | Low | Medium | Low | In-memory database per test; no external network calls in the suite | Did not occur; the suite runs in seconds |
-| R-10 | Estimation bias from estimator and implementer being one person | Process | **High** | Low | Medium | Acknowledged openly; the *shape* of the burndown treated as more informative than whether the total was met | Occurred by construction; discussed in Sections 4.8 and 18.2 |
+| R-10 | Estimation bias from estimator and implementer being one person | Process | **High** | Low | Medium | Acknowledged openly; the *shape* of the burndown treated as more informative than whether the total was met | Occurred by construction; discussed in Sections 4.8 and 19.2 |
 
 Three observations about this register are worth making explicitly, because a risk register whose risks all failed to materialise is usually a register that was written after the fact.
 
 First, **three of the ten risks actually occurred**, and in each case the mitigation is what absorbed the impact — the design spike for R-01, the seam and fallback for R-02, the adversarial testing for R-03. Second, **R-03 was correctly rated the highest-exposure risk** and it was the one that occurred twice, which is the strongest available evidence that the rating was sound rather than decorative. Third, **R-10 was rated high-probability and was accepted rather than mitigated**, because no mitigation is available to a single-developer project; the honest response to an unmitigable risk is to disclose it, not to invent a control.
 
-## 5.5 Configuration Management and Version Control
+## 6.5 Configuration Management and Version Control
 
 Setting up a configuration management environment is the canonical practical expression of the principle of **anticipation of change** (Section 3.7), and it was the first task of Increment 1 rather than an afterthought.
 
-**Table 5.5 — Configuration management practices**
+**Table 6.5 — Configuration management practices**
 
 | Practice | Implementation | Purpose |
 |---|---|---|
@@ -87,11 +87,11 @@ Setting up a configuration management environment is the canonical practical exp
 
 The artefact co-versioning practice deserves emphasis because it is easy to state and easy to neglect. A UML diagram stored outside version control drifts silently away from the code it claims to describe; one stored inside it produces a visible diff whenever the code changes and the diagram does not. This is the mechanism by which the report's claims about the system remain checkable rather than aspirational.
 
-## 5.6 Quality Assurance Strategy
+## 6.6 Quality Assurance Strategy
 
-Quality assurance operated at four levels, each catching a different class of problem. The project's own history demonstrates that the levels are complementary rather than redundant — a point developed at length in Chapter 11 and in the M2 reflection.
+Quality assurance operated at four levels, each catching a different class of problem. The project's own history demonstrates that the levels are complementary rather than redundant — a point developed at length in Chapter 12 and in the M2 reflection.
 
-**Table 5.6 — Quality assurance levels**
+**Table 6.6 — Quality assurance levels**
 
 | Level | Mechanism | Catches | Evidence from this project |
 |---|---|---|---|
@@ -100,9 +100,9 @@ Quality assurance operated at four levels, each catching a different class of pr
 | 3 | **Adversarial review testing** — deliberately attempting forbidden actions | Authorisation defects that positive tests cannot see | Found both M1 defects |
 | 4 | **Structured code review** — reading the code against its intent | Behaviour that is specified but silently absent | Found all eleven M2 findings, including two critical ones |
 
-The structure of this table is itself a project finding. Levels 1 and 2 are the conventional ones, and a project that stopped there would have shipped with a dead soft-delete, a dead risk factor weighted at 0.25, and a cross-case object reference — all while reporting a green suite. Levels 3 and 4 were added in response to what levels 1 and 2 missed, and the conclusion drawn in Section 4.13.4 is that **testing and review are complementary rather than substitutable**.
+The structure of this table is itself a project finding. Levels 1 and 2 are the conventional ones, and a project that stopped there would have shipped with a dead soft-delete, a dead risk factor weighted at 0.25, and a cross-case object reference — all while reporting a green suite. Levels 3 and 4 were added in response to what levels 1 and 2 missed, and the conclusion drawn in Section 5.5.4 is that **testing and review are complementary rather than substitutable**.
 
-## 5.7 Summary
+## 6.7 Summary
 
 This chapter set out how the project was managed. Planning operated at three horizons — release, iteration and day — with increment scope frozen once begun. The work breakdown decomposed increments into stories and stories into sub-day tasks, with the inability to decompose treated as a signal of unquantified risk. Six milestones marked the increments and maintenance iterations, each with an objective exit criterion. A ten-entry risk register was maintained with probability, impact, mitigation and outcome; three risks occurred and were absorbed by their mitigations, the highest-exposure risk was the one that occurred twice, and one unmitigable risk was disclosed rather than falsely controlled. Configuration management was established before the first line of code, with all artefacts versioned alongside it. Quality assurance operated at four complementary levels, two of which were added in response to defects the conventional two had missed.
 

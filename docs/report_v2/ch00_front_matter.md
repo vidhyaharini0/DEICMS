@@ -92,163 +92,168 @@ The final system comprises approximately five thousand lines of application code
 - 4.6 Roles, Ceremonies and the Definition of Done
 - 4.7 The Increment Plan
 - 4.8 Estimation Method
-- 4.9 Increment 1 — Core Case and Evidence Management
-- 4.10 Increment 2 — Integrity Algorithms and Lifecycle
-- 4.11 Increment 3 — Risk Scoring, AI Assistant and Hardening
-- 4.12 Maintenance Iteration M1 — Access-Scoping Change Requests
-- 4.13 Maintenance Iteration M2 — Correctness and Security Hardening
-- 4.14 Comparison with a Plan-Driven Execution
-- 4.15 Summary
+- 4.9 Summary
 
-**Chapter 5 — Project Management**
+**Chapter 5 — The Development Iterations**
 
-- 5.1 Planning Approach
-- 5.2 Work Breakdown Structure
-- 5.3 Project Timeline and Milestones
-- 5.4 Risk Management
-- 5.5 Configuration Management and Version Control
-- 5.6 Quality Assurance Strategy
+- 5.0 Overview
+- 5.1 Increment 1 — Core Case and Evidence Management
+- 5.2 Increment 2 — Integrity Algorithms and Lifecycle
+- 5.3 Increment 3 — Risk Scoring, AI Assistant and Hardening
+- 5.4 Maintenance Iteration M1 — Access-Scoping Change Requests
+- 5.5 Maintenance Iteration M2 — Correctness and Security Hardening
+- 5.6 Comparison with a Plan-Driven Execution
 - 5.7 Summary
 
-**Chapter 6 — Requirements Engineering**
+**Chapter 6 — Project Management**
 
-- 6.1 The Requirements Engineering Process
-- 6.2 Stakeholders and Personas
-- 6.3 Requirements Elicitation
-- 6.4 User Requirements
-- 6.5 Functional Requirements
-- 6.6 Non-Functional Requirements
-- 6.7 Domain Requirements
-- 6.8 System Requirements
-- 6.9 Constraints
-- 6.10 Feature Categorisation (A / B / C)
-- 6.11 Prioritisation and the Product Backlog
-- 6.12 Requirements Validation and Traceability
-- 6.13 Summary
+- 6.1 Planning Approach
+- 6.2 Work Breakdown Structure
+- 6.3 Project Timeline and Milestones
+- 6.4 Risk Management
+- 6.5 Configuration Management and Version Control
+- 6.6 Quality Assurance Strategy
+- 6.7 Summary
 
-**Chapter 7 — System Modelling (UML)**
+**Chapter 7 — Requirements Engineering**
 
-- 7.1 Why Model a System
-- 7.2 Context and Use-Case Models
-- 7.3 Use-Case Descriptions
-- 7.4 Structural Model: the Class Diagram
-- 7.5 Data Model: the Entity-Relationship Diagram
-- 7.6 Interaction Models: Sequence Diagrams
-- 7.7 Behavioural Models: Activity Diagrams
-- 7.8 State Machine Model: the Evidence Lifecycle
-- 7.9 Implementation and Deployment Models
-- 7.10 Diagram Index
-- 7.11 Summary
+- 7.1 The Requirements Engineering Process
+- 7.2 Stakeholders and Personas
+- 7.3 Requirements Elicitation
+- 7.4 User Requirements
+- 7.5 Functional Requirements
+- 7.6 Non-Functional Requirements
+- 7.7 Domain Requirements
+- 7.8 System Requirements
+- 7.9 Constraints
+- 7.10 Feature Categorisation (A / B / C)
+- 7.11 Prioritisation and the Product Backlog
+- 7.12 Requirements Validation and Traceability
+- 7.13 Summary
 
-**Chapter 8 — Software Architecture**
+**Chapter 8 — System Modelling (UML)**
 
-- 8.1 Architectural Design Decisions
-- 8.2 Architectural Views
-- 8.3 Architectural Patterns Applied
-- 8.4 The Layered Architecture of DEICMS
-- 8.5 The Application Factory and Blueprint Structure
-- 8.6 Technology Stack and Justification
-- 8.7 Design Patterns Used
-- 8.8 Summary
+- 8.1 Why Model a System
+- 8.2 Context and Use-Case Models
+- 8.3 Use-Case Descriptions
+- 8.4 Structural Model: the Class Diagram
+- 8.5 Data Model: the Entity-Relationship Diagram
+- 8.6 Interaction Models: Sequence Diagrams
+- 8.7 Behavioural Models: Activity Diagrams
+- 8.8 State Machine Model: the Evidence Lifecycle
+- 8.9 Implementation and Deployment Models
+- 8.10 Diagram Index
+- 8.11 Summary
 
-**Chapter 9 — Implementation**
+**Chapter 9 — Software Architecture**
 
-- 9.1 Development Environment and Coding Standards
-- 9.2 The Data Layer
-- 9.3 Authentication, Authorisation and Session Management
-- 9.4 Case and Evidence Management
-- 9.5 The Custody Log and the Audit Trail
-- 9.6 Cryptographic Services
-- 9.7 Dashboards, Reporting and Export
-- 9.8 The AI Assistant Interface
-- 9.9 Summary
+- 9.1 Architectural Design Decisions
+- 9.2 Architectural Views
+- 9.3 Architectural Patterns Applied
+- 9.4 The Layered Architecture of DEICMS
+- 9.5 The Application Factory and Blueprint Structure
+- 9.6 Technology Stack and Justification
+- 9.7 Design Patterns Used
+- 9.8 Summary
 
-**Chapter 10 — Complex Algorithms and Workflows**
+**Chapter 10 — Implementation**
 
-- 10.1 What Makes a Functionality Complex
-- 10.2 Chain-of-Custody Graph Integrity Verification
-- 10.3 Multi-Factor Evidence Risk Scoring
-- 10.4 Custody Chain Reconstruction
-- 10.5 The Evidence Lifecycle State Machine
-- 10.6 AI Assistant Orchestration and Hallucination Detection
-- 10.7 Complexity Summary
-- 10.8 Summary
+- 10.1 Development Environment and Coding Standards
+- 10.2 The Data Layer
+- 10.3 Authentication, Authorisation and Session Management
+- 10.4 Case and Evidence Management
+- 10.5 The Custody Log and the Audit Trail
+- 10.6 Cryptographic Services
+- 10.7 Dashboards, Reporting and Export
+- 10.8 The AI Assistant Interface
+- 10.9 Summary
 
-**Chapter 11 — Software Testing and Quality Assurance**
+**Chapter 11 — Complex Algorithms and Workflows**
 
-- 11.1 Testing Objectives and Philosophy
-- 11.2 Development Testing
-- 11.3 Test-Driven Development
-- 11.4 Release Testing
-- 11.5 User Testing
-- 11.6 Testing and the V-Model
-- 11.7 Test Case Catalogue
-- 11.8 Coverage Analysis
-- 11.9 What the Coverage Does and Does Not Establish
-- 11.10 Summary
+- 11.1 What Makes a Functionality Complex
+- 11.2 Chain-of-Custody Graph Integrity Verification
+- 11.3 Multi-Factor Evidence Risk Scoring
+- 11.4 Custody Chain Reconstruction
+- 11.5 The Evidence Lifecycle State Machine
+- 11.6 AI Assistant Orchestration and Hallucination Detection
+- 11.7 Complexity Summary
+- 11.8 Summary
 
-**Chapter 12 — Security Engineering**
+**Chapter 12 — Software Testing and Quality Assurance**
 
-- 12.1 The Threat Model
-- 12.2 Defence in Depth
-- 12.3 Controls by Layer
-- 12.4 Cryptographic Design
-- 12.5 Acknowledged Limitations
-- 12.6 Summary
+- 12.1 Testing Objectives and Philosophy
+- 12.2 Development Testing
+- 12.3 Test-Driven Development
+- 12.4 Release Testing
+- 12.5 User Testing
+- 12.6 Testing and the V-Model
+- 12.7 Test Case Catalogue
+- 12.8 Coverage Analysis
+- 12.9 What the Coverage Does and Does Not Establish
+- 12.10 Summary
 
-**Chapter 13 — Software Evolution and Maintenance**
+**Chapter 13 — Security Engineering**
 
-- 13.1 Why Software Must Evolve
-- 13.2 Lehman's Laws Applied to DEICMS
-- 13.3 The Four Types of Maintenance
-- 13.4 Classification of the Maintenance Work Performed
-- 13.5 Maintenance Prediction and Cost Factors
-- 13.6 Evolution Strategy and Maintainability Measures
-- 13.7 Summary
+- 13.1 The Threat Model
+- 13.2 Defence in Depth
+- 13.3 Controls by Layer
+- 13.4 Cryptographic Design
+- 13.5 Acknowledged Limitations
+- 13.6 Summary
 
-**Chapter 14 — Software Reuse and Components**
+**Chapter 14 — Software Evolution and Maintenance**
 
-- 14.1 The Reuse Landscape
-- 14.2 Application Frameworks Used
-- 14.3 COTS and Library Reuse
-- 14.4 Component-Based Software Engineering in DEICMS
-- 14.5 Benefits and Costs of the Reuse Decisions
-- 14.6 Summary
+- 14.1 Why Software Must Evolve
+- 14.2 Lehman's Laws Applied to DEICMS
+- 14.3 The Four Types of Maintenance
+- 14.4 Classification of the Maintenance Work Performed
+- 14.5 Maintenance Prediction and Cost Factors
+- 14.6 Evolution Strategy and Maintainability Measures
+- 14.7 Summary
 
-**Chapter 15 — Feature Categorisation Self-Assessment**
+**Chapter 15 — Software Reuse and Components**
 
-- 15.1 The Requirement and the Method
-- 15.2 Category A — Data and Repository Functionality
-- 15.3 Category B — Third-Party Services
-- 15.4 Category C — Complex Application Logic
-- 15.5 Balance Assessment
-- 15.6 Where the Categories Were Kept Honest
-- 15.7 Summary
+- 15.1 The Reuse Landscape
+- 15.2 Application Frameworks Used
+- 15.3 COTS and Library Reuse
+- 15.4 Component-Based Software Engineering in DEICMS
+- 15.5 Benefits and Costs of the Reuse Decisions
+- 15.6 Summary
 
-**Chapter 16 — Deployment and Operation**
+**Chapter 16 — Feature Categorisation Self-Assessment**
 
-- 16.1 Development Environment
-- 16.2 Configuration Management
-- 16.3 Database Setup and Seeding
-- 16.4 Running the System
-- 16.5 Path to Production
-- 16.6 Summary
+- 16.1 The Requirement and the Method
+- 16.2 Category A — Data and Repository Functionality
+- 16.3 Category B — Third-Party Services
+- 16.4 Category C — Complex Application Logic
+- 16.5 Balance Assessment
+- 16.6 Where the Categories Were Kept Honest
+- 16.7 Summary
 
-**Chapter 17 — System Output and Screenshots**
+**Chapter 17 — Deployment and Operation**
 
-**Chapter 18 — Conclusion**
+- 17.1 Development Environment
+- 17.2 Configuration Management
+- 17.3 Database Setup and Seeding
+- 17.4 Running the System
+- 17.5 Path to Production
+- 17.6 Summary
 
-- 18.1 Project Retrospective
-- 18.2 Velocity Analysis
-- 18.3 Was the Process Choice Right?
-- 18.4 Achievements
-- 18.5 Limitations
-- 18.6 Future Work
-- 18.7 Concluding Remarks
+**Chapter 18 — System Output and Screenshots**
 
-**Chapter 19 — References**
+**Chapter 19 — Conclusion**
 
-**Chapter 20 — Appendices**
+- 19.1 Project Retrospective
+- 19.2 Velocity Analysis
+- 19.3 Was the Process Choice Right?
+- 19.4 Achievements
+- 19.5 Limitations
+- 19.6 Future Work
+- 19.7 Concluding Remarks
+
+**Chapter 20 — References**
+
+**Chapter 21 — Appendices**
 
 - Appendix A — User-Story Catalogue
 - Appendix B — HTTP Interface Reference

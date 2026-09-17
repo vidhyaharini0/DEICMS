@@ -1,8 +1,8 @@
-# Chapter 6 — Requirements Engineering
+# Chapter 7 — Requirements Engineering
 
 ---
 
-## 6.1 The Requirements Engineering Process
+## 7.1 The Requirements Engineering Process
 
 Requirements engineering is the process of establishing the services a customer requires from a system and the constraints under which it operates and is developed. The requirements themselves are the descriptions of those services and constraints.
 
@@ -10,31 +10,31 @@ A requirement may be written at very different levels of abstraction, and this i
 
 This produces the standard two-level distinction.
 
-**Table 6.1 — Types of requirement**
+**Table 7.1 — Types of requirement**
 
 | Type | Describes | Written for | DEICMS location |
 |---|---|---|---|
-| **User requirements** | The services the system provides and its operational constraints, in natural language | Customers, client managers, end users | Section 6.4 |
+| **User requirements** | The services the system provides and its operational constraints, in natural language | Customers, client managers, end users | Section 7.4 |
 | **System requirements** | A structured, detailed description of the system's functions, services and operational constraints | System architects, software developers, client engineers | Sections 6.5 to 6.8 |
 
 The audiences differ and so the documents differ: client managers and end users read user requirements; system architects and developers read system requirements; client engineers read both.
 
-**Table 6.2 — The requirements engineering activities as performed in DEICMS**
+**Table 7.2 — The requirements engineering activities as performed in DEICMS**
 
 | Activity | Purpose | How it was performed |
 |---|---|---|
-| **Elicitation and analysis** | Discover the requirements | Domain analysis of forensic chain-of-custody procedure; persona construction; derivation from the five guarantees (Section 6.3) |
+| **Elicitation and analysis** | Discover the requirements | Domain analysis of forensic chain-of-custody procedure; persona construction; derivation from the five guarantees (Section 7.3) |
 | **Specification** | Record them in a usable form | 29 user stories with acceptance criteria; the FR, NFR, domain and system tables in this chapter |
 | **Validation** | Confirm they are the right requirements | Acceptance-criteria review at each sprint review; traceability matrix (Appendix D) |
 | **Management** | Control change to them | Product backlog under version control; change requests CR-01 and CR-02 raised formally in M1 |
 
-Because DEICMS is an academic project without an external customer, the elicitation activity had no interview stage. Rather than pretend otherwise, requirements were derived by **domain analysis** — reasoning from the legal obligations that govern digital evidence — and anchored to personas so that each requirement traces to a concrete responsibility rather than an abstract actor. The limits of this approach are stated in Section 6.12.
+Because DEICMS is an academic project without an external customer, the elicitation activity had no interview stage. Rather than pretend otherwise, requirements were derived by **domain analysis** — reasoning from the legal obligations that govern digital evidence — and anchored to personas so that each requirement traces to a concrete responsibility rather than an abstract actor. The limits of this approach are stated in Section 7.12.
 
-## 6.2 Stakeholders and Personas
+## 7.2 Stakeholders and Personas
 
 Four personas correspond to the system's four roles. They are used throughout the user stories so that every requirement is anchored to a stated need.
 
-**Table 6.3 — Stakeholder personas**
+**Table 7.3 — Stakeholder personas**
 
 | Persona | Role | Responsibility | Defining need | Must **not** be able to |
 |---|---|---|---|---|
@@ -43,9 +43,9 @@ Four personas correspond to the system's four roles. They are used throughout th
 | **Nadia** | Analyst | Works on evidence within her assigned cases: examines items, runs integrity checks, queries the assistant, holds custody during analysis | A focused workbench of the items she is responsible for | Create accounts, change roles, or reach other cases |
 | **Riya** | Read-Only Auditor | Reviews without modifying: inspects custody chains and audit trails in shared cases to confirm procedure was followed | Transparency over the items she may review | Trigger any state-changing action, anywhere |
 
-The four personas embody the least-privilege principle: each sees and can do exactly what their responsibility requires, and the difference between them is enforced by the role and case-access model rather than by convention. The final column is not decoration — it is the source of the negative requirements that Section 6.12 records as the ones ordinary functional testing does not verify.
+The four personas embody the least-privilege principle: each sees and can do exactly what their responsibility requires, and the difference between them is enforced by the role and case-access model rather than by convention. The final column is not decoration — it is the source of the negative requirements that Section 7.12 records as the ones ordinary functional testing does not verify.
 
-## 6.3 Requirements Elicitation
+## 7.3 Requirements Elicitation
 
 Requirements were elicited by three complementary routes.
 
@@ -53,13 +53,13 @@ Requirements were elicited by three complementary routes.
 
 **Persona-driven derivation.** For each of the four personas, the question *what must this person be able to do, and what must they be prevented from doing?* was answered systematically. The first half produced functional requirements; the second half produced the confidentiality and least-privilege non-functional requirements — and, later, the adversarial tests of M1.
 
-**Categorisation-driven completeness check.** Because the coursework requires balance across three feature categories, the requirement set was checked against the categorisation (Section 6.10) and gaps were visible as under-populated categories. This is an unusual elicitation route, and it is disclosed as such: it is a constraint of the assignment rather than of the domain, and Section 15.6 examines whether it distorted the result.
+**Categorisation-driven completeness check.** Because the coursework requires balance across three feature categories, the requirement set was checked against the categorisation (Section 7.10) and gaps were visible as under-populated categories. This is an unusual elicitation route, and it is disclosed as such: it is a constraint of the assignment rather than of the domain, and Section 16.6 examines whether it distorted the result.
 
-## 6.4 User Requirements
+## 7.4 User Requirements
 
 User requirements are stated in natural language, from the user's point of view, without prescribing a solution.
 
-**Table 6.4 — User requirements**
+**Table 7.4 — User requirements**
 
 | ID | Role | Requirement |
 |---|---|---|
@@ -84,13 +84,13 @@ User requirements are stated in natural language, from the user's point of view,
 
 UR-18 is stated as a user requirement rather than only as a non-functional one because it is a promise made to *every* user about *every other* user's data, and it was the requirement whose incomplete application produced the M1 defects.
 
-## 6.5 Functional Requirements
+## 7.5 Functional Requirements
 
 Functional requirements describe the system's services — what it should do, how it should react to particular inputs, and in some cases what it should *not* do. They depend on the type of software, its expected users, and the type of system in which it is used.
 
-Table 6.5 is the complete functional requirement set. Each row records the requirement, its feature category, its MoSCoW priority, the increment that delivered it, the user story it derives from, and the test module that verifies it. The final two columns are what make the table a traceability instrument rather than a list.
+Table 7.5 is the complete functional requirement set. Each row records the requirement, its feature category, its MoSCoW priority, the increment that delivered it, the user story it derives from, and the test module that verifies it. The final two columns are what make the table a traceability instrument rather than a list.
 
-**Table 6.5 — Functional requirements**
+**Table 7.5 — Functional requirements**
 
 | ID | Requirement | Cat. | MoSCoW | Increment | Story | Verified by |
 |---|---|---|---|---|---|---|
@@ -153,11 +153,11 @@ Table 6.5 is the complete functional requirement set. Each row records the requi
 
 **Summary:** 56 functional requirements — 27 delivered in Increment 1, 13 in Increment 2, 10 in Increment 3, and 6 across the two maintenance iterations, with several spanning more than one increment.
 
-## 6.6 Non-Functional Requirements
+## 7.6 Non-Functional Requirements
 
 Non-functional requirements are constraints on the services or functions offered by the system: timing constraints, constraints on the development process, standards, and similar. They describe *how the system behaves* rather than what it does. Crucially, a non-functional requirement that is not measurable is not verifiable, so each row below carries both a metric and a verification method.
 
-**Table 6.6 — Non-functional requirements**
+**Table 7.6 — Non-functional requirements**
 
 | ID | Requirement | Quality attribute | Metric / criterion | Increment | Verified by |
 |---|---|---|---|---|---|
@@ -170,8 +170,8 @@ Non-functional requirements are constraints on the services or functions offered
 | NFR-07 | Each role shall be presented an interface matched to its work | Usability | Four distinct dashboard compositions; no empty dashboard for any role | M1 | `test_scoping` |
 | NFR-08 | A change shall be localisable to a single module wherever possible | Maintainability | Business logic contains no framework imports; routes contain no algorithms | 1 onward | Code review; Section 3.5 |
 | NFR-09 | The persistence layer shall not be tied to one database engine | Portability | No engine-specific SQL in application logic; engine selected by one configuration value | 1 | Code review |
-| NFR-10 | Integrity verification shall be linear in the size of the custody graph | Performance | *O(V + E)* established analytically | 2 | Section 10.7 |
-| NFR-11 | Risk scoring shall be linear in the number of custody records for an item | Performance | *O(n)* established analytically | 3 | Section 10.7 |
+| NFR-10 | Integrity verification shall be linear in the size of the custody graph | Performance | *O(V + E)* established analytically | 2 | Section 11.7 |
+| NFR-11 | Risk scoring shall be linear in the number of custody records for an item | Performance | *O(n)* established analytically | 3 | Section 11.7 |
 | NFR-12 | Passwords shall meet a strength policy | Security — authentication | Minimum 12 characters, enforced at creation | 1, 3 | `test_increment3` |
 | NFR-13 | Session cookies shall not be readable by scripts, shall be sent only over TLS, and shall resist cross-origin submission | Security — session | `HttpOnly`, `Secure`, `SameSite=Lax` set | 3 | Configuration review |
 | NFR-14 | The application shall send content-security and complementary hardening headers | Security — defence in depth | CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` present | M2 | Header inspection |
@@ -180,11 +180,11 @@ Non-functional requirements are constraints on the services or functions offered
 | NFR-17 | Listings shall remain responsive as data grows | Performance / robustness | Case and evidence listings paginated | M2 | Manual |
 | NFR-18 | The automated test suite shall run without network access | Verifiability | 172 tests, no external calls, in-memory database per test | 3 onward | Suite execution |
 
-## 6.7 Domain Requirements
+## 7.7 Domain Requirements
 
 Domain requirements are constraints imposed on the system by the domain of operation rather than by any stakeholder's preference. They are the requirements a customer will not think to state because, within the domain, they are assumed — and they are therefore the ones most often missed.
 
-**Table 6.7 — Domain requirements arising from forensic practice**
+**Table 7.7 — Domain requirements arising from forensic practice**
 
 | ID | Domain requirement | Origin in the domain | Consequence for the design |
 |---|---|---|---|
@@ -198,9 +198,9 @@ Domain requirements are constraints imposed on the system by the domain of opera
 
 DR-07 deserves particular emphasis because it constrains the system in a way that a purely technical reading would miss. Two of the system's outputs — the reconstructed chain and the anomaly flags — are *inferences*, and presenting an inference with the same visual authority as a recorded fact would be a domain error even if the inference were usually right. This is why the reconstruction algorithm labels every link and why the Isolation Forest results carry a hedged caption.
 
-## 6.8 System Requirements
+## 7.8 System Requirements
 
-**Table 6.8 — System requirements**
+**Table 7.8 — System requirements**
 
 | Category | Requirement |
 |---|---|
@@ -218,24 +218,24 @@ DR-07 deserves particular emphasis because it constrains the system in a way tha
 | Network | HTTPS on the application host; outbound HTTPS to the inference API (optional — the system degrades gracefully without it) |
 | Storage | Local filesystem for encrypted evidence files; SQLite database file in WAL mode |
 
-## 6.9 Constraints
+## 7.9 Constraints
 
-**Table 6.9 — Project constraints and their design consequences**
+**Table 7.9 — Project constraints and their design consequences**
 
 | ID | Constraint | Type | Design consequence |
 |---|---|---|---|
 | C-01 | Single developer | Resource | Scrum ceremonies adapted to individual equivalents; velocity calibrated from one person's throughput |
 | C-02 | One academic semester | Schedule | Three increments of fourteen working days; *won't-have* list used to protect the boundary |
-| C-03 | The complex algorithms must be original work, not library calls | Academic | Category C features implemented from first principles; the boundary with Category B stated explicitly in Chapter 15 |
+| C-03 | The complex algorithms must be original work, not library calls | Academic | Category C features implemented from first principles; the boundary with Category B stated explicitly in Chapter 16 |
 | C-04 | No paid infrastructure | Resource | SQLite rather than a hosted database; self-signed TLS; a free-tier inference endpoint with a mock fallback |
 | C-05 | No external customer available for elicitation or acceptance | Requirements | Requirements derived by domain analysis and personas; validation performed against written acceptance criteria rather than customer sign-off |
-| C-06 | The feature set must balance across three prescribed categories | Academic | Categorisation used as a completeness check during elicitation (Section 6.3), with the risk of distortion examined in Section 15.6 |
+| C-06 | The feature set must balance across three prescribed categories | Academic | Categorisation used as a completeness check during elicitation (Section 7.3), with the risk of distortion examined in Section 16.6 |
 
-## 6.10 Feature Categorisation (A / B / C)
+## 7.10 Feature Categorisation (A / B / C)
 
 The coursework requires that functionality be categorised into three kinds and that the proposal be balanced across them. The categorisation was performed by assigning each feature to exactly one category **on the basis of where its essential difficulty lies**.
 
-**Table 6.10 — The three categories and their criteria**
+**Table 7.10 — The three categories and their criteria**
 
 | Category | Definition | Test applied |
 |---|---|---|
@@ -243,7 +243,7 @@ The coursework requires that functionality be categorised into three kinds and t
 | **B — Third-party services** | Consumes an external library, API or pre-trained model as-is; the application invokes an interface but does not implement the underlying algorithm | Is the interesting work done by someone else's code? |
 | **C — Complex application logic** | Algorithmically non-trivial and designed and implemented by the developer: a custom data structure, a multi-step algorithm with branching, or a heuristic search | Would removing the third-party calls still leave a substantial algorithm? |
 
-**Table 6.11 — Feature allocation across the categories**
+**Table 7.11 — Feature allocation across the categories**
 
 | Category | Features | Count |
 |---|---|---|
@@ -251,17 +251,17 @@ The coursework requires that functionality be categorised into three kinds and t
 | **B** | SHA-256 (`hashlib`); Ed25519 signatures and AES-256-GCM encryption (`cryptography`); EXIF extraction (Pillow); magic-byte MIME detection (python-magic); ORM (SQLAlchemy); hosted LLM (NVIDIA NIM); Isolation Forest (scikit-learn); PDF generation (ReportLab); TOTP (PyOTP) | 9 |
 | **C** | Graph integrity verification; multi-factor risk scoring; custody chain reconstruction; evidence lifecycle state machine; AI orchestration workflow with hallucination detection | 5 |
 
-The **balance** is assessed in full in Chapter 15. In brief, the system is not top-heavy in any one category: the data layer is a six-entity model rather than a token database, the third-party integrations are numerous and varied rather than a single API call, and the complex-logic layer contributes five substantial algorithms rather than one.
+The **balance** is assessed in full in Chapter 16. In brief, the system is not top-heavy in any one category: the data layer is a six-entity model rather than a token database, the third-party integrations are numerous and varied rather than a single API call, and the complex-logic layer contributes five substantial algorithms rather than one.
 
-The categorisation also produced a deliberate **integration between categories** that strengthens the design: the Category A formula checks feed the Category C risk scorer, so that the simple duplicate and role-mismatch computations become inputs to the complex scoring algorithm rather than sitting in isolation. That this integration was initially broken — and repaired as finding D5 in M2 — is recorded in Section 4.13.2.
+The categorisation also produced a deliberate **integration between categories** that strengthens the design: the Category A formula checks feed the Category C risk scorer, so that the simple duplicate and role-mismatch computations become inputs to the complex scoring algorithm rather than sitting in isolation. That this integration was initially broken — and repaired as finding D5 in M2 — is recorded in Section 5.5.2.
 
 Where a Category C feature calls a Category B library — the integrity verifier calls `hashlib` and the signature primitives, the assistant calls the language model — the library plays the role of a **primitive operation inside a larger algorithm** that the developer designed, in the same way that arithmetic operators are primitives inside a formula. The graph construction, the traversal, the multi-condition validation, the scoring, the search and the orchestration are the developer's own work.
 
-## 6.11 Prioritisation and the Product Backlog
+## 7.11 Prioritisation and the Product Backlog
 
 Requirements were prioritised using **MoSCoW**.
 
-**Table 6.12 — MoSCoW allocation**
+**Table 7.12 — MoSCoW allocation**
 
 | Priority | Meaning | DEICMS content |
 |---|---|---|
@@ -270,32 +270,32 @@ Requirements were prioritised using **MoSCoW**.
 | **Could have** | Genuinely optional enhancement | Isolation Forest anomaly detection; the PDF custody report |
 | **Won't have this time** | Explicitly out of scope, recorded so the boundary is transparent | Production database deployment; public CA certificate; notifications; full-text search over evidence content; multi-language interface; mobile client; model fine-tuning; multi-tenant hosting |
 
-Each backlog story carries acceptance criteria that make "done" objective, a MoSCoW priority, a story-point estimate, a feature-category tag, and the increment in which it was delivered. The full catalogue of twenty-nine stories — twenty-seven original plus the two M1 change-request stories — is reproduced in Appendix A. The second maintenance iteration's work is catalogued as defect findings (Table 4.19) rather than as backlog stories, because repairing a defect restores a requirement already accepted rather than introducing a new one.
+Each backlog story carries acceptance criteria that make "done" objective, a MoSCoW priority, a story-point estimate, a feature-category tag, and the increment in which it was delivered. The full catalogue of twenty-nine stories — twenty-seven original plus the two M1 change-request stories — is reproduced in Appendix A. The second maintenance iteration's work is catalogued as defect findings (Table 5.9) rather than as backlog stories, because repairing a defect restores a requirement already accepted rather than introducing a new one.
 
 The *Could have* tier is the sacrificial scope identified in risk R-04: had capacity fallen short, US-22 and US-27 were the two stories designated to be dropped. Neither was, but designating them in advance is what made the risk mitigable.
 
-## 6.12 Requirements Validation and Traceability
+## 7.12 Requirements Validation and Traceability
 
 **Validation** asks whether the requirements define the system the customer actually wants. Four checks were applied to every requirement.
 
-**Table 6.13 — Validation checks**
+**Table 7.13 — Validation checks**
 
 | Check | Question | How applied |
 |---|---|---|
 | **Validity** | Does the system provide the functions that best support the customer's needs? | Each FR traces to a user requirement, which traces to a persona's stated responsibility |
 | **Consistency** | Are there any requirement conflicts? | Checked at each increment planning; one conflict was found and resolved — FR-06 (Read-Only may not change state) against FR-30 (transitions require justification), resolved by giving Read-Only no available transitions at all rather than a rejected one |
-| **Completeness** | Are all functions required by the customer included? | Checked against the five guarantees of Table 1.1 at each sprint review; the guarantee-to-increment mapping in Sections 4.9.4, 4.10.4 and 4.11.4 is that check's record |
+| **Completeness** | Are all functions required by the customer included? | Checked against the five guarantees of Table 1.1 at each sprint review; the guarantee-to-increment mapping in Sections 5.1.4, 5.2.4 and 5.3.4 is that check's record |
 | **Realism** | Can the requirements be implemented within budget and technology? | Story-point estimation against measured velocity; the 13-point estimate on US-13 is the record of a realism concern raised in advance |
 
-**Traceability** is the property that each requirement can be followed forward to the design, code and test that satisfy it, and backward to the need that justifies it. The full traceability matrix is Appendix D; Table 6.5 above carries its forward direction inline.
+**Traceability** is the property that each requirement can be followed forward to the design, code and test that satisfy it, and backward to the need that justifies it. The full traceability matrix is Appendix D; Table 7.5 above carries its forward direction inline.
 
 Two **honest limitations** of the requirements process should be recorded.
 
 First, **there was no external customer**, so validation was performed against written acceptance criteria rather than stakeholder sign-off. The developer wrote both the criteria and the code, which is a weaker form of validation than the process nominally implies. The mitigation applied was to write every acceptance criterion *before* implementation and to phrase it as an observable outcome rather than an implementation description, so that the criterion could not be quietly retro-fitted to whatever was built.
 
-Second, **negative requirements were under-specified initially**. UR-18 and NFR-01 state what users must *not* see, but the original requirement set expressed this at the level of record access rather than as a property of every aggregate. The requirement was right; its scope of application was incomplete. This is precisely the gap that produced the M1 defects, and the lesson recorded in Section 4.12.6 — that a system with an access-control requirement needs adversarial tests — is at root a *requirements* lesson as much as a testing one: a negative requirement must enumerate the surfaces it governs, or it will be applied only to the surfaces its author had in mind.
+Second, **negative requirements were under-specified initially**. UR-18 and NFR-01 state what users must *not* see, but the original requirement set expressed this at the level of record access rather than as a property of every aggregate. The requirement was right; its scope of application was incomplete. This is precisely the gap that produced the M1 defects, and the lesson recorded in Section 5.4.6 — that a system with an access-control requirement needs adversarial tests — is at root a *requirements* lesson as much as a testing one: a negative requirement must enumerate the surfaces it governs, or it will be applied only to the surfaces its author had in mind.
 
-## 6.13 Summary
+## 7.13 Summary
 
 This chapter established the requirements for DEICMS at both the user and system levels. Four personas were derived from the domain's four roles, each with an explicit statement of what it must *not* be able to do. Eighteen user requirements, fifty-six functional requirements, eighteen non-functional requirements, seven domain requirements and six constraints were specified in tabular form, with every functional requirement traced to its category, priority, increment, user story and verifying test module. The three-way feature categorisation was defined by the test applied to each feature, and the deliberate integration between Category A formulas and the Category C risk scorer was noted. MoSCoW prioritisation identified the sacrificial scope in advance. Validation was assessed against validity, consistency, completeness and realism, and two limitations of the process were recorded — the absence of an external customer, and the under-specification of negative requirements that led directly to the M1 defects.
 

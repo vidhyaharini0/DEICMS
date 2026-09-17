@@ -11,7 +11,7 @@ Software is unlike the products of any other engineering discipline, and almost 
 | Property | Meaning | Consequence for DEICMS |
 |---|---|---|
 | **Intangible** | There is nothing to look at; progress cannot be observed directly | Progress had to be made visible artificially, through burndown charts and a passing test suite, rather than by inspection |
-| **Difficult to describe and evaluate** | Two people can agree on a requirement and mean different things | Requirements were written as user stories with explicit, testable acceptance criteria (Chapter 6) |
+| **Difficult to describe and evaluate** | Two people can agree on a requirement and mean different things | Requirements were written as user stories with explicit, testable acceptance criteria (Chapter 7) |
 | **Malleable** | It can be changed at any time, which is a strength and a trap | An append-only audit trail and a non-nullable signature column were used to make certain things *deliberately* not malleable |
 | **Human-intensive** | Cost is almost entirely design and construction effort by people | Estimation was in story points calibrated to one developer's velocity (Section 4.8) |
 | **Trivial manufacturing** | Copying costs nothing; all cost is in development | Quality must be built in during development, because there is no "inspection before shipping" stage that could catch it |
@@ -26,7 +26,7 @@ Quality in software divides along two axes that are often conflated.
 
 **Structural quality** refers to how well the software meets the non-functional requirements that support the delivery of the functional ones — robustness, maintainability, security, performance. It has much more to do with the degree to which the software works *as needed*, in the conditions it will actually face.
 
-The distinction matters in DEICMS because the two can diverge sharply. An implementation of the custody transfer feature that records the transfer correctly has functional quality. If that same implementation permits an investigator to transfer an item in a case they are not a member of, it has poor structural quality — and in a forensic system that is the more serious failure, because it violates a guarantee (G2) that the entire system exists to provide. Both of the maintenance iterations documented in Sections 4.12 and 4.13 addressed structural rather than functional quality: the features worked, but they worked in ways the system's obligations did not permit.
+The distinction matters in DEICMS because the two can diverge sharply. An implementation of the custody transfer feature that records the transfer correctly has functional quality. If that same implementation permits an investigator to transfer an item in a case they are not a member of, it has poor structural quality — and in a forensic system that is the more serious failure, because it violates a guarantee (G2) that the entire system exists to provide. Both of the maintenance iterations documented in Sections 5.4 and 5.5 addressed structural rather than functional quality: the features worked, but they worked in ways the system's obligations did not permit.
 
 ## 2.3 Internal and External Qualities
 
@@ -35,7 +35,7 @@ A second, orthogonal classification distinguishes who perceives the quality.
 - **External qualities** are visible to users — correctness, reliability, robustness, performance, usability, security.
 - **Internal qualities** concern developers — verifiability, maintainability, understandability, reusability, portability.
 
-The two are not independent: **internal qualities affect external qualities**. Code that no one can understand cannot be corrected reliably, so poor understandability eventually degrades correctness. This relationship is the reason a project is justified in spending effort on qualities the user will never see. In DEICMS, the decision to place all business logic in a dedicated `app/logic/` package rather than inside route handlers is an internal-quality decision with a direct external consequence: when the risk-scoring defect described in Section 4.13 was found, the fix was confined to a single module and could not disturb the routing layer.
+The two are not independent: **internal qualities affect external qualities**. Code that no one can understand cannot be corrected reliably, so poor understandability eventually degrades correctness. This relationship is the reason a project is justified in spending effort on qualities the user will never see. In DEICMS, the decision to place all business logic in a dedicated `app/logic/` package rather than inside route handlers is an internal-quality decision with a direct external consequence: when the risk-scoring defect described in Section 5.5 was found, the fix was confined to a single module and could not disturb the routing layer.
 
 A third classification, **product versus process**, is developed in Section 2.6: the goal is to develop software products, the process is how we do it, and process quality affects product quality.
 
@@ -69,13 +69,13 @@ Robustness was a recurring theme in the maintenance iterations. The AI assistant
 
 **Performance** covers time behaviour and the efficient use of resources — memory, processing time, communication. It can be verified analytically through complexity analysis, or empirically through performance evaluation and simulation. Performance affects **scalability**: a solution that works on a small local dataset may not work on a large one.
 
-DEICMS's performance argument is made analytically, because the system is not deployed at scale. Chapter 10 gives the asymptotic complexity of each complex algorithm — the integrity verifier is *O(V + E)* in the size of the custody graph, the risk scorer *O(n)* in the number of custody records for an item — and Section 10.7 collects these. The one place where scalability was consciously traded away is the rate-limiting store, which is in-memory and therefore not shared across worker processes; this is recorded as a known limitation in Section 12.5 rather than hidden.
+DEICMS's performance argument is made analytically, because the system is not deployed at scale. Chapter 11 gives the asymptotic complexity of each complex algorithm — the integrity verifier is *O(V + E)* in the size of the custody graph, the risk scorer *O(n)* in the number of custody records for an item — and Section 11.7 collects these. The one place where scalability was consciously traded away is the rate-limiting store, which is in-memory and therefore not shared across worker processes; this is recorded as a known limitation in Section 13.5 rather than hidden.
 
 ### 2.4.5 Security
 
 **Security** encompasses data confidentiality and resource integrity, and the measures taken to improve software behaviour in the face of malicious activity: finding, fixing and preventing vulnerabilities across design, development, testing, deployment, operation and maintenance. An evolving but largely consistent set of common flaws recurs across applications — input validation failures, tampering, authentication and authorisation weaknesses, configuration exposure, session management flaws, weak cryptography, parameter manipulation, exception-handling information disclosure, and inadequate auditing.
 
-For DEICMS security is not one quality among many but the dominant one, and Chapter 12 is devoted to it. Table 2.2 maps the standard threat categories onto the specific controls implemented.
+For DEICMS security is not one quality among many but the dominant one, and Chapter 13 is devoted to it. Table 2.2 maps the standard threat categories onto the specific controls implemented.
 
 **Table 2.2 — Threat categories and DEICMS countermeasures**
 
@@ -109,13 +109,13 @@ DEICMS is an unusual case in which verifiability is simultaneously an internal q
 
 **Maintainability** is the ease of maintenance, where maintenance means changes after release. It is economically the dominant quality: maintenance costs exceed 60% of the total cost of software. It decomposes into **repairability** — the ability to correct defects in reasonable time — and **evolvability** — the ability to adapt the software to environmental changes and improve it in reasonable time.
 
-Chapter 13 treats maintenance in full, including the three categories (corrective, adaptive, perfective) and their relative costs. The relevant observation here is that DEICMS provides direct evidence of its own maintainability: the two maintenance iterations made substantive changes — re-scoping every aggregate query, replacing the model-invocation strategy — without structural disruption, because the affected logic was localised.
+Chapter 14 treats maintenance in full, including the three categories (corrective, adaptive, perfective) and their relative costs. The relevant observation here is that DEICMS provides direct evidence of its own maintainability: the two maintenance iterations made substantive changes — re-scoping every aggregate query, replacing the model-invocation strategy — without structural disruption, because the affected logic was localised.
 
 ### 2.4.9 Reusability
 
 **Reusability** is the property that an existing product or component can be used, with minor modification, to build another product. It is similar to evolvability, applies to processes as well as products, and the reuse of standard parts is a measure of the maturity of an engineering field.
 
-DEICMS both consumes and exhibits reuse. It consumes it heavily — every Category B feature is a reuse decision, analysed in Chapter 14. It exhibits it modestly: the `access_control` and `audit` modules are written against no DEICMS-specific assumption beyond the role model and could be lifted into another case-scoped application, and the risk-scoring engine's factor-normalisation-weighting structure is deliberately generic in shape even though its eight factors are domain-specific.
+DEICMS both consumes and exhibits reuse. It consumes it heavily — every Category B feature is a reuse decision, analysed in Chapter 15. It exhibits it modestly: the `access_control` and `audit` modules are written against no DEICMS-specific assumption beyond the role model and could be lifted into another case-scoped application, and the risk-scoring engine's factor-normalisation-weighting structure is deliberately generic in shape even though its eight factors are domain-specific.
 
 ### 2.4.10 Portability
 
@@ -137,7 +137,7 @@ DEICMS interoperates in three directions: it consumes an external language model
 
 ### 2.4.13 Application-Specific Qualities
 
-Beyond the general list, particular application classes have their own dominant qualities. For information systems these are typically **data integrity, security, data availability and transaction performance**. DEICMS is an information system of exactly this kind, and this is why the report devotes an entire chapter to security (Chapter 12) and an entire algorithm to integrity verification (Section 10.2), which in another domain would be minor concerns.
+Beyond the general list, particular application classes have their own dominant qualities. For information systems these are typically **data integrity, security, data availability and transaction performance**. DEICMS is an information system of exactly this kind, and this is why the report devotes an entire chapter to security (Chapter 13) and an entire algorithm to integrity verification (Section 11.2), which in another domain would be minor concerns.
 
 ## 2.5 Quality Priorities for DEICMS
 
@@ -152,7 +152,7 @@ Not all qualities can be maximised simultaneously; some conflict. Table 2.3 reco
 | Verifiability | Internal + External | **Critical** | The product's core value proposition is that properties can be *proven*, not asserted | §10.2, §9.7 |
 | Maintainability | Internal | High | Two maintenance iterations were anticipated and occurred | Ch. 13 |
 | Reliability | External | High | Investigators must be able to depend on the record | §2.4.2 |
-| Robustness | External | High | External model retirement proved unforeseen circumstances arise | §4.13 |
+| Robustness | External | High | External model retirement proved unforeseen circumstances arise | §5.5 |
 | Understandability | Internal | High | Precondition for the maintainability above | §2.4.11 |
 | Usability | External | Medium | Important, but a trained-user system may assume domain vocabulary | §9.7 |
 | Portability | Internal | Medium | Development-to-production database change anticipated | §8.6 |
@@ -166,7 +166,7 @@ Two **trade-offs** were made consciously and are recorded here rather than ratio
 
 Because process quality affects product quality, the process itself is assessed against its own three qualities.
 
-**Productivity** denotes the efficiency and performance of the process. For DEICMS this was measured as velocity: forty story points delivered in the first fourteen-day increment, establishing the capacity against which subsequent increments were planned (Section 4.8). The velocity analysis in Section 18.2 examines whether that measure held.
+**Productivity** denotes the efficiency and performance of the process. For DEICMS this was measured as velocity: forty story points delivered in the first fourteen-day increment, establishing the capacity against which subsequent increments were planned (Section 4.8). The velocity analysis in Section 19.2 examines whether that measure held.
 
 **Timeliness** is the ability to deliver a product on time. The characteristic failure mode is that the development process does not follow the evolution of user requirements, so that a mismatch opens between what users need and what the product can do — the gap widening over time as needs move and the system does not. Incremental delivery is the structural answer: by delivering a working subset every fourteen days and re-examining the backlog at each boundary, the gap is closed repeatedly rather than allowed to accumulate until a single late delivery. The two maintenance iterations are evidence of the same mechanism operating after the increments finished.
 
