@@ -199,13 +199,14 @@ The final system comprises approximately five thousand lines of application code
 - 13.3 Controls by Layer
 - 13.4 Cryptographic Design
 - 13.5 Acknowledged Limitations
-- 13.6 Summary
+- 13.6 The Security Contribution of the Maintenance Iterations
+- 13.7 Summary
 
 **Chapter 14 — Software Evolution and Maintenance**
 
 - 14.1 Why Software Must Evolve
 - 14.2 Lehman's Laws Applied to DEICMS
-- 14.3 The Four Types of Maintenance
+- 14.3 Types of Maintenance
 - 14.4 Classification of the Maintenance Work Performed
 - 14.5 Maintenance Prediction and Cost Factors
 - 14.6 Evolution Strategy and Maintainability Measures
