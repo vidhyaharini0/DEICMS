@@ -20,7 +20,7 @@ Nothing in this increment is algorithmically complex — that is by design. The 
 
 ### 5.1.2 Sprint Backlog
 
-**5.1 — Increment 1 sprint backlog**
+**Table 5.1 — Increment 1 sprint backlog**
 
 | ID | User story | Category | MoSCoW | Points |
 |---|---|---|---|---|
@@ -51,13 +51,13 @@ Measured against the five guarantees of Table 1.1, Increment 1 fully delivered *
 
 ### 5.1.5 Burndown
 
-**[5.1 — Increment 1 burndown chart]**
+**[FIGURE 5.1 — Increment 1 burndown chart]**
 
 The chart plots ideal and actual story points remaining across the fourteen-day cycle. The actual line runs above the ideal for the first several days: days zero to two produced no burned points at all, because environment setup — the Flask application factory, the SQLAlchemy configuration and the Git repository — took longer than planned, and the first story was not completed until day two. From about day nine the actual line converges back toward the ideal, and all forty points were delivered by day fourteen. The chart's shape is therefore a slow start followed by a recovery.
 
 ### 5.1.6 Retrospective
 
-**5.2 — Increment 1 retrospective**
+**Table 5.2 — Increment 1 retrospective**
 
 | Category | Finding |
 |---|---|
@@ -82,7 +82,7 @@ This is the increment in which the first three of the project's five complex alg
 
 ### 5.2.2 Sprint Backlog
 
-**5.3 — Increment 2 sprint backlog**
+**Table 5.3 — Increment 2 sprint backlog**
 
 | ID | User story | Category | MoSCoW | Points |
 |---|---|---|---|---|
@@ -108,13 +108,13 @@ Against the five guarantees, Increment 2 completed **G1** (provable integrity) a
 
 ### 5.2.5 Burndown
 
-**[5.2 — Increment 2 burndown chart]**
+**[FIGURE 5.2 — Increment 2 burndown chart]**
 
 This chart shows the roughest middle of the project. The actual line tracks the ideal for the first several days, then **plateaus across days five to seven**, during which almost no points were burned. The plateau is the graph-integrity rework: the depth-first traversal, initially written to stop at the first failure, had to be reworked to accumulate all failures while continuing, and that rework surfaced a payload-format mismatch between the signer and the verifier that took further time to diagnose. From about day eight the line resumes its descent and steepens, because the state machine and the reconstruction algorithm were able to reuse the test fixtures and graph-building patterns established while building the verifier, and all thirty-eight points were delivered by day fourteen.
 
 ### 5.2.6 Retrospective
 
-**5.4 — Increment 2 retrospective**
+**Table 5.4 — Increment 2 retrospective**
 
 | Category | Finding |
 |---|---|
@@ -138,7 +138,7 @@ This was the largest increment. It contains two of the project's five complex al
 
 ### 5.3.2 Sprint Backlog
 
-**5.5 — Increment 3 sprint backlog**
+**Table 5.5 — Increment 3 sprint backlog**
 
 | ID | User story | Category | MoSCoW | Points |
 |---|---|---|---|---|
@@ -166,13 +166,13 @@ With this increment the fifth guarantee — **G5**, analytical prioritisation �
 
 ### 5.3.5 Burndown
 
-**[5.3 — Increment 3 burndown chart]**
+**[FIGURE 5.3 — Increment 3 burndown chart]**
 
 This is the steadiest of the three charts, tracking within about two points of the ideal throughout, with a slight early slip on days one to three recovered by day four. The steadiness is directly attributable to the two actions carried in from Increment 2: writing the risk-scoring tests before the implementation caught the normalisation edge cases before they could reach a route and cause a late surprise, and hiding the language model behind a mock seam meant the assistant pipeline could be built and tested continuously rather than being blocked on external credits or network availability. The security stories integrated cleanly because the audit and custody layers from earlier increments already exposed the hooks they needed.
 
 ### 5.3.6 Retrospective
 
-**5.6 — Increment 3 retrospective**
+**Table 5.6 — Increment 3 retrospective**
 
 | Category | Finding |
 |---|---|
@@ -201,7 +201,7 @@ The defects were found not by the automated test suite but by deliberate **revie
 
 This distinction is the iteration's first lesson. The automated tests written during the three increments were, appropriately, *positive* tests: they confirmed that an administrator could see the dashboard, that a lead investigator could rank items by risk, that the assistant answered questions. None asked the adversarial question — *can a user see data they should not?* — because each test constructed only the data it needed and then checked the feature worked on it. The leakage was invisible to that style of testing because it manifests only when data from *another* case exists and a user without access to it views an aggregate.
 
-**5.7 — M1 change requests**
+**Table 5.7 — M1 change requests**
 
 | CR | Story | Defect observed | Points |
 |---|---|---|---|
@@ -226,7 +226,7 @@ The iteration's second lesson is embodied in its testing. Because the defects es
 
 ### 5.4.6 Iteration Review and Reflection
 
-**5.8 — M1 reflection**
+**Table 5.8 — M1 reflection**
 
 | Lesson | Content |
 |---|---|
@@ -247,7 +247,7 @@ Reading a working system is a different activity from testing it, and that diffe
 
 ### 5.5.2 Findings
 
-**5.9 — M2 findings**
+**Table 5.9 — M2 findings**
 
 | # | Finding | Theme | Severity | Resolution |
 |---|---|---|---|---|
@@ -281,7 +281,7 @@ That two critical findings had survived a full increment and a green test suite 
 
 It is worth asking directly what would have happened had this project been executed as a waterfall, since the professor's question *why did you choose this model?* deserves an answer grounded in evidence rather than preference.
 
-**5.10 — What a waterfall execution would have produced**
+**Table 5.10 — What a waterfall execution would have produced**
 
 | Project event | What actually happened (agile incremental) | What waterfall would have produced |
 |---|---|---|

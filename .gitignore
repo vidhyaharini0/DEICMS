@@ -13,3 +13,8 @@ uploads/
 risk_settings.json
 .pytest_cache/
 .vscode/
+.report_v2_combined.md
+Software Engineering/
+student reports/
+~$*
+~WRL*.tmp
