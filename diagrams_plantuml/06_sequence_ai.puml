@@ -3,46 +3,79 @@
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam backgroundColor white
+autonumber "<b>[00]"
 
-actor Investigator
-participant "Chat UI" as UI
-participant "Assistant\nRoute" as R
-participant "AIAssistant\nOrchestrator" as A
+actor Investigator as U
+boundary "Chat UI" as UI
+boundary "assistant\nblueprint" as R
+control "AIInvestigation\nAssistant" as A
+entity "CaseAccess" as CA
 database "Database" as DB
-participant "NVIDIA NIM\n(LLM)" as LLM
+participant "NVIDIA NIM\n(hosted LLM)" as LLM <<external service>>
 
-Investigator -> UI : types question
-UI -> R : POST /assistant/chat
+U -> UI : types a question
+UI -> R : POST /assistant/chat  {message}
 activate R
-R -> A : process(message, user)
+R -> A : answer(message, history, user)
 activate A
 
-A -> A : Stage 1 - classify intent\n(7 intents + UNKNOWN)
-
-A -> DB : Stage 2 - retrieve context\nscoped by accessible_case_ids
-DB --> A : cases, evidence, custody (permitted only)
-
-A -> A : Stage 3 - construct prompt\n(system + context + trimmed history)
-
-A -> LLM : Stage 4 - invoke model
-alt model responds
-  LLM --> A : reply text
-else model retired / timeout
-  A -> LLM : try next candidate model
-  LLM --> A : reply text
-else all candidates fail
-  A -> A : fall back to context-aware mock
+group Stage 1 — Intent classification
+    A -> A : classify_intent(message)
+    note right: 7 intents + UNKNOWN;\nthe identity intent is\nchecked with priority
 end
 
-A -> A : Stage 5 - validate response\n(refusal detection, strip reasoning)
+group Stage 2 — Access-scoped retrieval
+    A -> CA : accessible_case_ids(user)
+    activate CA
+    CA --> A : [caseIds] or ALL
+    deactivate CA
+    A -> DB : SELECT ... WHERE case_id IN (:caseIds)
+    DB --> A : permitted records only
+    note right: the scoping happens <b>here</b>,\nso no later stage can leak
+end
 
-A -> A : Stage 6 - hallucination check\ncross-check every entity reference\nagainst retrieved context
+group Stage 3 — Prompt construction
+    A -> A : build_prompt(msg, context, user)
+    note right: system prompt + context block\n+ caller identity + trimmed history
+end
 
-A --> R : reply, intent, flags
+group Stage 4 — Model invocation
+    loop for each candidate model, within the total budget
+        A -> LLM : POST /chat/completions
+        activate LLM
+        alt 200 OK
+            LLM --> A : reply
+            deactivate LLM
+        else 410 Gone (model retired) or timeout
+            LLM --> A : error
+            note right: try the next candidate
+        end
+    end
+    alt all candidates failed, or no API key
+        A -> A : context-aware mock reply
+    end
+end
+
+group Stage 5 — Response validation
+    A -> A : strip_reasoning(raw)
+    A -> A : validate_response(reply, intent)
+    note right: minimum length, refusal\npatterns, off-topic drift
+end
+
+group Stage 6 — Hallucination detection
+    A -> A : check_hallucinations(reply, context, user, question)
+    note right: every case number, evidence id and\ninvestigator name is cross-checked\nagainst the retrieved context
+end
+
+A --> R : AssistantResponse
 deactivate A
-R --> UI : JSON response
+R --> UI : {reply, intent, contextUsed, flags}
 deactivate R
-UI -> Investigator : renders answer\n(+ warning if flags present)
+UI -> U : renders the answer
+
+opt flags is non-empty
+    UI -> U : displays an explicit hallucination warning
+end
 @enduml

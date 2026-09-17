@@ -135,7 +135,7 @@ The final system comprises approximately five thousand lines of application code
 
 - 8.1 Why Model a System
 - 8.2 Context and Use-Case Models
-- 8.3 Use-Case Descriptions
+- 8.3 The Complete Use-Case Catalogue
 - 8.4 Structural Model: the Class Diagram
 - 8.5 Data Model: the Entity-Relationship Diagram
 - 8.6 Interaction Models: Sequence Diagrams

@@ -3,16 +3,24 @@
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam backgroundColor white
 
+|#white|Trigger|
 start
-:Load evidence item
-and its custody logs;
+:Lifecycle transition, integrity
+verification, or dashboard load;
 
-partition "Stage 1 - Extract eight factors" {
+|Data Layer|
+:Load EvidenceItem;
+:Load its CustodyLog records;
+:Load its AuditRecord records;
+
+|Risk Scoring Engine|
+partition "Stage 1 — Extract eight factors  (independent, any order)" {
   fork
-    :integrity_status;
+    :integrity_status
+    (written by the verifier);
   fork again
     :file_type_risk;
   fork again
@@ -20,55 +28,75 @@ partition "Stage 1 - Extract eight factors" {
   fork again
     :distinct_investigators;
   fork again
-    :role_mismatch_count;
+    :role_mismatch_count
+    (Category A formula check);
   fork again
     :time_since_last_activity;
   fork again
-    :duplicate_entry_count;
+    :duplicate_entry_count
+    (Category A formula check);
   fork again
     :lifecycle_state;
   end fork
 }
 
-partition "Stage 2 - Normalise" {
-  :Apply the curve suited to each
-  factor's distribution
-  (linear / logarithmic / categorical);
-  :Clamp every factor to [0, 1];
+partition "Stage 2 — Normalise each factor to [0, 1]" {
+  :Select the curve matched to
+  the factor's distribution;
+  note right
+    categorical  → direct mapping
+    logarithmic  → heavy-tailed counts
+    sigmoid@30d  → inactivity
+    linear       → small integer counts
+  end note
+  :Clamp to [0, 1];
 }
 
-partition "Stage 3 - Weighted sum" {
+partition "Stage 3 — Weighted sum" {
   :Load weights (admin-configurable);
   :Re-normalise weights to sum to 1.0;
-  :base_score = sum(weight_i * factor_i);
+  :base = Σ wᵢ · normᵢ;
 }
 
-partition "Stage 4 - Interaction rules" {
-  :Evaluate five interaction rules;
-  if (any rule fires?) then (yes)
-    :Add its bonus;
-    :Cap the TOTAL bonus
-    to prevent saturation;
-  else (no)
+partition "Stage 4 — Interaction detection" {
+  repeat
+    :Take the next of five interaction rules;
+    if (both factors above their thresholds?) then ([yes])
+      :bonus += base × (multiplier − 1);
+      :record the reason;
+    else ([no])
+    endif
+  repeat while (more rules?) is ([yes]) not ([no])
+  :bonus = min(bonus, 0.30);
+  note right
+    The cap is essential: without it,
+    several rules firing together
+    saturate every item at 1.0 and
+    the ranking conveys nothing.
+  end note
+  :score = min(base + bonus, 1.0);
+}
+
+partition "Stage 5 — Classify and explain" {
+  if (score ≥ 0.75?) then ([yes])
+    :level := CRITICAL;
+  elseif (score ≥ 0.50?) then ([yes])
+    :level := HIGH;
+  elseif (score ≥ 0.25?) then ([yes])
+    :level := MEDIUM;
+  else ([no])
+    :level := LOW;
   endif
-  :final_score = min(base + bonus, 1.0);
+  :Rank factors by weighted contribution;
+  :Generate per-factor explanations;
+  :Generate recommendations;
 }
 
-partition "Stage 5 - Classify" {
-  if (score >= 0.75?) then (yes)
-    :level = CRITICAL;
-  elseif (score >= 0.50?) then (yes)
-    :level = HIGH;
-  elseif (score >= 0.25?) then (yes)
-    :level = MEDIUM;
-  else (no)
-    :level = LOW;
-  endif
-}
-
-:Generate per-factor explanations;
-:Generate recommendations;
+|Data Layer|
 :Persist risk_score and risk_level;
-:Return ranked report;
+
+|Presentation|
+:Return RiskReport
+to the dashboard or detail page;
 stop
 @enduml

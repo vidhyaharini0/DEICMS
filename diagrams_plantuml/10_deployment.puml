@@ -3,40 +3,63 @@
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam backgroundColor white
 
-node "Client Workstation" as CLIENT {
-  artifact "Web Browser" as BROWSER
-}
-
-node "Application Host" as HOST {
-  node "Python 3 Runtime" as PY {
-    artifact "Flask Application\n(application factory,\n10 blueprints)" as APP
-    artifact "SQLAlchemy ORM" as ORM
-    artifact "Werkzeug HTTPS Server\n(self-signed TLS)" as WSGI
+node "Client Workstation" <<device>> as CLIENT {
+  node "Operating System" <<execution environment>> {
+    artifact "Web Browser" <<artifact>> as BROWSER
   }
-  database "deicms.db\n(SQLite, WAL mode)" as DB
-  folder "uploads/\n(AES-256-GCM\nencrypted files)" as UP
-  artifact ".env\n(secrets)" as ENV
 }
 
-cloud "NVIDIA NIM\nInference Service" as NIM {
-  artifact "Hosted LLM" as MODEL
+node "Application Host" <<device>> as HOST {
+
+  node "Python 3 Runtime" <<execution environment>> as PY {
+    artifact "run.py" <<artifact>> as RUN
+    artifact "Flask Application\n(application factory,\n10 blueprints,\n12 logic modules)" <<artifact>> as APP
+    artifact "SQLAlchemy ORM" <<artifact>> as ORM
+    artifact "Werkzeug WSGI Server\n(TLS, self-signed)" <<artifact>> as WSGI
+  }
+
+  node "Local Filesystem" <<execution environment>> as FSYS {
+    database "deicms.db\n+ .db-wal / .db-shm" <<artifact>> as DB
+    folder "uploads/\nAES-256-GCM ciphertext" <<artifact>> as UP
+    artifact ".env\n(secrets, never committed)" <<artifact>> as ENV
+    artifact "cert.pem / key.pem" <<artifact>> as CERT
+  }
 }
 
-BROWSER -down-> WSGI : HTTPS :5000
-WSGI -down-> APP
-APP -down-> ORM
-ORM -down-> DB : SQL
-APP -down-> UP : encrypted read/write
-APP -left-> ENV : loads at startup
-APP -right-> MODEL : HTTPS REST\n(OpenAI-compatible)
+cloud "NVIDIA Cloud" <<device>> as CLOUD {
+  node "NIM Inference Service" <<execution environment>> {
+    artifact "Hosted LLM" <<artifact>> as MODEL
+  }
+}
+
+BROWSER ..> WSGI : <<protocol>>\nHTTPS :5001
+
+RUN     ..> APP  : <<deploy>>
+WSGI    ..> APP  : <<deploy>>
+APP     ..> ORM  : <<use>>
+ORM     ..> DB   : <<protocol>>\nSQLite driver (WAL)
+APP     ..> UP   : <<protocol>>\nencrypted file I/O
+APP     ..> ENV  : <<use>> loaded at startup
+WSGI    ..> CERT : <<use>>
+APP     ..> MODEL : <<protocol>>\nHTTPS REST\n(OpenAI-compatible)
 
 note bottom of HOST
-  Production path: replace SQLite with
-  PostgreSQL and Werkzeug with
-  gunicorn behind a reverse proxy.
-  No application code changes required.
+  <b>Production path</b> — no application code changes:
+  • SQLite  → PostgreSQL  (change DATABASE_URL)
+  • Werkzeug → gunicorn behind a reverse proxy
+  • self-signed cert → CA-issued certificate
+  • in-memory rate limiting → Redis
+  This is requirement NFR-09 made concrete.
+end note
+
+note right of CLOUD
+  The only component outside the
+  trust boundary. The system degrades
+  to a context-aware mock when it is
+  unreachable, so its failure is a
+  loss of a feature, not of the system.
 end note
 @enduml

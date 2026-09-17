@@ -3,49 +3,79 @@
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam backgroundColor white
+skinparam sequenceMessageAlign first
+autonumber "<b>[00]"
 
-actor Analyst
-participant "Integrity\nRoute" as R
-participant "GraphIntegrity\nEngine" as E
+actor Analyst as A
+boundary "custody\nblueprint" as R
+control "GraphIntegrity\nEngine" as E
+entity "EvidenceItem\n: Model" as EV
+entity "CustodyLog\n: Model" as CL
 database "Database" as DB
-participant "File\nStore" as FS
-participant "Crypto\n(hashlib, Ed25519)" as C
+collections "Encrypted\nFile Store" as FS
+control "crypto\n(hashlib, Ed25519)" as C
 
-Analyst -> R : POST /evidence/{id}/verify
+A -> R : GET /evidence/{id}/verify
 activate R
-R -> R : check role and case access
-R -> E : verify(evidence_id)
+
+R -> R : check case membership
+note right: fails closed —\nno access, no verification
+
+R -> E : new GraphIntegrityEngine(evidence)
 activate E
+R -> E : verify()
 
-E -> DB : load evidence item
-DB --> E : evidence
-E -> DB : load custody logs (ordered)
-DB --> E : custody log list
+E -> DB : SELECT evidence WHERE id = ?
+DB --> EV : row
+EV --> E : evidence
+E -> DB : SELECT custody_logs ORDER BY timestamp
+DB --> CL : rows
+CL --> E : List<CustodyLog>
 
-E -> E : build directed graph\n(nodes = events, edges = transfers)
+E -> E : buildGraph()
+note right: nodes = events\nedges = successor links\nroot = the Upload event
 
-loop depth-first traversal from upload root
-  E -> FS : read stored file
-  FS --> E : bytes
-  E -> C : sha256(bytes)
-  C --> E : current hash
-  E -> E : check 1 - hash continuity
-  E -> C : verify Ed25519 signature
-  C --> E : valid / invalid
-  E -> E : check 2 - signature validity
-  E -> E : check 3 - timestamp monotonicity
-  E -> E : accumulate failure (do not stop)
+E -> FS : read(evidence.file_path)
+activate FS
+FS --> E : ciphertext
+deactivate FS
+E -> C : decrypt() then sha256()
+activate C
+C --> E : groundTruthHash
+deactivate C
+
+loop for each node in depth-first traversal
+    E -> E : checkHash(node)
+    E -> C : verify(payload, signature, publicKey)
+    activate C
+    C --> E : valid / invalid
+    deactivate C
+    E -> E : checkTimestamp(node)
+
+    alt any check failed
+        E -> E : failures.append(NodeFailure)
+        note right: <b>continue</b> the traversal —\ndo not short-circuit
+    else all three passed
+        E -> E : verified += 1
+    end
 end
 
-E -> E : compute completeness score
-E -> E : determine verdict\n(Intact / Partially Verified / Broken)
-E -> DB : write integrity_status
+E -> E : completeness = verified / total
+E -> E : verdict = Intact | Partially Verified | Broken
+
+E -> DB : UPDATE evidence SET integrity_status = ?
+note right: closes the loop to the\nrisk scorer (finding D2)
+
 E --> R : IntegrityReport
 deactivate E
 
-R -> DB : write AuditRecord
-R --> Analyst : verdict, score, failure list
+R -> DB : INSERT audit_record
+R --> A : verdict, completeness %, failure table
 deactivate R
+
+opt verdict = Broken
+    A -> R : POST /evidence/{id}/change-state → Flagged
+end
 @enduml

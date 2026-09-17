@@ -1,30 +1,37 @@
 @startuml
 ' Figure 8.10 - Component Diagram: DEICMS System Architecture
+' Provided interfaces are lollipops; required interfaces are sockets.
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam backgroundColor white
+skinparam componentStyle uml2
 
 package "Presentation Layer" {
   component "Jinja2 Templates" as TPL
-  component "Static Assets" as STA
 }
 
-package "Routing Layer (Blueprints)" {
-  component "auth" as B_AUTH
-  component "cases" as B_CASE
-  component "evidence" as B_EV
-  component "custody" as B_CUS
-  component "audit" as B_AUD
-  component "risk" as B_RISK
+package "Routing Layer — 10 Flask blueprints" {
+  component "auth"      as B_AUTH
+  component "cases"     as B_CASE
+  component "evidence"  as B_EV
+  component "custody"   as B_CUS
+  component "risk"      as B_RISK
+  component "audit"     as B_AUD
   component "assistant" as B_AI
-  component "export" as B_EXP
+  component "export"    as B_EXP
   component "dashboard" as B_DASH
-  component "admin" as B_ADM
+  component "admin"     as B_ADM
 }
 
-package "Business Logic Layer" {
+package "Cross-Cutting Utilities" {
+  component "decorators" as U_DEC
+  component "audit recorder" as U_AUD
+  component "time helper" as U_TIME
+}
+
+package "Business Logic Layer — 12 modules" {
   component "graph_integrity" as L_GI
   component "risk_scoring" as L_RS
   component "chain_reconstruction" as L_CR
@@ -32,54 +39,86 @@ package "Business Logic Layer" {
   component "ai_assistant" as L_AI
   component "anomaly_detection" as L_AD
   component "audit_formulas" as L_AF
-  component "crypto" as L_CR2
+  component "crypto" as L_CRY
   component "file_crypto" as L_FC
   component "pdf_report" as L_PDF
   component "validators" as L_VAL
-}
-
-package "Cross-Cutting Utilities" {
-  component "decorators (authorisation)" as U_DEC
-  component "audit recorder" as U_AUD
-  component "time helper" as U_TIME
+  component "keyderive" as L_KD
 }
 
 package "Data Access Layer" {
-  component "SQLAlchemy ORM" as ORM
   component "Six Model Classes" as MOD
+  component "SQLAlchemy ORM" as ORM
 }
 
-database "SQLite / PostgreSQL" as DB
+' ---------- Provided interfaces (lollipops) ----------
+interface "IVerify" as I_VER
+interface "IScore" as I_SCO
+interface "IReconstruct" as I_REC
+interface "ITransition" as I_TRA
+interface "IAnswer" as I_ANS
+interface "ISign" as I_SIG
+interface "IEncrypt" as I_ENC
+interface "IFormulaCheck" as I_FRM
+interface "IAccessScope" as I_ACC
+interface "IPersistence" as I_PER
+
+L_GI  -up- I_VER
+L_RS  -up- I_SCO
+L_CR  -up- I_REC
+L_SM  -up- I_TRA
+L_AI  -up- I_ANS
+L_CRY -up- I_SIG
+L_FC  -up- I_ENC
+L_AF  -up- I_FRM
+MOD   -up- I_ACC
+ORM   -up- I_PER
+
+' ---------- Required interfaces (sockets) ----------
+B_CUS  ..>  I_VER   : <<use>>
+B_CUS  ..>  I_TRA   : <<use>>
+B_CUS  ..>  I_REC   : <<use>>
+B_CUS  ..>  I_SIG   : <<use>>
+B_RISK ..>  I_SCO   : <<use>>
+B_AUD  ..>  I_FRM   : <<use>>
+B_AI   ..>  I_ANS   : <<use>>
+B_EV   ..>  I_ENC   : <<use>>
+B_EXP  ..>  I_VER   : <<use>>
+B_AUTH ..>  I_SIG   : <<use>>
+
+L_GI   ..>  I_SIG   : <<use>>
+L_RS   ..>  I_FRM   : <<use>>
+L_SM   ..>  I_SCO   : <<use>>
+L_CR   ..>  I_VER   : <<use>>
+L_AI   ..>  I_ACC   : <<use>>
+L_AD   ..>  I_PER   : <<use>>
+L_PDF  ..>  I_VER   : <<use>>
+L_FC   ..>  L_KD    : <<use>>
+B_DASH ..>  I_ACC   : <<use>>
+U_DEC  ..>  I_ACC   : <<use>>
+MOD    ..>  I_PER   : <<use>>
+B_EV   ..>  L_VAL   : <<use>>
+
+TPL    ..>  B_DASH  : rendered by
+B_CASE ..>  I_ACC   : <<use>>
+B_ADM  ..>  I_SCO   : <<use>>
+
+' ---------- External boundary ----------
+node "SQLite / PostgreSQL" as DB
 folder "Encrypted File Store" as FS
 cloud "NVIDIA NIM API" as NIM
 
-TPL ..> B_DASH
-B_AUTH ..> L_CR2
-B_EV ..> L_VAL
-B_EV ..> L_FC
-B_CUS ..> L_CR2
-B_CUS ..> L_SM
-B_RISK ..> L_RS
-B_RISK ..> L_AD
-B_AUD ..> L_AF
-B_EXP ..> L_PDF
-B_EXP ..> L_GI
-B_AI ..> L_AI
-B_CASE ..> MOD
-B_ADM ..> MOD
-
-L_GI ..> L_CR2
-L_RS ..> L_AF
-L_CR ..> L_GI
+ORM  --> DB  : JDBC-style driver
+L_FC --> FS  : AES-256-GCM
 L_AI --> NIM : HTTPS (OpenAI-compatible)
 
-U_DEC ..> MOD
-U_AUD ..> MOD
-L_GI ..> ORM
-L_RS ..> ORM
-L_SM ..> ORM
-L_AI ..> ORM
-MOD ..> ORM
-ORM --> DB
-L_FC --> FS
+note as N1
+  <b>Dependencies run downward only.</b>
+  No arrow runs from a logic component
+  back up to a blueprint. Exactly one
+  component — ai_assistant — crosses the
+  system boundary, which is why the
+  provider's retirement of the hosted
+  model was a one-file change.
+end note
 @enduml

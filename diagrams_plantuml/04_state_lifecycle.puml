@@ -1,40 +1,78 @@
 @startuml
-' Figure 8.9 - Evidence Lifecycle State Machine
+' Figure 8.9 - State Machine Diagram: Evidence Lifecycle
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam backgroundColor white
 
-state UnderAnalysis as "Under Analysis"
+state "Collected" as C
+state "Submitted" as S
+state "Under Analysis" as UA
+state "Transferred" as T
+state "Archived" as AR
+state "Flagged" as F
 
-[*] --> Collected : evidence registered
+C  : entry / create initial custody entry
+C  : entry / compute SHA-256, sign
+S  : entry / audit transition
+UA : entry / recalculate risk score
+UA : do / analysis performed by custodian
+T  : entry / update current_holder
+T  : entry / sign custody record
+AR : entry / freeze item
+AR : exit  / only on integrity failure
+F  : entry / raise risk level
+F  : entry / alert Lead and Admin
 
-Collected --> Submitted : submit\n[Admin, Lead]
-Collected --> Transferred : transfer\n[Admin, Lead, Analyst]
+[*] --> C : register evidence
 
-Submitted --> UnderAnalysis : begin analysis\n[Admin, Lead, Analyst]\n<<requires custody log>>
-Submitted --> Transferred : transfer\n[Admin, Lead, Analyst]
-Submitted --> Archived : emergency archive\n[Admin only]
+C  --> S  : submit\n[Admin, Lead]
+C  --> T  : transfer\n[Admin, Lead, Analyst]
 
-UnderAnalysis --> Transferred : transfer\n[Admin, Lead, Analyst]
-UnderAnalysis --> Archived : archive\n[Admin, Lead]\n<<requires Intact verdict>>
+S  --> UA : begin analysis\n[Admin, Lead, Analyst]\n[≥ 1 custody log entry]
+S  --> T  : transfer\n[Admin, Lead, Analyst]
+S  --> AR : emergency archive\n[Admin only]
 
-Transferred --> UnderAnalysis : resume analysis\n[Admin, Lead, Analyst]
+UA --> T  : transfer\n[Admin, Lead, Analyst]
+UA --> AR : archive\n[Admin, Lead]\n[integrity verdict = Intact]
 
-Collected --> Flagged : integrity failure\n[Admin, Lead]
-Submitted --> Flagged : integrity failure\n[Admin, Lead]
-UnderAnalysis --> Flagged : integrity failure\n[Admin, Lead]
-Transferred --> Flagged : integrity failure\n[Admin, Lead]
-Archived --> Flagged : integrity failure\n[Admin, Lead]
+T  --> UA : resume analysis\n[Admin, Lead, Analyst]
 
-Flagged --> UnderAnalysis : issue resolved\n[Admin only]
+C  --> F : integrity failure\n[Admin, Lead]
+S  --> F : integrity failure\n[Admin, Lead]
+UA --> F : integrity failure\n[Admin, Lead]
+T  --> F : integrity failure\n[Admin, Lead]
+AR --> F : integrity failure\n[Admin, Lead]
 
-Archived --> [*]
+F  --> UA : issue resolved\n[Admin only]
 
-note right of Flagged
-  Terminal for all roles except Admin.
-  Entered automatically when the graph
-  integrity verifier returns Broken.
+AR --> [*] : case closed
+
+note right of AR
+  <b>The guard on this transition is the
+  system's central procedural rule.</b>
+  An item cannot be archived until a
+  verification has returned Intact —
+  guarantee G4 in its purest form.
 end note
+
+note bottom of F
+  Reachable from <b>every</b> state,
+  escapable from <b>one</b>, by <b>one</b> role.
+  A Read-Only investigator appears in
+  no guard at all, so the system offers
+  such a user no transitions rather than
+  transitions it would then refuse.
+end note
+
+legend left
+  <b>Notation</b>
+  [Role]      minimum role permitted
+  [condition] precondition guard
+  entry /     action on entering the state
+  do /        ongoing activity
+  14 transitions in total; the five
+  "→ Flagged" edges share one guard.
+endlegend
 @enduml

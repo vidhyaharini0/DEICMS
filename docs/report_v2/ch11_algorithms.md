@@ -330,7 +330,7 @@ The state machine turns the evidence lifecycle from a convention that investigat
 
 ### 11.5.2 The Automaton
 
-Formally the lifecycle is a tuple *(S, R, P, δ)* where *S* is the six-element state set {Collected, Submitted, Under Analysis, Transferred, Archived, Flagged}, *R* is the four-element role set, *P* is a set of precondition predicates over an evidence item, and *δ* is a partial function mapping an ordered state pair to the set of permitted roles and the list of preconditions that must hold. The complete transition table is given in Table 8.9, its per-role availability in Table 8.7, and its visual form in Figure 8.9.
+Formally the lifecycle is a tuple *(S, R, P, δ)* where *S* is the six-element state set {Collected, Submitted, Under Analysis, Transferred, Archived, Flagged}, *R* is the four-element role set, *P* is a set of precondition predicates over an evidence item, and *δ* is a partial function mapping an ordered state pair to the set of permitted roles and the list of preconditions that must hold. The complete transition table is given in Table 8.11, its per-role availability in Table 8.7, and its visual form in Figure 8.9.
 
 Representing the lifecycle as a **table rather than as branching code** was a deliberate choice with three consequences: the whole policy is visible and auditable in one place; adding or changing a transition is a data change rather than a control-flow change; and the table is directly comparable with the state diagram, so drift between model and code is detectable by inspection.
 

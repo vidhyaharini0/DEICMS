@@ -46,9 +46,21 @@ def substitute(text):
             return ("> **[FIGURE %s MISSING — %s]**\n>\n"
                     "> Render `diagrams_plantuml/` to PNG and rebuild." % (num, title))
         stats["figures"] += 1
-        rel = (PNG / name).as_posix()
-        return ("![](%s){width=6.2in}\n\n"
-                "*Figure %s — %s*" % (rel, num, title))
+        path = PNG / name
+        rel = path.as_posix()
+        # fit inside the printable area, preserving aspect ratio, so that
+        # wide diagrams are not shrunk to illegibility by a fixed width
+        MAX_W, MAX_H = 6.3, 8.0          # inches
+        try:
+            from PIL import Image
+            w, h = Image.open(path).size
+            scale = min(MAX_W / w, MAX_H / h)
+            dims = "width=%.2fin height=%.2fin" % (w * scale, h * scale)
+        except Exception:
+            dims = "width=%.2fin" % MAX_W
+        landscape = ""
+        return ("%s![](%s){%s}\n\n"
+                "*Figure %s — %s*" % (landscape, rel, dims, num, title))
 
     text = re.sub(r'\*\*\[FIGURE ([\d.]+) [—-] (.+?)\]\*\*', fig, text)
 

@@ -217,45 +217,94 @@ The catalogue names all forty-one; the four below are specified in full because 
 
 ## 8.4 Structural Model: the Class Diagram
 
-The class diagram takes the **structural perspective** on the application's object model: the classes, their attributes and operations, and the associations between them with their multiplicities.
+### 8.4.1 What a Class Diagram Is For
 
-**[FIGURE 8.3 — Class Diagram]**
+The class diagram takes the **structural perspective on the software design**: the classes the program is built from, their attributes *and their operations*, and the semantic relationships between them.
 
-Six classes correspond to the six domain entities. Three features of the model are worth drawing out, because each encodes a requirement rather than merely a fact about the code.
+The emphasis on operations is not incidental — it is the defining characteristic. A class in the object-oriented sense couples **data with the behaviour that acts on it**; that coupling is what encapsulation means. A diagram of classes that shows only attributes has therefore stopped modelling classes and started modelling records, and Section 8.5.1 explains why that distinction matters enough to warrant two separate diagrams.
 
-**Composition versus association.** The diagram distinguishes *composition* (filled diamond, meaning the part cannot exist without the whole) from plain *association*. A Case composes its Evidence Items and an Evidence Item composes its Custody Logs: an evidence item has no meaning outside a case, and a custody record has no meaning outside the item it describes. By contrast, Audit Records are merely *associated* with the entities they reference, which is deliberate — an audit record must survive the entities it mentions, because the record of what happened to a deleted item is precisely the evidence that must not be destroyed (domain requirement DR-04). The choice of relationship type here is therefore a design decision with a legal justification, not a notational preference.
+**[FIGURE 8.3 — Design Class Diagram]**
 
-**Multiplicity encoding an invariant.** The Evidence Item to Custody Log association is `1 .. 1..*`, not `1 .. 0..*`. An evidence item must have *at least one* custody record. This is requirement FR-12 — the first custody entry is created atomically with the item — expressed in the model, and it is the invariant that makes the graph integrity verifier's assumption of an upload root safe.
+### 8.4.2 What the Diagram Shows
 
-**Two associations between the same pair.** Investigator relates to Evidence Item twice, as *uploader* and as *current holder*, and to Custody Log twice, as *from* and *to*. Labelled association ends are what make such a model readable; without them the diagram would state that investigators and evidence are related without saying how.
+The model is organised into four packages, and the second of them is the one that makes it a design model rather than a schema.
 
-The operations shown are limited to those that carry domain meaning — `verify_signature()`, `compute_hash()`, `accessible_case_ids()` — rather than every accessor. A class diagram that lists every getter documents the language, not the design.
+**Table 8.9 — Packages in the class model**
+
+| Package | Contents | Persistent? |
+|---|---|---|
+| **Framework (inherited)** | `db.Model` (abstract), `UserMixin` | — |
+| **Domain Model** | `Investigator`, `Case`, `EvidenceItem`, `CustodyLog`, `AuditRecord`, `CaseAccess`, plus the `Role` and `LifecycleState` enumerations | Yes — these six have tables |
+| **Analysis Engines** | `GraphIntegrityEngine`, `EvidenceRiskScorer`, `ChainReconstructionEngine`, `EvidenceStateMachine`, `AIInvestigationAssistant` | **No — these have no table at all** |
+| **Result Objects** | `IntegrityReport`, `RiskReport`, `ReconstructionReport`, `TransitionResult`, `AssistantResponse` | **No — transient dataclasses** |
+
+**Ten of the twenty-one classes in this diagram have no database presence whatsoever.** They are where the system's behaviour lives — the five Category C algorithms of Chapter 11 and the structured results they return. A data model cannot represent them, which is the single clearest reason the class diagram and the entity-relationship diagram are not two drawings of the same thing.
+
+### 8.4.3 The UML Constructs Used, and What Each Encodes
+
+**Visibility.** Attributes are marked `-` (private) and operations `+` (public). This encodes encapsulation: `Investigator.password_hash` is private and reachable only through `check_password()`, which is the design decision that makes it impossible for a caller to compare passwords incorrectly.
+
+**Generalisation (inheritance).** Every persistent class generalises the abstract `db.Model`, and `Investigator` additionally generalises the `UserMixin` supplied by Flask-Login — real multiple inheritance, present in the code. Generalisation has **no equivalent in the relational model**: the ER diagram of Figure 8.4 cannot express it, and the six tables each repeat their own key and timestamp columns because relational schemas have no mechanism for sharing them.
+
+**Composition versus association.** The diagram distinguishes *composition* (filled diamond — the part cannot exist without the whole) from plain *association*. A `Case` composes its `EvidenceItem`s and an `EvidenceItem` composes its `CustodyLog`s: an evidence item has no meaning outside a case, and a custody record has no meaning outside the item it describes. By contrast, `AuditRecord` is merely *associated* with the entities it references — deliberately, because an audit record must **survive** the entities it mentions. The record of what happened to a deleted item is precisely the evidence that must not be destroyed (domain requirement DR-04). The choice of relationship type here is a design decision with a legal justification, and the ER diagram cannot make it: a foreign key is a foreign key, whatever the intended lifetime semantics.
+
+**Multiplicity encoding an invariant.** The `EvidenceItem` → `CustodyLog` association is `1 .. 1..*`, not `1 .. 0..*`. An evidence item must have *at least one* custody record. This is requirement FR-12 — the first custody entry is created atomically with the item — expressed in the model, and it is the invariant that makes the graph verifier's assumption of an upload root safe.
+
+**Role names on association ends.** `Investigator` relates to `EvidenceItem` twice, as `uploader` and as `currentHolder`, and to `CustodyLog` twice, as `sender` and `receiver`. Without labelled ends the diagram would state that investigators and evidence are related without saying *how*.
+
+**Dependency with stereotypes.** The engines are connected to the domain by dashed `«use»` arrows and to their results by `«create»` arrows. A dependency is the weakest relationship UML offers — *A needs to know about B, but holds no reference to it* — and it is exactly right here: `GraphIntegrityEngine` is constructed for one verification, uses an `EvidenceItem`, produces an `IntegrityReport`, and is discarded.
+
+One dependency is worth singling out: `EvidenceStateMachine ..> EvidenceRiskScorer`. The state machine triggers a risk recalculation on every transition, because lifecycle state is itself a scoring factor. That is a coupling between two algorithms which exists only in behaviour and appears nowhere in the database.
+
+The operations shown are restricted to those that carry domain meaning. A class diagram that lists every accessor documents the language, not the design.
 
 ## 8.5 Data Model: the Entity-Relationship Diagram
 
-Where the class diagram models objects, the entity-relationship diagram models the **relational realisation** of those objects: tables, columns with their SQL types, primary and foreign keys, and cardinalities in crow's-foot notation.
+### 8.5.1 Class Diagram versus ER Diagram — the Real Difference
+
+These two diagrams are frequently mistaken for notational variants of one another, and in many student reports they genuinely are: the same six boxes drawn twice. They are not variants. They answer different questions, at different levels of abstraction, for different readers, and each can express things the other cannot.
+
+**Table 8.10 — Class diagram compared with entity-relationship diagram**
+
+| Aspect | Class diagram (UML) | Entity-relationship diagram |
+|---|---|---|
+| **Models** | The **software design** — how the program is structured | The **data design** — how the database is structured |
+| **Level of abstraction** | Implementation-independent design; survives a change of database | Tied to the relational model; changes if the storage engine changes |
+| **Unit** | A **class** — data *and* behaviour, encapsulated together | An **entity** — data only |
+| **Operations / methods** | **Central.** A class without behaviour is not really a class | **Absent.** Tables have no methods |
+| **Visibility** | `+` public, `-` private, `#` protected — encapsulation is modelled | No concept. Every column is equally readable |
+| **Inheritance** | **Generalisation is a first-class relationship** | **Cannot be expressed.** Must be simulated (single-table, class-table or concrete-table) |
+| **How relationships are realised** | A **semantic association**: the object holds a reference | A **foreign-key column**, plus a referential-integrity constraint |
+| **Many-to-many** | Drawn directly as `0..*  ——  0..*` | **Impossible directly.** Requires an explicit junction table |
+| **Relationship strength** | Distinguishes association, aggregation and **composition** (lifetime dependency) | One mechanism only — the foreign key, optionally with `ON DELETE CASCADE` |
+| **Cardinality notation** | `1`, `0..1`, `1..*`, `0..*` on association ends | Crow's foot: `||`, `|o`, `|{`, `o{` |
+| **Types** | Conceptual — `str`, `int`, `datetime`, `List<T>` | Concrete SQL — `VARCHAR(150)`, `CHAR(64)`, `BIGINT`, `ENUM` |
+| **Constraints** | Implicit in multiplicity and operations | Explicit: `NOT NULL`, `UNIQUE`, `PK`, `FK`, `CHECK`, indexes |
+| **Transient elements** | **Included** — engines, value objects, enumerations, interfaces | **Excluded.** If it has no table, it does not appear |
+| **Primary reader** | Developers and designers | Database designers and administrators |
+| **Question answered** | *How is the software organised, and what can each part do?* | *How is the data stored, and what guarantees does the store enforce?* |
+
+The two rows in bold type are where the difference becomes concrete in this project.
+
+**Ten classes in Figure 8.3 are absent from Figure 8.4** — the five engines and the five result objects. They are the system's entire Category C contribution, and they are invisible to a data model because they persist nothing.
+
+**One table in Figure 8.4 exists only because the relational model demands it.** `CASE_ACCESS` resolves the many-to-many relationship between investigators and cases. In the class diagram that relationship could simply be drawn as `Investigator 0..* —— 0..* Case`; the relational model has no such construct, so the junction table must be introduced as an entity in its own right. The fact that it *also* carries attributes of the relationship — permission level, grant time, grantor — is what makes it an *associative entity* rather than a pure artefact, and it is why it appears in both diagrams here.
+
+A useful way to hold the distinction: **the ER diagram is what survives if the application is deleted and only the database remains.** Everything in the class diagram that would be lost in that scenario — the behaviour, the encapsulation, the inheritance, the algorithms — is precisely what makes it a different model rather than a redrawing.
+
+### 8.5.2 The Diagram
 
 **[FIGURE 8.4 — Entity-Relationship Diagram]**
 
-The two diagrams describe the same six entities and are related by the object-relational mapping (Section 9.3): the ORM is what makes the class model and the table model two views of one thing rather than two separate designs to be kept in step manually. Where they differ, the difference is informative.
-
-**Table 8.10 — Where the class model and the relational model differ**
-
-| Aspect | Class diagram | ER diagram | Reason |
-|---|---|---|---|
-| Associations | Shown as lines with multiplicity | Realised as foreign-key columns | The relational model has no direct notion of an association |
-| Types | Conceptual (String, Integer) | Concrete SQL (`VARCHAR(150)`, `CHAR(64)`, `BIGINT`) | Storage requires committed widths |
-| Constraints | Implicit in multiplicity | Explicit `NOT NULL`, `UNIQUE`, `PK`, `FK` | Enforced by the database, not by convention |
-| Behaviour | Operations shown | Absent | Tables have no methods |
+Six tables in crow's-foot notation, with SQL types, primary and foreign keys, uniqueness constraints, nullability and indexes. Identifying relationships — where the child is existence-dependent on the parent — are distinguished from non-identifying ones.
 
 Three modelling decisions in the schema deserve comment.
 
 **`original_hash` and `current_hash` are separate columns.** A single `hash` column would be simpler and wrong: the original hash is the fingerprint at intake and must never change, while the current hash tracks the latest verified state. Integrity verification is precisely the comparison of the two, so collapsing them would destroy the system's central capability. This is guarantee G1 realised in the schema.
 
-**`digital_signature` is `NOT NULL`.** An unsigned custody record cannot be represented. This is requirement FR-24, and it is enforced at the strongest available level — the database constraint — rather than by application logic that could be bypassed.
+**`digital_signature` is `NOT NULL`.** An unsigned custody record cannot be represented at all. This is requirement FR-24 enforced at the strongest available level — a database constraint — rather than by application logic that a future code path could bypass.
 
-**`CASE_ACCESS` is an associative entity, not a column.** Case membership could have been modelled as a column on the investigator, but that would permit exactly one case per investigator. The associative table resolves the many-to-many relationship and additionally carries attributes of the *relationship itself* — the permission level, when access was granted and by whom — which have nowhere to live in either of the entities it joins. It is also, as Section 5.4 records, the single table that made the M1 fix possible.
-
+**`AUDIT_RECORDS` is marked insert-only.** The constraint is not expressible in standard DDL, so it is enforced one layer up by ORM event listeners (Section 10.2) and recorded on the diagram as an annotation. This is an honest admission of a limit of the notation: the ER diagram can show *what is stored* but not *what the application refuses to do to it*.
 ## 8.6 Interaction Models: Sequence Diagrams
 
 Sequence diagrams take the **interaction perspective**, showing the messages exchanged between participants ordered down the vertical time axis. They answer *how do the parts cooperate to achieve this?* — a question neither a structural nor a purely behavioural diagram can answer.
@@ -314,7 +363,7 @@ Six states are shown, connected by fourteen transitions. Every transition is ann
 
 The transition table contains **fourteen entries**; the ten rows below present them, with the five *any state → Flagged* entries collapsed into one row for readability.
 
-**Table 8.9 — The transition table in tabular form**
+**Table 8.11 — The transition table in tabular form**
 
 | From | To | Permitted roles | Guard |
 |---|---|---|---|
@@ -362,7 +411,7 @@ This diagram documents the development configuration honestly rather than an asp
 
 ## 8.10 Diagram Index
 
-**Table 8.11 — Complete diagram index**
+**Table 8.12 — Complete diagram index**
 
 | Figure | Diagram | Type | Perspective | Produced in | Source file |
 |---|---|---|---|---|---|
