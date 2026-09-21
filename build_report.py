@@ -72,6 +72,101 @@ def balance_table_widths(text):
     flush()
     return "\n".join(out)
 
+
+def set_table_column_widths(docx_path, usable_twips=9180):
+    """
+    Give every table an explicit column grid.
+
+    Pandoc only records relative column widths for a pipe table when the
+    table's longest CONTENT line exceeds --columns (72 by default). Tables
+    whose cells are all short therefore come out with <w:tblW w="0"/> and an
+    empty <w:tblGrid>, which Word and LibreOffice render as a single
+    collapsed column. Rather than depend on that heuristic, measure each
+    column from its own cell text and write the grid directly.
+    """
+    from docx import Document
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    doc = Document(docx_path)
+    fixed = 0
+
+    for tbl in doc.element.body.iter(qn('w:tbl')):
+        trs = tbl.findall(qn('w:tr'))
+        if not trs:
+            continue
+
+        # measure: mean visible text length per column
+        lens = {}
+        ncol = 0
+        for tr in trs:
+            tcs = tr.findall(qn('w:tc'))
+            ncol = max(ncol, len(tcs))
+            for j, tc in enumerate(tcs):
+                txt = "".join(n.text or "" for n in tc.iter(qn('w:t')))
+                lens.setdefault(j, []).append(len(txt.strip()))
+        if ncol < 2:
+            continue
+
+        weights = []
+        for j in range(ncol):
+            vals = lens.get(j) or [1]
+            mean = sum(vals) / len(vals)
+            # soften the ratio so a long prose column does not starve the rest
+            weights.append(max(4.0, mean + 2) ** 0.8)
+        total = sum(weights)
+        # floor every column at 6% of the table so nothing collapses
+        prop = [max(0.06, w / total) for w in weights]
+        s = sum(prop)
+        prop = [p / s for p in prop]
+
+        # --- tblPr: width = 100% ---
+        tblPr = tbl.find(qn('w:tblPr'))
+        if tblPr is None:
+            tblPr = OxmlElement('w:tblPr')
+            tbl.insert(0, tblPr)
+        for old in tblPr.findall(qn('w:tblW')):
+            tblPr.remove(old)
+        tblW = OxmlElement('w:tblW')
+        tblW.set(qn('w:w'), '5000')
+        tblW.set(qn('w:type'), 'pct')
+        tblPr.append(tblW)
+        for old in tblPr.findall(qn('w:tblLayout')):
+            tblPr.remove(old)
+        layout = OxmlElement('w:tblLayout')
+        layout.set(qn('w:type'), 'fixed')
+        tblPr.append(layout)
+
+        # --- tblGrid ---
+        for old in tbl.findall(qn('w:tblGrid')):
+            tbl.remove(old)
+        grid = OxmlElement('w:tblGrid')
+        for pr in prop:
+            gc = OxmlElement('w:gridCol')
+            gc.set(qn('w:w'), str(int(pr * usable_twips)))
+            grid.append(gc)
+        tblPr.addnext(grid)
+
+        # --- per-cell widths, so Word cannot re-flow them ---
+        for tr in trs:
+            for j, tc in enumerate(tr.findall(qn('w:tc'))):
+                if j >= ncol:
+                    continue
+                tcPr = tc.find(qn('w:tcPr'))
+                if tcPr is None:
+                    tcPr = OxmlElement('w:tcPr')
+                    tc.insert(0, tcPr)
+                for old in tcPr.findall(qn('w:tcW')):
+                    tcPr.remove(old)
+                tcW = OxmlElement('w:tcW')
+                tcW.set(qn('w:w'), str(int(prop[j] * 5000)))
+                tcW.set(qn('w:type'), 'pct')
+                tcPr.insert(0, tcW)
+        fixed += 1
+
+    doc.save(docx_path)
+    return fixed
+
 def chapters():
     return sorted(SRC.glob("ch*.md"), key=lambda p: p.name)
 
@@ -153,10 +248,13 @@ def main():
     subprocess.run(cmd, check=True)
     tmp.unlink()
 
+    n_tables = set_table_column_widths(OUT)
+
     print("Wrote %s (%.1f MB)" % (OUT.name, OUT.stat().st_size / 1e6))
     print("  diagrams embedded : %d" % totals["figures"])
     print("  screenshot slots  : %d" % totals["screenshots"])
     print("  code listing slots: %d" % totals["listings"])
+    print("  tables given explicit column widths: %d" % n_tables)
 
     # ---- page budget -------------------------------------------------
     # Hard limit set by the submission: 150 pages. The placeholders are one
