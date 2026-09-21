@@ -95,11 +95,15 @@ U22 ..> U20 : <<extend>>
 U23 ..> U20 : <<extend>>
 
 note right of ADM
-  Actor generalisation: each role
-  inherits every use case of the
-  role below it, and the arrows
-  show only what it <b>adds</b>.
-  Admin (41) > Lead (28)
-  > Analyst (24) > Read-Only (23).
+  <b>Actor generalisation.</b> Each actor is joined
+  only to what it <b>adds</b>; it inherits everything
+  belonging to the actor below it.
+
+  So the Administrator owns <b>all 41</b> use cases,
+  not the two drawn against it here.
+
+  Totals:  Admin <b>41</b>  >  Lead <b>32</b>
+           >  Analyst <b>25</b>  >  Read-Only <b>23</b>
+  Full enumeration: Table 8.6.
 end note
 @enduml

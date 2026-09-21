@@ -60,7 +60,7 @@ All diagrams were produced in **PlantUML**, a text-based notation from which the
 
 The use-case model takes the **external perspective**: it shows the boundary of the system, the actors outside it, and the services it offers them. It answers *who uses this system and what for?* and deliberately says nothing about how any of it works.
 
-The system has **forty-one use cases**, which is too many for one readable diagram — and readability matters here for a practical reason: a diagram that cannot be redrawn by hand is not a communication artefact. The model is therefore split across two figures along the natural seam between *working with evidence* and *analysing and administering it*, and both use **actor generalisation** to exploit the strict nesting of role capability established in Table 8.6.
+The system has **forty-one use cases**, which is too many for one readable diagram — and readability matters here for a practical reason: a diagram that cannot be redrawn by hand is not a communication artefact. The model is therefore split across two figures along the natural seam between *working with evidence* and *analysing and administering it*, and both use **actor generalisation** to exploit the strict nesting of role capability established in Table 8.7.
 
 **[FIGURE 8.1 — Use Case Diagram (a): Authentication, Cases, Evidence and Custody]**
 
@@ -68,7 +68,9 @@ The system has **forty-one use cases**, which is too many for one readable diagr
 
 Four actors correspond exactly to the four roles of the access-control model and the four personas of Section 7.2, and they are connected by **generalisation** rather than drawn independently: the Analyst generalises the Read-Only Auditor, the Lead Investigator generalises the Analyst, and the Administrator generalises the Lead Investigator. Each actor is therefore joined only to the use cases it **adds** to the role beneath it, and inherits the rest.
 
-This is the correct UML construction for a nesting role model and it has a large practical benefit: instead of 116 association lines it needs 33, and the inheritance triangles themselves communicate the policy — *an Administrator can do everything a Lead can, and more* — which a flat diagram states only by exhaustion.
+This is the correct UML construction for a nesting role model and it has a large practical benefit: instead of 121 association lines it needs 41, and the inheritance triangles themselves communicate the policy — *an Administrator can do everything a Lead can, and more* — which a flat diagram states only by exhaustion.
+
+**One consequence must be read carefully.** Because each actor is joined only to what it *adds*, the Administrator has few lines drawn against it — two in Figure 8.1 and seven in Figure 8.2 — yet it holds **all forty-one use cases**. The arrows show the *increment*, not the total. The totals are Administrator **41**, Lead Investigator **32**, Analyst **25**, Read-Only Auditor **23**, and every one is enumerated explicitly in Table 8.6.
 
 Two relationship types appear. The **«include»** relationships show behaviour that is always part of the including use case: registering evidence, transferring custody and verifying integrity all include an authenticated session, because none can occur without one; exporting a signed package includes verifying integrity, because the export is worthless if the chain it certifies has not been checked. The **«extend»** relationship shows optional behaviour: reconstructing a custody chain extends verification, because reconstruction is invoked only when verification reveals gaps.
 
@@ -83,6 +85,8 @@ A use-case diagram names the services; this section specifies them. The catalogu
 Two authorisation dimensions apply independently, as established in Section 10.3.3. The **role guard** answers *what kind of action may this user perform?*; the **case guard** answers *on which data?*. A use case may carry one, both, or neither.
 
 ### 8.3.1 Authorisation Legend
+
+**Table 8.4 — Authorisation notation**
 
 **Role guard** — *(none)* no authentication · **Any** any authenticated investigator · **Analyst+** `can_analyse()` · **Lead+** `can_manage()` · **Admin** `is_admin()` · **Holder** the item's current custodian or an Admin · **Owner** an Admin or the case's Owner.
 **Case guard** — **Member** must belong to the case (Admin exempt) · **Scoped** permitted for all, but the data returned is filtered to accessible cases.
@@ -145,22 +149,34 @@ Two authorisation dimensions apply independently, as established in Section 10.3
 
 ### 8.3.3 Use Cases by Role
 
-The same catalogue, inverted. This is the view that answers *what can this person actually do?* and it is the form in which the least-privilege claim is checkable.
+The same catalogue, inverted. This is the view that answers *what can this person actually do?*, and it is the form in which the least-privilege claim is checkable. Every use case is enumerated explicitly rather than given as a range, because a range invites exactly the arithmetic error it is meant to save.
 
 **Table 8.6 — Use cases available to each role**
 
 | Role | Count | Use cases |
 |---|---|---|
-| **Administrator** | **41 of 41** | Every use case. The only role that may archive a case (UC-11), soft-delete evidence (UC-17), read the global audit trail (UC-28), or perform any of the six administration use cases (UC-36 to UC-41). Exempt from case-membership guards throughout |
-| **Lead Investigator** | **28 of 41** | UC-01 to UC-10, UC-12 to UC-16, UC-18 to UC-27, UC-29 to UC-35 — subject to case membership. **Cannot:** archive a case, soft-delete evidence, read the global audit trail, or perform any administration use case |
-| **Analyst** | **24 of 41** | UC-01 to UC-07, UC-09, UC-15, UC-18 to UC-27, UC-29, UC-30, UC-32 to UC-35 — subject to case membership. **Cannot:** create or edit cases, manage case membership, upload or edit evidence, export a case package, or perform any administration use case |
-| **Read-Only Auditor** | **23 of 41** | UC-01 to UC-07, UC-09, UC-15, UC-19 to UC-22, UC-24 to UC-27, UC-29, UC-30, UC-32 to UC-35 — subject to case membership. **Cannot:** transfer custody (UC-18), change lifecycle state (UC-23), or do anything the Analyst cannot |
+| **Administrator** | **41 of 41** | UC-01 · 02 · 03 · 04 · 05 · 06 · 07 · 08 · 09 · 10 · **11** · 12 · 13 · 14 · 15 · 16 · **17** · 18 · 19 · 20 · 21 · 22 · 23 · 24 · 25 · 26 · 27 · **28** · 29 · 30 · 31 · 32 · 33 · 34 · 35 · **36** · **37** · **38** · **39** · **40** · **41** |
+| **Lead Investigator** | **32 of 41** | UC-01 · 02 · 03 · 04 · 05 · 06 · 07 · 08 · 09 · 10 · 12 · 13 · 14 · 15 · 16 · 18 · 19 · 20 · 21 · 22 · 23 · 24 · 25 · 26 · 27 · 29 · 30 · 31 · 32 · 33 · 34 · 35 |
+| **Analyst** | **25 of 41** | UC-01 · 02 · 03 · 04 · 05 · 06 · 07 · 09 · 15 · 18 · 19 · 20 · 21 · 22 · 23 · 24 · 25 · 26 · 27 · 29 · 30 · 32 · 33 · 34 · 35 |
+| **Read-Only Auditor** | **23 of 41** | UC-01 · 02 · 03 · 04 · 05 · 06 · 07 · 09 · 15 · 19 · 20 · 21 · 22 · 24 · 25 · 26 · 27 · 29 · 30 · 32 · 33 · 34 · 35 |
 
-The nesting of role capability is visible in the counts: 41 ⊃ 28 ⊃ 24 ⊃ 23. This strict nesting is what allows the entire role policy to be expressed in the three predicates of Section 10.3.3 rather than in a permission matrix, and it is the reason the numbers are worth stating — a policy that did not nest would require a far larger and more error-prone structure.
+All rows except the Administrator's are additionally subject to case membership: the role decides *what kind of action*, the membership decides *on which data* (Section 10.3.3).
 
-The difference between the Analyst and the Read-Only Auditor is exactly two use cases, UC-18 and UC-23, and both are custody actions. That is the correct distinction for the domain: an auditor may *examine* a chain of custody in every respect but may not *participate* in it.
+**Table 8.7 — What each role adds to the one below it**
 
-**Table 8.7 — Lifecycle transitions available within UC-23, by role**
+| Step | Adds | Use cases added |
+|---|---|---|
+| Read-Only → **Analyst** | Participation in the chain of custody | UC-18 transfer custody · UC-23 change lifecycle state |
+| Analyst → **Lead Investigator** | Ownership of cases and evidence | UC-08 create a case · UC-10 edit case metadata · UC-12 grant access · UC-13 revoke access · UC-14 upload evidence · UC-16 edit evidence · UC-31 export a signed package |
+| Lead → **Administrator** | System oversight and destructive operations | UC-11 archive a case · UC-17 soft-delete evidence · UC-28 global audit trail · UC-36 list accounts · UC-37 create account · UC-38 change role · UC-39 activate/deactivate · UC-40 unlock · UC-41 configure risk weights |
+
+The capability sets **strictly nest**: 41 ⊃ 32 ⊃ 25 ⊃ 23. Every use case available to a lower role is available to every higher one, with no exceptions. This is what allows the entire role policy to be expressed in the three predicates of Section 10.3.3 rather than in a permission matrix, and it is why the counts are worth stating — a policy that did not nest would need a far larger and more error-prone structure.
+
+The **Administrator is the only role with no restriction of any kind**. It satisfies all three role predicates; `CaseAccess.get_permission` returns `'Admin'` for every case, so no case-membership guard applies to it; it appears in every row of the lifecycle transition table including the two Admin-only rows; and the current-holder check on custody transfer is explicitly waived for it. Nine use cases are Admin-exclusive, and they divide into two kinds: the **destructive** (UC-11, UC-17), and the **oversight and account-management** (UC-28, UC-36 to UC-41).
+
+The difference between the Analyst and the Read-Only Auditor is exactly two use cases, and both are custody actions. That is the correct distinction for the domain: an auditor may *examine* a chain of custody in every respect — including running a fresh verification and a reconstruction — but may not *participate* in it.
+
+**Table 8.8 — Lifecycle transitions available within UC-23, by role**
 
 | Transition | Admin | Lead | Analyst | Read-Only |
 |---|---|---|---|---|
@@ -175,7 +191,7 @@ The difference between the Analyst and the Read-Only Auditor is exactly two use 
 | *any state* → Flagged | ✔ | ✔ | — | — |
 | Flagged → Under Analysis | ✔ | — | — | — |
 
-A Read-Only investigator has **no row at all**, which is why the system presents such a user with no available transitions rather than offering transitions that would be refused. That is a deliberate interface choice: offering an action the system will reject teaches the user nothing except that the interface is not to be trusted.
+A Read-Only investigator has **no row at all**, which is why the system presents such a user with no available transitions rather than offering transitions it would then refuse. Offering an action the system will reject teaches the user nothing except that the interface is not to be trusted.
 
 ### 8.3.4 Two Findings from Deriving This Catalogue
 
@@ -191,7 +207,7 @@ This is defensible and is not a defect: verifying a chain of custody is precisel
 
 The catalogue names all forty-one. The two below are specified in full because they carry the system's central obligations; the remainder follow the same template and derive from the acceptance criteria in Sections 7.5 and 7.6.
 
-**Table 8.8 — Structured use-case descriptions**
+**Table 8.9 — Structured use-case descriptions**
 
 | Field | UC-14 Register Evidence | UC-20 Verify Integrity |
 |---|---|---|
@@ -218,7 +234,7 @@ The emphasis on operations is not incidental — it is the defining characterist
 
 The model is organised into four packages, and the second of them is the one that makes it a design model rather than a schema.
 
-**Table 8.9 — Packages in the class model**
+**Table 8.10 — Packages in the class model**
 
 | Package | Contents | Persistent? |
 |---|---|---|
@@ -253,7 +269,7 @@ The operations shown are restricted to those that carry domain meaning. A class 
 
 These two diagrams are frequently mistaken for notational variants of one another, and in many student reports they genuinely are: the same six boxes drawn twice. They are not variants. They answer different questions, at different levels of abstraction, for different readers, and each can express things the other cannot.
 
-**Table 8.10 — Class diagram compared with entity-relationship diagram**
+**Table 8.11 — Class diagram compared with entity-relationship diagram**
 
 | Aspect | Class diagram (UML) | Entity-relationship diagram |
 |---|---|---|
@@ -352,7 +368,7 @@ Six states are shown, connected by fourteen transitions. Every transition is ann
 
 The transition table contains **fourteen entries**; the ten rows below present them, with the five *any state → Flagged* entries collapsed into one row for readability.
 
-**Table 8.11 — The transition table in tabular form**
+**Table 8.12 — The transition table in tabular form**
 
 | From | To | Permitted roles | Guard |
 |---|---|---|---|
@@ -400,7 +416,7 @@ This diagram documents the development configuration honestly rather than an asp
 
 ## 8.10 Diagram Index
 
-**Table 8.12 — Complete diagram index**
+**Table 8.13 — Complete diagram index**
 
 | Figure | Diagram | Type | Perspective | Produced in | Source file |
 |---|---|---|---|---|---|

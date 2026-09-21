@@ -82,12 +82,16 @@ U32 ..> U20 : <<include>>
 U34 ..> U33 : <<include>>
 
 note right of ADM
-  The Analyst adds no use case in
-  this area: analysis and reporting
-  are <b>read</b> activities, available
-  to every role within its accessible
-  cases. The Analyst's two extra
-  use cases are both custody
-  actions, shown in Figure 8.1.
+  <b>Actor generalisation</b> — each actor is joined
+  only to what it <b>adds</b> (see Figure 8.1).
+
+  The Analyst adds nothing in this area: analysis
+  and reporting are <b>read</b> activities available to
+  every role within its accessible cases. The
+  Analyst's two extra use cases are both custody
+  actions, in Figure 8.1.
+
+  Seven of the nine <b>Admin-exclusive</b> use cases
+  are here: UC-28 and UC-36 to UC-41.
 end note
 @enduml
