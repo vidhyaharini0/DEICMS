@@ -80,10 +80,21 @@ Two authorisation dimensions apply independently, as established in Section 10.3
 
 ### 8.3.1 Authorisation Legend
 
-**Table 8.4 - Authorisation notation**
+Two authorisation dimensions apply independently, as established in Section 10.3.3. The **role guard** answers *what kind of action may this user perform?*; the **case guard** answers *on which data?*. A use case may carry one, both, or neither.
 
-**Role guard** - *(none)* no authentication · **Any** any authenticated investigator · **Analyst+** `can_analyse()` · **Lead+** `can_manage()` · **Admin** `is_admin()` · **Holder** the item's current custodian or an Admin · **Owner** an Admin or the case's Owner.
-**Case guard** - **Member** must belong to the case (Admin exempt) · **Scoped** permitted for all, but the data returned is filtered to accessible cases.
+**Table 8.4 - Authorisation notation used in the catalogue**
+
+| Dimension | Notation | Meaning | Implemented as |
+|---|---|---|---|
+| Role | *(none)* | No authentication required | Route reachable before login |
+| Role | **Any** | Any authenticated investigator | `@login_required` only |
+| Role | **Analyst+** | Admin, Lead Investigator or Analyst | `can_analyse()` |
+| Role | **Lead+** | Admin or Lead Investigator | `can_manage()` |
+| Role | **Admin** | Administrator only | `is_admin()` |
+| Role | **Holder** | The item's current custodian, or an Admin | Explicit holder check |
+| Role | **Owner** | An Admin, or the case's Owner | `CaseAccess.can_manage_members()` |
+| Case | **Member** | Must belong to the case (Admin exempt) | `CaseAccess.can_access()` |
+| Case | **Scoped** | Permitted for all, but the data returned is filtered to the viewer's accessible cases | `accessible_case_ids()` applied to the query |
 
 ### 8.3.2 The Catalogue
 
