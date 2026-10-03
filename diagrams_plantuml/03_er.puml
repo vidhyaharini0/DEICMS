@@ -1,168 +1,72 @@
 @startuml
-' Figure 8.4 - DEICMS Entity-Relationship Diagram (crow's foot notation)
-' A DATA model: tables, columns, SQL types, keys, constraints and cardinality.
-' NO operations, NO inheritance, NO transient classes. Contrast with Figure 8.3.
+' Figure 8.3 - Entity-Relationship Diagram
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 11
+skinparam defaultFontSize 12
 skinparam backgroundColor white
-skinparam linetype ortho
 hide circle
 hide methods
 
-!define PK  <b>PK</b>
-!define FK  <i>FK</i>
-
-entity "INVESTIGATORS" as INV {
-  PK id : INTEGER  <<AUTOINCREMENT>>
-  ==
-  * full_name : VARCHAR(150)
-  * email : VARCHAR(150)  <<UNIQUE>>
-  * password_hash : VARCHAR(256)
-  * role : ENUM(4)
+entity INVESTIGATORS {
+  * id : PK
   --
-  public_key : TEXT
-  private_key_encrypted : TEXT
-  totp_secret : VARCHAR(255)
-  * is_active : BOOLEAN  <<DEFAULT 1>>
-  * failed_login_count : INTEGER  <<DEFAULT 0>>
-  locked_until : DATETIME
-  * created_at : DATETIME
-  * updated_at : DATETIME
-  ..
-  <i>IDX  (email)</i>
+  * email : VARCHAR (UQ)
+  * password_hash : VARCHAR
+  * role : ENUM
 }
 
-entity "CASES" as CASE {
-  PK id : INTEGER  <<AUTOINCREMENT>>
-  ==
-  * case_number : VARCHAR(50)  <<UNIQUE>>
-  * title : VARCHAR(200)
-  description : TEXT
-  jurisdiction : VARCHAR(150)
-  * status : ENUM(5)
-  * is_archived : BOOLEAN  <<DEFAULT 0>>
-  * date_opened : DATE
-  date_closed : DATE
+entity CASES {
+  * id : PK
   --
-  FK * created_by_id : INTEGER
-  FK   assigned_to_id : INTEGER
-  ..
-  <i>IDX  (case_number), (status)</i>
+  * case_number : VARCHAR (UQ)
+  * title : VARCHAR
+  * status : ENUM
+  * created_by_id : FK
 }
 
-entity "EVIDENCE_ITEMS" as EV {
-  PK id : INTEGER  <<AUTOINCREMENT>>
-  ==
-  * evidence_number : VARCHAR(50)  <<UNIQUE>>
-  * title : VARCHAR(200)
-  description : TEXT
-  * category : ENUM(7)
-  * lifecycle_state : ENUM(6)
-  * file_name : VARCHAR(255)
-  * file_path : VARCHAR(500)
-  file_size : BIGINT
-  file_mime_type : VARCHAR(100)
+entity EVIDENCE_ITEMS {
+  * id : PK
+  --
+  * case_id : FK
+  * evidence_number : VARCHAR (UQ)
   * original_hash : CHAR(64)
-  * current_hash : CHAR(64)
-  exif_metadata : TEXT
-  risk_score : FLOAT
-  risk_level : ENUM(3)
-  integrity_status : ENUM(3)
-  * is_deleted : BOOLEAN  <<DEFAULT 0>>
-  --
-  FK * case_id : INTEGER
-  FK * uploaded_by_id : INTEGER
-  FK   current_holder_id : INTEGER
-  ..
-  <i>IDX  (case_id), (evidence_number)</i>
+  * lifecycle_state : ENUM
+  * uploaded_by_id : FK
 }
 
-entity "CUSTODY_LOGS" as CL {
-  PK id : INTEGER  <<AUTOINCREMENT>>
-  ==
-  * event_type : ENUM(4)
-  * timestamp : DATETIME
-  location : VARCHAR(200)
-  reason : TEXT
-  * file_hash_at_event : CHAR(64)
-  * digital_signature : TEXT
-  notes : TEXT
+entity CUSTODY_LOGS {
+  * id : PK
   --
-  FK * evidence_id : INTEGER
-  FK   from_investigator_id : INTEGER
-  FK   to_investigator_id : INTEGER
-  ..
-  <i>IDX  (evidence_id, timestamp)</i>
-}
-
-entity "AUDIT_RECORDS" as AR {
-  PK id : INTEGER  <<AUTOINCREMENT>>
-  ==
+  * evidence_id : FK
   * event_type : ENUM
-  * description : TEXT
-  ip_address : VARCHAR(50)
-  * result : ENUM(3)
-  integrity_check_result : TEXT
   * timestamp : DATETIME
-  --
-  FK   investigator_id : INTEGER
-  FK   evidence_id : INTEGER
-  FK   case_id : INTEGER
-  ..
-  <i>INSERT-ONLY (no UPDATE / DELETE)</i>
+  * digital_signature : TEXT
 }
 
-entity "CASE_ACCESS" as CA {
-  PK id : INTEGER  <<AUTOINCREMENT>>
-  ==
-  * permission : ENUM(3)
-  * granted_at : DATETIME
+entity AUDIT_RECORDS {
+  * id : PK
   --
-  FK * case_id : INTEGER
-  FK * investigator_id : INTEGER
-  FK   granted_by_id : INTEGER
-  ..
-  <i>UQ  (case_id, investigator_id)</i>
+  investigator_id : FK
+  evidence_id : FK
+  * result : ENUM
+  * timestamp : DATETIME
 }
 
-' ---- Identifying relationships (child is existence-dependent) ----
-CASE ||--o{ EV : "contains"
-EV   ||--|{ CL : "is logged by"
+entity CASE_ACCESS {
+  * id : PK
+  --
+  * case_id : FK
+  * investigator_id : FK
+  * permission : ENUM
+}
 
-' ---- Non-identifying relationships ----
-INV ||--o{ CASE : "creates"
-INV |o--o{ CASE : "is assigned"
-INV ||--o{ EV   : "uploads"
-INV |o--o{ EV   : "currently holds"
-INV |o--o{ CL   : "transfers from"
-INV |o--o{ CL   : "transfers to"
-INV ||--o{ AR   : "performs"
-EV  |o--o{ AR   : "concerns"
-CASE |o--o{ AR  : "concerns"
-
-' ---- Many-to-many, resolved by a junction table ----
-CASE ||--o{ CA : ""
-INV  ||--o{ CA : ""
-
-note as N1
-  <b>Crow's-foot cardinality</b>
-    ||  exactly one          |o  zero or one
-    |{  one or more          o{  zero or more
-
-  <b>Column notation</b>
-    *   NOT NULL             PK  primary key
-    FK  foreign key          UQ  unique constraint
-    IDX index
-
-  <b>CASE_ACCESS</b> is a junction table resolving the
-  many-to-many between INVESTIGATORS and CASES. A
-  relational model cannot express many-to-many directly;
-  the class diagram (Figure 8.3) does not need it as a
-  separate concept at all.
-
-  <b>Nothing here has behaviour.</b> Every operation shown
-  in Figure 8.3 is absent, because tables have no methods.
-end note
+INVESTIGATORS ||--o{ CASES
+INVESTIGATORS ||--o{ EVIDENCE_ITEMS
+INVESTIGATORS ||--o{ AUDIT_RECORDS
+INVESTIGATORS ||--o{ CASE_ACCESS
+CASES         ||--o{ EVIDENCE_ITEMS
+CASES         ||--o{ CASE_ACCESS
+EVIDENCE_ITEMS ||--|{ CUSTODY_LOGS
+EVIDENCE_ITEMS ||--o{ AUDIT_RECORDS
 @enduml

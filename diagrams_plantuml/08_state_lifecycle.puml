@@ -1,0 +1,29 @@
+@startuml
+' Figure 8.8 - State Machine Diagram: Evidence Lifecycle
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+state "Under Analysis" as UA
+
+[*] --> Collected
+
+Collected --> Submitted   : submit [Lead]
+Collected --> Transferred : transfer
+Submitted --> UA          : analyse\n[needs custody log]
+Submitted --> Transferred : transfer
+UA        --> Transferred : transfer
+Transferred --> UA        : resume
+UA        --> Archived    : archive\n[needs Intact verdict]
+
+Collected   --> Flagged : integrity failure
+Submitted   --> Flagged : integrity failure
+UA          --> Flagged : integrity failure
+Transferred --> Flagged : integrity failure
+Archived    --> Flagged : integrity failure
+
+Flagged --> UA : resolved [Admin]
+Archived --> [*]
+@enduml

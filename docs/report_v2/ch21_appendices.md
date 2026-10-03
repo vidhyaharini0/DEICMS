@@ -66,7 +66,7 @@ All routes require authentication except `/login` and `/verify-otp`.
 
 ## Appendix C — Database Schema Reference
 
-The full schema — columns, SQL types, keys, constraints, cardinalities and indexes — is given graphically in **Figure 8.4**. This appendix records only the constraints that carry domain meaning and are therefore referenced elsewhere in the report.
+The full schema — columns, SQL types, keys, constraints, cardinalities and indexes — is given graphically in **Figure 8.3**. This appendix records only the constraints that carry domain meaning and are therefore referenced elsewhere in the report.
 
 | Table | Constraint | Why it matters |
 |---|---|---|

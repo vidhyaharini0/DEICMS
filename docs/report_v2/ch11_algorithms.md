@@ -316,7 +316,7 @@ END
 
 **Three-way labelling is the algorithm's central honesty guarantee.** Every link is *Confirmed*, *Inferred* or *Unresolved*; an inferred record is visibly distinguished from a confirmed one and is never presented as fact. This directly addresses the risk, identified in the project proposal, that a reconstruction might mislead an investigator into treating an estimate as certainty, and it is domain requirement DR-07 in executable form.
 
-The plausibility threshold of 0.40 is what makes the guarantee real. An algorithm optimised to look impressive would lower the threshold and always produce a complete chain; this one refuses to infer a link it cannot justify, which is why three separate paths through Figure 8.8 end in an admission of failure.
+The plausibility threshold of 0.40 is what makes the guarantee real. An algorithm optimised to look impressive would lower the threshold and always produce a complete chain; this one refuses to infer a link it cannot justify, which is why three separate paths through Figure 8.7 end in an admission of failure.
 
 **Complexity.** Linear in the number of confirmed records for gap detection, plus, for each gap, a scan of the access-log events within that gap's window: *O(n + Σ|C_g|)* where *C_g* is the candidate set for gap *g*. The four criteria are constant-time per candidate.
 
@@ -330,7 +330,7 @@ The state machine turns the evidence lifecycle from a convention that investigat
 
 ### 11.5.2 The Automaton
 
-Formally the lifecycle is a tuple *(S, R, P, δ)* where *S* is the six-element state set {Collected, Submitted, Under Analysis, Transferred, Archived, Flagged}, *R* is the four-element role set, *P* is a set of precondition predicates over an evidence item, and *δ* is a partial function mapping an ordered state pair to the set of permitted roles and the list of preconditions that must hold. The complete transition table is given in Table 8.11, its per-role availability in Table 8.7, and its visual form in Figure 8.9.
+Formally the lifecycle is a tuple *(S, R, P, δ)* where *S* is the six-element state set {Collected, Submitted, Under Analysis, Transferred, Archived, Flagged}, *R* is the four-element role set, *P* is a set of precondition predicates over an evidence item, and *δ* is a partial function mapping an ordered state pair to the set of permitted roles and the list of preconditions that must hold. The complete transition table is given in Table 8.11, its per-role availability in Table 8.7, and its visual form in Figure 8.8.
 
 Representing the lifecycle as a **table rather than as branching code** was a deliberate choice with three consequences: the whole policy is visible and auditable in one place; adding or changing a transition is a data change rather than a control-flow change; and the table is directly comparable with the state diagram, so drift between model and code is detectable by inspection.
 
@@ -391,7 +391,7 @@ Its correctness is what allows the rest of the system to trust a claim it could 
 
 The assistant lets an investigator ask questions in natural language — *"what is the risk score for evidence seven?"*, *"who has held this item?"*, *"what are my cases?"* — and receive answers grounded in the actual database rather than in the model's imagination.
 
-The language model itself is a Category B service. What the project contributes, and what makes this Category C, is the **orchestration workflow around it**: the logic that decides what the question is about, retrieves exactly the right data while respecting access boundaries, constructs a prompt, and — critically — validates and fact-checks the answer before showing it. Figure 8.6 makes the proportion visible: the model call is one message in the middle; five of the six stages are the project's own.
+The language model itself is a Category B service. What the project contributes, and what makes this Category C, is the **orchestration workflow around it**: the logic that decides what the question is about, retrieves exactly the right data while respecting access boundaries, constructs a prompt, and — critically — validates and fact-checks the answer before showing it. Figure 8.5 makes the proportion visible: the model call is one message in the middle; five of the six stages are the project's own.
 
 ### 11.6.2 The Six Stages
 

@@ -41,7 +41,7 @@ Full acceptance criteria for every story are given in Section 7.5 and Appendix A
 
 ### 5.1.3 UML Artefacts Produced
 
-The use-case diagram (Figure 8.1), the class diagram (Figure 8.3) and the entity-relationship diagram (Figure 8.4), all presented in Chapter 8.
+The use-case diagram (Figure 8.1), the class diagram (Figure 8.2) and the entity-relationship diagram (Figure 8.3), all presented in Chapter 8.
 
 ### 5.1.4 Sprint Review
 
@@ -98,7 +98,7 @@ Two of the six stories carried the bulk of the increment's weight and its risk; 
 
 ### 5.2.3 UML Artefacts Produced
 
-The sequence diagram of graph integrity verification (Figure 8.5), the state machine diagram of the evidence lifecycle (Figure 8.9) and the activity diagram of chain reconstruction (Figure 8.8), all presented in Chapter 8. Because this increment's work is algorithmic, its artefacts are behavioural rather than structural.
+The sequence diagram of graph integrity verification (Figure 8.4), the state machine diagram of the evidence lifecycle (Figure 8.8) and the activity diagram of chain reconstruction (Figure 8.7), all presented in Chapter 8. Because this increment's work is algorithmic, its artefacts are behavioural rather than structural.
 
 ### 5.2.4 Sprint Review
 
@@ -156,7 +156,7 @@ This was the largest increment. It contains two of the project's five complex al
 
 ### 5.3.3 UML Artefacts Produced
 
-The activity diagram of risk scoring (Figure 8.7), the sequence diagram of the AI orchestration workflow (Figure 8.6), and the component and deployment diagrams of the whole system (Figures 8.10 and 8.10), all presented in Chapter 8. The last two were completed in this increment because only now were all the modules in place to be drawn.
+The activity diagram of risk scoring (Figure 8.6), the sequence diagram of the AI orchestration workflow (Figure 8.5), and the component and deployment diagrams of the whole system (Figures 8.9 and 8.10), all presented in Chapter 8. The last two were completed in this increment because only now were all the modules in place to be drawn.
 
 ### 5.3.4 Sprint Review
 

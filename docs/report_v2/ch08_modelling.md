@@ -29,9 +29,9 @@ A system may be modelled from four perspectives, and DEICMS provides a model fro
 | Perspective | Question answered | Diagram type | DEICMS figure |
 |---|---|---|---|
 | **External / context** | What is the system's environment, and who interacts with it? | Use case | Figure 8.1 |
-| **Structural** | How is the system organised — what are its parts and how do they relate? | Class, entity-relationship, component | Figures 8.3, 8.3, 8.9 |
-| **Interaction** | How do the parts communicate to achieve a task? | Sequence | Figures 8.5, 8.5 |
-| **Behavioural** | How does the system respond to events and stimuli over time? | Activity, state machine | Figures 8.7, 8.7, 8.8 |
+| **Structural** | How is the system organised — what are its parts and how do they relate? | Class, entity-relationship, component | Figures 8.2, 8.3, 8.9 |
+| **Interaction** | How do the parts communicate to achieve a task? | Sequence | Figures 8.4, 8.5 |
+| **Behavioural** | How does the system respond to events and stimuli over time? | Activity, state machine | Figures 8.6, 8.7, 8.8 |
 
 ### 8.1.2 UML Diagram Taxonomy
 
@@ -60,23 +60,17 @@ All diagrams were produced in **PlantUML**, a text-based notation from which the
 
 The use-case model takes the **external perspective**: it shows the boundary of the system, the actors outside it, and the services it offers them. It answers *who uses this system and what for?* and deliberately says nothing about how any of it works.
 
-The system has **forty-one use cases**, which is too many for one readable diagram — and readability matters here for a practical reason: a diagram that cannot be redrawn by hand is not a communication artefact. The model is therefore split across two figures along the natural seam between *working with evidence* and *analysing and administering it*, and both use **actor generalisation** to exploit the strict nesting of role capability established in Table 8.7.
+The system has **forty-one use cases** in total — too many for one readable diagram, and readability matters here for a practical reason: a diagram that cannot be redrawn by hand is not a communication artefact. Figure 8.1 therefore shows the **twelve principal use cases**, grouped so that the progression from authentication through evidence handling to oversight is visible. The complete set of forty-one is enumerated in Table 8.5, and the per-role breakdown in Table 8.6.
 
-**[FIGURE 8.1 — Use Case Diagram (a): Authentication, Cases, Evidence and Custody]**
+**[FIGURE 8.1 — Use Case Diagram]**
 
-**[FIGURE 8.2 — Use Case Diagram (b): Analysis, Reporting, Assistant and Administration]**
+Four actors correspond exactly to the four roles of the access-control model and the four personas of Section 7.2, and they are connected by **generalisation** rather than drawn independently: the Analyst generalises the Read-Only Auditor, the Lead Investigator generalises the Analyst, and the Administrator generalises the Lead Investigator. Each actor is therefore joined only to the use cases it **adds**, and inherits the rest.
 
-Four actors correspond exactly to the four roles of the access-control model and the four personas of Section 7.2, and they are connected by **generalisation** rather than drawn independently: the Analyst generalises the Read-Only Auditor, the Lead Investigator generalises the Analyst, and the Administrator generalises the Lead Investigator. Each actor is therefore joined only to the use cases it **adds** to the role beneath it, and inherits the rest.
+This is the correct UML construction for a nesting role model and it keeps the diagram small. It has one consequence that must be read carefully: because each actor is joined only to its *increment*, the Administrator has few lines drawn against it, yet it holds **all forty-one** use cases. The totals are Administrator **41**, Lead Investigator **32**, Analyst **25**, Read-Only Auditor **23**.
 
-This is the correct UML construction for a nesting role model and it has a large practical benefit: instead of 121 association lines it needs 41, and the inheritance triangles themselves communicate the policy — *an Administrator can do everything a Lead can, and more* — which a flat diagram states only by exhaustion.
+Two relationship types appear. The **«include»** relationships show behaviour that is always part of the including use case: registering evidence and transferring custody both include an authenticated session, and exporting a signed case includes verifying integrity, because the export is worthless if the chain it certifies has not been checked. The **«extend»** relationship shows optional behaviour: reconstructing a custody chain extends verification, because reconstruction is invoked only when verification reveals gaps.
 
-**One consequence must be read carefully.** Because each actor is joined only to what it *adds*, the Administrator has few lines drawn against it — two in Figure 8.1 and seven in Figure 8.2 — yet it holds **all forty-one use cases**. The arrows show the *increment*, not the total. The totals are Administrator **41**, Lead Investigator **32**, Analyst **25**, Read-Only Auditor **23**, and every one is enumerated explicitly in Table 8.6.
-
-Two relationship types appear. The **«include»** relationships show behaviour that is always part of the including use case: registering evidence, transferring custody and verifying integrity all include an authenticated session, because none can occur without one; exporting a signed package includes verifying integrity, because the export is worthless if the chain it certifies has not been checked. The **«extend»** relationship shows optional behaviour: reconstructing a custody chain extends verification, because reconstruction is invoked only when verification reveals gaps.
-
-The second figure repays a moment's attention for what it does *not* contain: the Analyst adds **no** use case there at all. Analysis and reporting are read activities available to every role within its accessible cases, so the Analyst's two extra capabilities over the auditor — UC-18 and UC-23 — are both custody actions and both appear in the first figure. That asymmetry is the domain's own logic made visible.
-
-The diagrams also encode the least-privilege model **negatively — by what is absent**. No line runs from the Analyst or the Read-Only Auditor to any administration use case; no line runs from the Read-Only Auditor to any use case that creates, modifies or deletes a record; and no actor at all connects to a registration use case, because none exists (FR-21). These absences are as much a part of the specification as the lines that are present.
+The diagram also encodes the least-privilege model **negatively — by what is absent**. No line runs from the Analyst or the Read-Only Auditor to account management, and no actor at all connects to a registration use case, because none exists (FR-21). These absences are as much a part of the specification as the lines that are present.
 
 ## 8.3 The Complete Use-Case Catalogue
 
@@ -228,38 +222,27 @@ The class diagram takes the **structural perspective on the software design**: t
 
 The emphasis on operations is not incidental — it is the defining characteristic. A class in the object-oriented sense couples **data with the behaviour that acts on it**; that coupling is what encapsulation means. A diagram of classes that shows only attributes has therefore stopped modelling classes and started modelling records, and Section 8.5.1 explains why that distinction matters enough to warrant two separate diagrams.
 
-**[FIGURE 8.3 — Design Class Diagram]**
+**[FIGURE 8.2 — Design Class Diagram]**
 
 ### 8.4.2 What the Diagram Shows
 
-The model is organised into four packages, and the second of them is the one that makes it a design model rather than a schema.
+Six classes, corresponding to the six domain entities, each with the attributes and the **operations** that carry domain meaning. Attributes are private (`-`), operations public (`+`).
 
-**Table 8.10 — Packages in the class model**
+The figure is deliberately restricted to the domain model. The design also contains a second group of classes that the diagram omits for clarity: the five **analysis engines** — `GraphIntegrityEngine`, `EvidenceRiskScorer`, `ChainReconstructionEngine`, `EvidenceStateMachine`, `AIInvestigationAssistant` — together with the result objects they return, such as `IntegrityReport` and `RiskReport`. These are described in Chapter 11.
 
-| Package | Contents | Persistent? |
-|---|---|---|
-| **Framework (inherited)** | `db.Model` (abstract), `UserMixin` | — |
-| **Domain Model** | `Investigator`, `Case`, `EvidenceItem`, `CustodyLog`, `AuditRecord`, `CaseAccess`, plus the `Role` and `LifecycleState` enumerations | Yes — these six have tables |
-| **Analysis Engines** | `GraphIntegrityEngine`, `EvidenceRiskScorer`, `ChainReconstructionEngine`, `EvidenceStateMachine`, `AIInvestigationAssistant` | **No — these have no table at all** |
-| **Result Objects** | `IntegrityReport`, `RiskReport`, `ReconstructionReport`, `TransitionResult`, `AssistantResponse` | **No — transient dataclasses** |
-
-**Ten of the twenty-one classes in this diagram have no database presence whatsoever.** They are where the system's behaviour lives — the five Category C algorithms of Chapter 11 and the structured results they return. A data model cannot represent them, which is the single clearest reason the class diagram and the entity-relationship diagram are not two drawings of the same thing.
+That omitted group matters for the comparison that follows, because **none of those classes has a database table**. They hold the system's entire Category C contribution, they exist only for the duration of one operation, and no data model can represent them. The class diagram can; the entity-relationship diagram cannot.
 
 ### 8.4.3 The UML Constructs Used, and What Each Encodes
 
-**Visibility.** Attributes are marked `-` (private) and operations `+` (public). This encodes encapsulation: `Investigator.password_hash` is private and reachable only through `check_password()`, which is the design decision that makes it impossible for a caller to compare passwords incorrectly.
+**Visibility.** Attributes are marked `-` (private), operations `+` (public). This encodes encapsulation: `Investigator.password_hash` is private and reachable only through `check_password()`, which is the design decision that makes it impossible for a caller to compare passwords incorrectly. A relational schema has no such notion — every column is equally readable.
 
-**Generalisation (inheritance).** Every persistent class generalises the abstract `db.Model`, and `Investigator` additionally generalises the `UserMixin` supplied by Flask-Login — real multiple inheritance, present in the code. Generalisation has **no equivalent in the relational model**: the ER diagram of Figure 8.4 cannot express it, and the six tables each repeat their own key and timestamp columns because relational schemas have no mechanism for sharing them.
+**Operations.** `EvidenceItem` does not merely hold an `original_hash`; it can `verify_integrity()` and `compute_risk()`. `CustodyLog` can `verify_signature()`. This is the defining difference from a data model: the behaviour sits with the data it acts on.
 
-**Composition versus association.** The diagram distinguishes *composition* (filled diamond — the part cannot exist without the whole) from plain *association*. A `Case` composes its `EvidenceItem`s and an `EvidenceItem` composes its `CustodyLog`s: an evidence item has no meaning outside a case, and a custody record has no meaning outside the item it describes. By contrast, `AuditRecord` is merely *associated* with the entities it references — deliberately, because an audit record must **survive** the entities it mentions. The record of what happened to a deleted item is precisely the evidence that must not be destroyed (domain requirement DR-04). The choice of relationship type here is a design decision with a legal justification, and the ER diagram cannot make it: a foreign key is a foreign key, whatever the intended lifetime semantics.
+**Composition versus association.** The diagram distinguishes *composition* (filled diamond — the part cannot exist without the whole) from plain *association*. A `Case` composes its `EvidenceItem`s and an `EvidenceItem` composes its `CustodyLog`s: an evidence item has no meaning outside a case, and a custody record has no meaning outside the item it describes. By contrast `AuditRecord` is merely *associated* with the entities it references — deliberately, because an audit record must **survive** the entities it mentions. The record of what happened to a deleted item is precisely the evidence that must not be destroyed (domain requirement DR-04). The ER diagram cannot make that distinction: a foreign key is a foreign key, whatever the intended lifetime semantics.
 
 **Multiplicity encoding an invariant.** The `EvidenceItem` → `CustodyLog` association is `1 .. 1..*`, not `1 .. 0..*`. An evidence item must have *at least one* custody record. This is requirement FR-12 — the first custody entry is created atomically with the item — expressed in the model, and it is the invariant that makes the graph verifier's assumption of an upload root safe.
 
-**Role names on association ends.** `Investigator` relates to `EvidenceItem` twice, as `uploader` and as `currentHolder`, and to `CustodyLog` twice, as `sender` and `receiver`. Without labelled ends the diagram would state that investigators and evidence are related without saying *how*.
-
-**Dependency with stereotypes.** The engines are connected to the domain by dashed `«use»` arrows and to their results by `«create»` arrows. A dependency is the weakest relationship UML offers — *A needs to know about B, but holds no reference to it* — and it is exactly right here: `GraphIntegrityEngine` is constructed for one verification, uses an `EvidenceItem`, produces an `IntegrityReport`, and is discarded.
-
-One dependency is worth singling out: `EvidenceStateMachine ..> EvidenceRiskScorer`. The state machine triggers a risk recalculation on every transition, because lifecycle state is itself a scoring factor. That is a coupling between two algorithms which exists only in behaviour and appears nowhere in the database.
+**Inheritance.** The domain model itself has no generalisation: the six entities are siblings, not a hierarchy. It appears only against the framework base classes — every entity inherits SQLAlchemy's `Model`, and `Investigator` additionally inherits Flask-Login's `UserMixin` — and those are omitted from the figure as framework detail. The point to retain is that generalisation **has no equivalent in the relational model** at all, which is why the six tables each repeat their own key and timestamp columns.
 
 The operations shown are restricted to those that carry domain meaning. A class diagram that lists every accessor documents the language, not the design.
 
@@ -269,7 +252,7 @@ The operations shown are restricted to those that carry domain meaning. A class 
 
 These two diagrams are frequently mistaken for notational variants of one another, and in many student reports they genuinely are: the same six boxes drawn twice. They are not variants. They answer different questions, at different levels of abstraction, for different readers, and each can express things the other cannot.
 
-**Table 8.11 — Class diagram compared with entity-relationship diagram**
+**Table 8.10 — Class diagram compared with entity-relationship diagram**
 
 | Aspect | Class diagram (UML) | Entity-relationship diagram |
 |---|---|---|
@@ -291,15 +274,15 @@ These two diagrams are frequently mistaken for notational variants of one anothe
 
 The two rows in bold type are where the difference becomes concrete in this project.
 
-**Ten classes in Figure 8.3 are absent from Figure 8.4** — the five engines and the five result objects. They are the system's entire Category C contribution, and they are invisible to a data model because they persist nothing.
+**The analysis engines and their result objects are absent from the entity-relationship model entirely** — ten classes in all, described in Section 8.4.2 and Chapter 11. They are the system's entire Category C contribution, and they are invisible to a data model because they persist nothing.
 
-**One table in Figure 8.4 exists only because the relational model demands it.** `CASE_ACCESS` resolves the many-to-many relationship between investigators and cases. In the class diagram that relationship could simply be drawn as `Investigator 0..* —— 0..* Case`; the relational model has no such construct, so the junction table must be introduced as an entity in its own right. The fact that it *also* carries attributes of the relationship — permission level, grant time, grantor — is what makes it an *associative entity* rather than a pure artefact, and it is why it appears in both diagrams here.
+**One table in Figure 8.3 exists only because the relational model demands it.** `CASE_ACCESS` resolves the many-to-many relationship between investigators and cases. In the class diagram that relationship could simply be drawn as `Investigator 0..* —— 0..* Case`; the relational model has no such construct, so the junction table must be introduced as an entity in its own right. The fact that it *also* carries attributes of the relationship — permission level, grant time, grantor — is what makes it an *associative entity* rather than a pure artefact, and it is why it appears in both diagrams here.
 
 A useful way to hold the distinction: **the ER diagram is what survives if the application is deleted and only the database remains.** Everything in the class diagram that would be lost in that scenario — the behaviour, the encapsulation, the inheritance, the algorithms — is precisely what makes it a different model rather than a redrawing.
 
 ### 8.5.2 The Diagram
 
-**[FIGURE 8.4 — Entity-Relationship Diagram]**
+**[FIGURE 8.3 — Entity-Relationship Diagram]**
 
 Six tables in crow's-foot notation, with SQL types, primary and foreign keys, uniqueness constraints, nullability and indexes. Identifying relationships — where the child is existence-dependent on the parent — are distinguished from non-identifying ones.
 
@@ -316,7 +299,7 @@ Sequence diagrams take the **interaction perspective**, showing the messages exc
 
 ### 8.6.1 Chain-of-Custody Integrity Verification
 
-**[FIGURE 8.5 — Sequence Diagram: Integrity Verification]**
+**[FIGURE 8.4 — Sequence Diagram: Integrity Verification]**
 
 Six participants appear: the Analyst, the integrity route, the verification engine, the database, the file store and the cryptographic primitives. The diagram shows the route performing authorisation *before* delegating, then the engine loading the item and its ordered custody logs, building the graph, and entering the traversal loop.
 
@@ -328,7 +311,7 @@ The **separation of the file store from the database** makes visible that verifi
 
 ### 8.6.2 AI Assistant Orchestration
 
-**[FIGURE 8.6 — Sequence Diagram: AI Assistant Orchestration]**
+**[FIGURE 8.5 — Sequence Diagram: AI Assistant Orchestration]**
 
 This diagram traces the six-stage pipeline from question to validated answer, and it is the clearest visual statement of what makes the assistant a Category C feature rather than a Category B one. The call to the language model is a **single message in the middle of the diagram**; the five stages surrounding it — intent classification, access-scoped retrieval, prompt construction, response validation, hallucination detection — are the application's own work.
 
@@ -342,7 +325,7 @@ Activity diagrams take the **behavioural perspective** on a single activity, sho
 
 ### 8.7.1 Multi-Factor Risk Scoring
 
-**[FIGURE 8.7 — Activity Diagram: Multi-Factor Risk Scoring]**
+**[FIGURE 8.6 — Activity Diagram: Multi-Factor Risk Scoring]**
 
 The diagram is partitioned into the algorithm's five stages. The **fork and join** in stage one is used deliberately and is not decorative: the eight factor extractions are genuinely independent of one another and could execute in any order or in parallel, and the fork states that property. A sequential chain of eight actions would have implied an ordering constraint the algorithm does not have.
 
@@ -352,7 +335,7 @@ The note that the interaction bonus is **capped** records a design decision expl
 
 ### 8.7.2 Custody Chain Reconstruction
 
-**[FIGURE 8.8 — Activity Diagram: Custody Chain Reconstruction]**
+**[FIGURE 8.7 — Activity Diagram: Custody Chain Reconstruction]**
 
 This diagram shows a heuristic search, and its distinguishing feature is the number of **paths that end in an honest admission of failure**. Three separate branches lead to a link being labelled *Unresolved*: an empty chain, a gap with no candidates, and a gap whose best candidate scores below the plausibility threshold of 0.40.
 
@@ -362,13 +345,13 @@ That structure is the visual form of domain requirement DR-07. An algorithm desi
 
 The state machine diagram models an object's **lifecycle**: the states it may occupy, the events that move it between them, and the guards that constrain those movements.
 
-**[FIGURE 8.9 — State Machine Diagram: Evidence Lifecycle]**
+**[FIGURE 8.8 — State Machine Diagram: Evidence Lifecycle]**
 
 Six states are shown, connected by fourteen transitions. Every transition is annotated with the roles permitted to trigger it, and two carry additional **guard conditions** in guillemets.
 
 The transition table contains **fourteen entries**; the ten rows below present them, with the five *any state → Flagged* entries collapsed into one row for readability.
 
-**Table 8.12 — The transition table in tabular form**
+**Table 8.11 — The transition table in tabular form**
 
 | From | To | Permitted roles | Guard |
 |---|---|---|---|
@@ -398,7 +381,7 @@ The absence of a transition is as meaningful as its presence. There is no transi
 
 ### 8.9.1 Component Diagram
 
-**[FIGURE 8.10 — Component Diagram: System Architecture]**
+**[FIGURE 8.9 — Component Diagram: System Architecture]**
 
 The component diagram takes the structural perspective at the level of **modules rather than classes**, showing the system's packages and the dependencies between them. Five packages are shown — presentation, routing, business logic, cross-cutting utilities and data access — together with the three external elements the system touches: the database, the encrypted file store and the inference API.
 
@@ -408,7 +391,7 @@ The diagram is also where the cross-cutting utilities are visible as such. `deco
 
 ### 8.9.2 Deployment Diagram
 
-**[FIGURE 8.11 — Deployment Diagram: Development Environment]**
+**[FIGURE 8.10 — Deployment Diagram: Development Environment]**
 
 The deployment diagram shows the **physical topology**: the nodes on which the system runs and the artefacts deployed on each. Three nodes appear — the client workstation, the application host, and the cloud inference service — with the protocol on each connection.
 
@@ -416,26 +399,23 @@ This diagram documents the development configuration honestly rather than an asp
 
 ## 8.10 Diagram Index
 
-**Table 8.13 — Complete diagram index**
+**Table 8.12 — Complete diagram index**
 
-| Figure | Diagram | Type | Perspective | Produced in | Source file |
-|---|---|---|---|---|---|
-| 8.1 | Use Case (a) — Auth, Cases, Evidence, Custody | Behavioural | External / context | Increment 1 | `01_use_case_core.puml` |
-| 8.2 | Use Case (b) — Analysis, Assistant, Administration | Behavioural | External / context | Increment 1 | `02_use_case_analysis.puml` |
-| 8.3 | Class | Structural | Structural | Increment 1 | `02_class.puml` |
-| 8.4 | Entity-Relationship | Structural | Structural | Increment 1 | `03_er.puml` |
-| 8.5 | Sequence — Integrity Verification | Behavioural | Interaction | Increment 2 | `05_sequence_integrity.puml` |
-| 8.6 | Sequence — AI Orchestration | Behavioural | Interaction | Increment 3 | `06_sequence_ai.puml` |
-| 8.7 | Activity — Risk Scoring | Behavioural | Behavioural | Increment 3 | `07_activity_risk.puml` |
-| 8.8 | Activity — Chain Reconstruction | Behavioural | Behavioural | Increment 2 | `08_activity_reconstruction.puml` |
-| 8.9 | State Machine — Evidence Lifecycle | Behavioural | Behavioural | Increment 2 | `04_state_lifecycle.puml` |
-| 8.10 | Component — System Architecture | Structural | Structural | Increment 3 | `09_component.puml` |
-| 8.11 | Deployment — Development Environment | Structural | Physical | Increment 3 | `10_deployment.puml` |
-| 5.1 | Increment 1 Burndown | *Not UML* | Process | Increment 1 | `increment1_agile_burndown_chart` |
-| 5.2 | Increment 2 Burndown | *Not UML* | Process | Increment 2 | `increment2_agile_burndown_chart` |
-| 5.3 | Increment 3 Burndown | *Not UML* | Process | Increment 3 | `increment3_agile_burndown_chart` |
+| Figure | Diagram | Family | Perspective | Source file |
+|---|---|---|---|---|
+| 8.1 | Use Case | Behavioural | External / context | `01_use_case.puml` |
+| 8.2 | Class | Structural | Structural | `02_class.puml` |
+| 8.3 | Entity-Relationship | Structural | Structural | `03_er.puml` |
+| 8.4 | Sequence — Integrity Verification | Behavioural | Interaction | `04_sequence_integrity.puml` |
+| 8.5 | Sequence — AI Assistant | Behavioural | Interaction | `05_sequence_ai.puml` |
+| 8.6 | Activity — Risk Scoring | Behavioural | Behavioural | `06_activity_risk.puml` |
+| 8.7 | Activity — Chain Reconstruction | Behavioural | Behavioural | `07_activity_reconstruction.puml` |
+| 8.8 | State Machine — Evidence Lifecycle | Behavioural | Behavioural | `08_state_lifecycle.puml` |
+| 8.9 | Component — System Architecture | Structural | Structural | `09_component.puml` |
+| 8.10 | Deployment — Development Environment | Structural | Physical | `10_deployment.puml` |
+| 5.1–5.3 | Increment burndown charts | *Not UML* | Process | `diagrams/` |
 
-The eleven UML diagrams cover all four modelling perspectives and both diagram families, and every one was produced in the increment whose work it describes rather than retrofitted at the end.
+The ten UML diagrams cover all four modelling perspectives and both diagram families, and every one was produced in the increment whose work it describes rather than retrofitted at the end. Each is deliberately kept small enough to be redrawn by hand.
 
 ## 8.11 Summary
 

@@ -1,0 +1,39 @@
+@startuml
+' Figure 8.6 - Activity Diagram: Risk Scoring
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+start
+:Load evidence item
+and its records;
+:Extract 8 risk factors;
+:Normalise each to [0, 1];
+:Weighted sum
+(weights total 1.0);
+
+if (interaction rule fires?) then (yes)
+  :Add bonus
+  (capped at 0.30);
+else (no)
+endif
+
+:score = min(base + bonus, 1.0);
+
+if (score >= 0.75?) then (yes)
+  :CRITICAL;
+elseif (score >= 0.50?) then (yes)
+  :HIGH;
+elseif (score >= 0.25?) then (yes)
+  :MEDIUM;
+else (no)
+  :LOW;
+endif
+
+:Generate explanation
+and recommendations;
+:Save score and level;
+stop
+@enduml

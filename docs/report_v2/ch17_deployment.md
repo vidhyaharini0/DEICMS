@@ -4,7 +4,7 @@
 
 ## 17.1 Development Environment
 
-Deployment is the process of making a system available for use. This chapter documents the environment in which DEICMS runs, how it is configured and started, and what would be required to move it from a development deployment to a production one. The physical topology is given in Figure 8.11.
+Deployment is the process of making a system available for use. This chapter documents the environment in which DEICMS runs, how it is configured and started, and what would be required to move it from a development deployment to a production one. The physical topology is given in Figure 8.10.
 
 **Table 17.1 — Runtime environment**
 

@@ -1,65 +1,29 @@
 @startuml
-' Figure 8.11 - Deployment Diagram: DEICMS Development Environment
+' Figure 8.10 - Deployment Diagram
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 11
+skinparam defaultFontSize 12
 skinparam backgroundColor white
 
-node "Client Workstation" <<device>> as CLIENT {
-  node "Operating System" <<execution environment>> {
-    artifact "Web Browser" <<artifact>> as BROWSER
-  }
+node "Client" {
+  artifact "Web Browser" as BROWSER
 }
 
-node "Application Host" <<device>> as HOST {
-
-  node "Python 3 Runtime" <<execution environment>> as PY {
-    artifact "run.py" <<artifact>> as RUN
-    artifact "Flask Application\n(application factory,\n10 blueprints,\n12 logic modules)" <<artifact>> as APP
-    artifact "SQLAlchemy ORM" <<artifact>> as ORM
-    artifact "Werkzeug WSGI Server\n(TLS, self-signed)" <<artifact>> as WSGI
-  }
-
-  node "Local Filesystem" <<execution environment>> as FSYS {
-    database "deicms.db\n+ .db-wal / .db-shm" <<artifact>> as DB
-    folder "uploads/\nAES-256-GCM ciphertext" <<artifact>> as UP
-    artifact ".env\n(secrets, never committed)" <<artifact>> as ENV
-    artifact "cert.pem / key.pem" <<artifact>> as CERT
-  }
+node "Application Host" {
+  artifact "Werkzeug Server (HTTPS)" as WSGI
+  artifact "Flask Application" as APP
+  database "deicms.db (SQLite)" as DB
+  folder "uploads/ (AES-256-GCM)" as FS
 }
 
-cloud "NVIDIA Cloud" <<device>> as CLOUD {
-  node "NIM Inference Service" <<execution environment>> {
-    artifact "Hosted LLM" <<artifact>> as MODEL
-  }
+cloud "NVIDIA NIM" {
+  artifact "Hosted LLM" as LLM
 }
 
-BROWSER ..> WSGI : <<protocol>>\nHTTPS :5001
-
-RUN     ..> APP  : <<deploy>>
-WSGI    ..> APP  : <<deploy>>
-APP     ..> ORM  : <<use>>
-ORM     ..> DB   : <<protocol>>\nSQLite driver (WAL)
-APP     ..> UP   : <<protocol>>\nencrypted file I/O
-APP     ..> ENV  : <<use>> loaded at startup
-WSGI    ..> CERT : <<use>>
-APP     ..> MODEL : <<protocol>>\nHTTPS REST\n(OpenAI-compatible)
-
-note bottom of HOST
-  <b>Production path</b> — no application code changes:
-  • SQLite  → PostgreSQL  (change DATABASE_URL)
-  • Werkzeug → gunicorn behind a reverse proxy
-  • self-signed cert → CA-issued certificate
-  • in-memory rate limiting → Redis
-  This is requirement NFR-09 made concrete.
-end note
-
-note right of CLOUD
-  The only component outside the
-  trust boundary. The system degrades
-  to a context-aware mock when it is
-  unreachable, so its failure is a
-  loss of a feature, not of the system.
-end note
+BROWSER --> WSGI : HTTPS
+WSGI --> APP
+APP --> DB : SQL
+APP --> FS : encrypted I/O
+APP --> LLM : HTTPS REST
 @enduml

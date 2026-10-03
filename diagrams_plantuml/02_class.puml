@@ -1,263 +1,69 @@
 @startuml
-' Figure 8.3 - DEICMS Design Class Diagram
-' A DESIGN model: classes with BEHAVIOUR, including the transient engine
-' classes that have no database table at all. Contrast with Figure 8.4 (ER).
+' Figure 8.2 - Class Diagram
 skinparam monochrome true
 skinparam shadowing false
 skinparam defaultFontName Arial
-skinparam defaultFontSize 11
+skinparam defaultFontSize 12
 skinparam backgroundColor white
 skinparam classAttributeIconSize 0
-skinparam packageStyle rectangle
-hide empty members
+hide circle
 
-package "Framework (inherited)" <<Frame>> {
-  abstract class "db.Model" as MODEL <<abstract>> {
-    + {abstract} query : Query
-  }
-  class UserMixin <<mixin>> {
-    + is_authenticated() : bool
-    + get_id() : str
-  }
+class Investigator {
+  - email
+  - password_hash
+  - role
+  - public_key
+  --
+  + check_password()
+  + can_manage()
 }
 
-package "Domain Model — persistent classes" {
-
-  class Investigator {
-    - id : int
-    - full_name : str
-    - email : str
-    - password_hash : str
-    - role : Role
-    - public_key : str
-    - private_key_encrypted : str
-    - failed_login_count : int
-    - locked_until : datetime
-    --
-    + check_password(raw : str) : bool
-    + set_password(raw : str) : void
-    + is_admin() : bool
-    + can_manage() : bool
-    + can_analyse() : bool
-    + is_locked() : bool
-    + register_failed_login() : void
-  }
-
-  class Case {
-    - id : int
-    - case_number : str
-    - title : str
-    - jurisdiction : str
-    - status : CaseStatus
-    - is_archived : bool
-    --
-    + archive() : void
-    + evidence_count() : int
-    + active_evidence() : List<EvidenceItem>
-  }
-
-  class EvidenceItem {
-    - id : int
-    - evidence_number : str
-    - category : Category
-    - lifecycle_state : LifecycleState
-    - original_hash : str
-    - current_hash : str
-    - risk_score : float
-    - integrity_status : IntegrityStatus
-    - is_deleted : bool
-    --
-    + compute_hash() : str
-    + is_intact() : bool
-    + current_custodian() : Investigator
-    + soft_delete() : void
-  }
-
-  class CustodyLog {
-    - id : int
-    - event_type : EventType
-    - timestamp : datetime
-    - location : str
-    - reason : str
-    - file_hash_at_event : str
-    - digital_signature : str
-    --
-    + canonical_payload() : bytes
-    + verify_signature() : bool
-  }
-
-  class AuditRecord {
-    - id : int
-    - event_type : str
-    - description : str
-    - ip_address : str
-    - result : Result
-    - timestamp : datetime
-    --
-    + {static} record(actor, event, target) : AuditRecord
-    - {static} _block_update() : void
-    - {static} _block_delete() : void
-  }
-
-  class CaseAccess {
-    - id : int
-    - permission : Permission
-    - granted_at : datetime
-    --
-    + {static} accessible_case_ids(inv) : List<int>
-    + {static} can_manage_members(cid, inv) : bool
-    + {static} grant(cid, iid, perm) : CaseAccess
-  }
-
-  enum Role {
-    ADMIN
-    LEAD_INVESTIGATOR
-    ANALYST
-    READ_ONLY
-  }
-
-  enum LifecycleState {
-    COLLECTED
-    SUBMITTED
-    UNDER_ANALYSIS
-    TRANSFERRED
-    ARCHIVED
-    FLAGGED
-  }
+class Case {
+  - case_number
+  - title
+  - status
+  --
+  + archive()
 }
 
-package "Analysis Engines — transient, no table" {
-
-  class GraphIntegrityEngine {
-    - evidence : EvidenceItem
-    - graph : Map<int, CustodyNode>
-    --
-    + verify() : IntegrityReport
-    - buildGraph() : void
-    - checkHash(node) : bool
-    - checkSignature(node) : bool
-    - checkTimestamp(node) : bool
-  }
-
-  class EvidenceRiskScorer {
-    - weights : Map<str, float>
-    - thresholds : Map<str, float>
-    --
-    + score(evidence) : RiskReport
-    - extractFactors(ev) : List<RiskFactor>
-    - normalise(factor) : float
-    - detectInteractions() : List<InteractionEffect>
-    - classify(score) : RiskLevel
-  }
-
-  class ChainReconstructionEngine {
-    - evidence : EvidenceItem
-    - threshold : float = 0.40
-    --
-    + reconstruct() : ReconstructionReport
-    - detectGaps() : List<Gap>
-    - scoreCandidate(c) : float
-  }
-
-  class EvidenceStateMachine {
-    - evidence : EvidenceItem
-    - {static} TRANSITION_TABLE : Map
-    --
-    + transition_to(state, inv, why) : TransitionResult
-    + get_available_transitions() : List<str>
-    - checkPreconditions(rule) : bool
-  }
-
-  class AIInvestigationAssistant {
-    - model : str
-    --
-    + answer(msg, history, user) : AssistantResponse
-    + classify_intent(msg) : ClassifiedIntent
-    + retrieve_context(intent, user) : RetrievedContext
-    + build_prompt(msg, ctx, user) : List
-    + call_nvidia(messages) : str
-    + validate_response(raw, intent) : Tuple
-    + check_hallucinations(reply, ctx) : List<str>
-  }
+class EvidenceItem {
+  - evidence_number
+  - original_hash
+  - lifecycle_state
+  - risk_score
+  --
+  + verify_integrity()
+  + compute_risk()
 }
 
-package "Result Objects (dataclasses)" {
-  class IntegrityReport <<dataclass>> {
-    + verdict : str
-    + completeness : float
-    + failures : List<NodeFailure>
-    + to_dict() : dict
-  }
-  class RiskReport <<dataclass>> {
-    + score : float
-    + level : RiskLevel
-    + factors : List<RiskFactor>
-    + interactions : List<InteractionEffect>
-  }
-  class ReconstructionReport <<dataclass>> {
-    + links : List<ChainLink>
-    + confidence : float
-    + to_dict() : dict
-  }
-  class TransitionResult <<dataclass>> {
-    + success : bool
-    + message : str
-  }
-  class AssistantResponse <<dataclass>> {
-    + reply : str
-    + intent : IntentCategory
-    + hallucination_flags : List<str>
-  }
+class CustodyLog {
+  - event_type
+  - timestamp
+  - digital_signature
+  --
+  + verify_signature()
 }
 
-' ---------- Generalisation (inheritance) ----------
-Investigator --|> UserMixin
-Investigator --|> MODEL
-Case         --|> MODEL
-EvidenceItem --|> MODEL
-CustodyLog   --|> MODEL
-AuditRecord  --|> MODEL
-CaseAccess   --|> MODEL
+class AuditRecord {
+  - event_type
+  - timestamp
+  - result
+  --
+  + record()
+}
 
-' ---------- Composition (part cannot exist without whole) ----------
-Case "1" *-- "0..*" EvidenceItem : contains >
-EvidenceItem "1" *-- "1..*" CustodyLog : logs >
+class CaseAccess {
+  - permission
+  --
+  + accessible_cases()
+}
 
-' ---------- Association (independent lifetimes), with role names ----------
-Investigator "1" -- "0..*" Case : + creator
-Investigator "0..1" -- "0..*" Case : + assignee
-Investigator "1" -- "0..*" EvidenceItem : + uploader
-Investigator "0..1" -- "0..*" EvidenceItem : + currentHolder
-Investigator "0..1" -- "0..*" CustodyLog : + sender
-Investigator "0..1" -- "0..*" CustodyLog : + receiver
-Case "1" -- "0..*" CaseAccess : grants >
-Investigator "1" -- "0..*" CaseAccess : receives >
-Investigator "1" -- "0..*" AuditRecord : performs >
-
-' ---------- Typed by enumeration ----------
-Investigator ..> Role
-EvidenceItem ..> LifecycleState
-
-' ---------- Dependency: engines USE entities and CREATE reports ----------
-GraphIntegrityEngine       ..> EvidenceItem : <<use>>
-GraphIntegrityEngine       ..> IntegrityReport : <<create>>
-EvidenceRiskScorer         ..> EvidenceItem : <<use>>
-EvidenceRiskScorer         ..> RiskReport : <<create>>
-ChainReconstructionEngine  ..> CustodyLog : <<use>>
-ChainReconstructionEngine  ..> ReconstructionReport : <<create>>
-EvidenceStateMachine       ..> EvidenceItem : <<use>>
-EvidenceStateMachine       ..> TransitionResult : <<create>>
-EvidenceStateMachine       ..> EvidenceRiskScorer : <<use>>
-AIInvestigationAssistant   ..> CaseAccess : <<use>>
-AIInvestigationAssistant   ..> AssistantResponse : <<create>>
-
-note as N1
-  <b>This is a DESIGN model, not a schema.</b>
-  It shows <b>behaviour</b> (operations), <b>visibility</b>
-  (+ public, - private), <b>generalisation</b>, and the
-  transient <b>engine classes</b> that have no database
-  table at all. None of the Analysis Engine or Result
-  Object classes appears in Figure 8.4.
-  Associations are semantic links, not foreign keys.
-end note
+Case "1" *-- "0..*" EvidenceItem : contains
+EvidenceItem "1" *-- "1..*" CustodyLog : logs
+Investigator "1" -- "0..*" Case : creates
+Investigator "1" -- "0..*" EvidenceItem : holds
+Investigator "1" -- "0..*" CustodyLog : transfers
+Investigator "1" -- "0..*" AuditRecord : performs
+Case "1" -- "0..*" CaseAccess : grants
+Investigator "1" -- "0..*" CaseAccess : receives
 @enduml

@@ -1,0 +1,39 @@
+@startuml
+' Figure 8.5 - Sequence Diagram: AI Assistant
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+
+actor Investigator
+participant "Route" as R
+participant "AI Assistant" as A
+database "Database" as DB
+participant "LLM\n(NVIDIA NIM)" as LLM
+
+Investigator -> R : question
+activate R
+R -> A : answer(question, user)
+activate A
+
+A -> A : 1. classify intent
+A -> DB : 2. retrieve context\n(scoped to user's cases)
+DB --> A : permitted records only
+A -> A : 3. build prompt
+
+A -> LLM : 4. call model
+alt model responds
+  LLM --> A : reply
+else unavailable
+  A -> A : use mock reply
+end
+
+A -> A : 5. validate response
+A -> A : 6. check hallucinations
+
+A --> R : reply + flags
+deactivate A
+R --> Investigator : answer (+ warning if flagged)
+deactivate R
+@enduml

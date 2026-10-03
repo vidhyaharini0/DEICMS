@@ -1,0 +1,51 @@
+@startuml
+' Figure 8.1 - Use Case Diagram
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+left to right direction
+
+actor Administrator as ADM
+actor "Lead Investigator" as LEAD
+actor Analyst as ANA
+actor "Read-Only Auditor" as RO
+
+rectangle DEICMS {
+  usecase "Log in" as U1
+  usecase "Manage cases" as U2
+  usecase "Register evidence" as U3
+  usecase "Transfer custody" as U4
+  usecase "Verify integrity" as U5
+  usecase "Change lifecycle state" as U6
+  usecase "Reconstruct chain" as U7
+  usecase "View risk score" as U8
+  usecase "Query AI assistant" as U9
+  usecase "View audit trail" as U10
+  usecase "Export signed case" as U11
+  usecase "Manage accounts" as U12
+}
+
+ADM  --> U12
+ADM  --> U10
+LEAD --> U2
+LEAD --> U3
+LEAD --> U11
+ANA  --> U4
+ANA  --> U6
+RO   --> U1
+RO   --> U5
+RO   --> U7
+RO   --> U8
+RO   --> U9
+
+ANA  --|> RO
+LEAD --|> ANA
+ADM  --|> LEAD
+
+U3 ..> U1 : <<include>>
+U4 ..> U1 : <<include>>
+U11 ..> U5 : <<include>>
+U7 ..> U5 : <<extend>>
+@enduml
