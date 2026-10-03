@@ -4,15 +4,15 @@ All UML diagrams for the DEICMS report, written as PlantUML text.
 
 ## How to render
 
-**Option 1 — online (no install):**
+**Option 1 - online (no install):**
 Go to <https://www.planttext.com> or <https://www.plantuml.com/plantuml>,
 paste the contents of a `.puml` file, and export as PNG or SVG.
 
-**Option 2 — VS Code:**
+**Option 2 - VS Code:**
 Install the "PlantUML" extension by jebbs, open a `.puml` file,
 press `Alt+D` to preview, right-click to export.
 
-**Option 3 — command line:**
+**Option 3 - command line:**
 `java -jar plantuml.jar -tpng *.puml`
 
 ## Style
@@ -26,7 +26,7 @@ skinparam defaultFontName Arial
 skinparam defaultFontSize 12
 ```
 
-`monochrome true` is what removes all colour — everything renders as
+`monochrome true` is what removes all colour - everything renders as
 black line art on white, with no green/blue differentiation.
 
 ## Files

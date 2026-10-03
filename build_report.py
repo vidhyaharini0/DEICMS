@@ -166,6 +166,48 @@ def set_table_column_widths(docx_path, usable_twips=9180):
     doc.save(docx_path)
     return fixed
 
+
+def format_title_page(docx_path):
+    """
+    Centre everything before the first page break - that block is the title
+    page - and strip its Heading styles so the title page does not list
+    itself inside the generated table of contents. Same for the "Table of
+    Contents" caption, which must not appear in its own TOC.
+    """
+    from docx import Document
+    from docx.shared import Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+
+    SIZES = {"Heading 1": 20, "Heading 2": 15, "Heading 3": 12.5, "Title": 22}
+    doc = Document(docx_path)
+    n = 0
+
+    for para in doc.paragraphs:
+        if any(b.get(qn('w:type')) == 'page' for b in para._p.iter(qn('w:br'))):
+            break
+        size = SIZES.get(para.style.name)
+        para.style = doc.styles["Normal"]          # keep it out of the TOC
+        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        para.paragraph_format.space_after = Pt(10)
+        if size:
+            for run in para.runs:
+                run.font.size = Pt(size)
+                run.font.bold = True
+        n += 1
+
+    for para in doc.paragraphs:
+        if para.text.strip() == "Table of Contents":
+            para.style = doc.styles["Normal"]
+            for run in para.runs:
+                run.font.size = Pt(16)
+                run.font.bold = True
+            para.paragraph_format.space_after = Pt(10)
+            break
+
+    doc.save(docx_path)
+    return n
+
 def chapters():
     return sorted(SRC.glob("ch*.md"), key=lambda p: p.name)
 
@@ -177,7 +219,7 @@ def substitute(text):
         name = FIGURES.get(num)
         if not name or not (PNG / name).exists():
             stats["missing"].append(num)
-            return ("> **[FIGURE %s MISSING — %s]**\n>\n"
+            return ("> **[FIGURE %s MISSING - %s]**\n>\n"
                     "> Render `diagrams_plantuml/` to PNG and rebuild." % (num, title))
         stats["figures"] += 1
         path = PNG / name
@@ -194,20 +236,20 @@ def substitute(text):
             dims = "width=%.2fin" % MAX_W
         landscape = ""
         return ("%s![](%s){%s}\n\n"
-                "*Figure %s — %s*" % (landscape, rel, dims, num, title))
+                "*Figure %s - %s*" % (landscape, rel, dims, num, title))
 
-    text = re.sub(r'\*\*\[FIGURE ([\d.]+) [—-] (.+?)\]\*\*', fig, text)
+    text = re.sub(r'\*\*\[FIGURE ([\d.]+) [--] (.+?)\]\*\*', fig, text)
 
     def shot(m):
         stats["screenshots"] += 1
-        return ("> **PLACE SCREENSHOT HERE — %s**  *(delete this line once "
+        return ("> **PLACE SCREENSHOT HERE - %s**  *(delete this line once "
                 "the image is inserted)*" % m.group(1).strip())
 
     text = re.sub(r'\*\*\[SCREENSHOT (.+?)\]\*\*', shot, text)
 
     def listing(m):
         stats["listings"] += 1
-        return ("> **PASTE CODE LISTING HERE — %s**  *(delete this line once "
+        return ("> **PASTE CODE LISTING HERE - %s**  *(delete this line once "
                 "the code is inserted)*" % m.group(1).strip())
 
     text = re.sub(r'\*\*\[CODE LISTING (.+?)\]\*\*', listing, text)
@@ -248,12 +290,14 @@ def main():
     tmp.unlink()
 
     n_tables = set_table_column_widths(OUT)
+    n_title = format_title_page(OUT)
 
     print("Wrote %s (%.1f MB)" % (OUT.name, OUT.stat().st_size / 1e6))
     print("  diagrams embedded : %d" % totals["figures"])
     print("  screenshot slots  : %d" % totals["screenshots"])
     print("  code listing slots: %d" % totals["listings"])
     print("  tables given explicit column widths: %d" % n_tables)
+    print("  title-page paragraphs formatted: %d" % n_title)
 
     # ---- page budget -------------------------------------------------
     # Hard limit set by the submission: 150 pages. The placeholders are one

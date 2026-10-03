@@ -1,14 +1,14 @@
-# Chapter 11 — Complex Algorithms and Workflows
+# Chapter 11 - Complex Algorithms and Workflows
 
 ---
 
 ## 11.1 What Makes a Functionality Complex
 
-The coursework requires that a system's functionality be categorised, and that the complex category contain application logic the developer designed rather than invoked. This chapter is the evidence for that claim. It gives an algorithmic account of the five Category C features — data structures, pseudocode, design decisions and complexity — at a level that makes their difficulty **demonstrable rather than asserted**.
+The coursework requires that a system's functionality be categorised, and that the complex category contain application logic the developer designed rather than invoked. This chapter is the evidence for that claim. It gives an algorithmic account of the five Category C features - data structures, pseudocode, design decisions and complexity - at a level that makes their difficulty **demonstrable rather than asserted**.
 
 The test applied throughout is a single question: *if every third-party call were removed, would a substantial algorithm remain?* Table 11.1 applies it.
 
-**Table 11.1 — The five complex functionalities and the test applied**
+**Table 11.1 - The five complex functionalities and the test applied**
 
 | # | Functionality | Third-party calls it makes | What remains if those are removed | Points |
 |---|---|---|---|---|
@@ -26,9 +26,9 @@ C2, C3 and C4 make **no third-party calls at all**. C1 uses two library primitiv
 
 ### 11.2.1 The Primitive: Digital Signing of Custody Events
 
-The verifier depends on custody events being signed, so the signing design is stated first. The Ed25519 algorithm is a library call; the **canonical payload** is the project's design and is specified in Section 10.6.1: a JSON serialisation with sorted keys of exactly six fields — evidence identifier, event type, ISO timestamp, outgoing investigator, incoming investigator, and file hash at the event.
+The verifier depends on custody events being signed, so the signing design is stated first. The Ed25519 algorithm is a library call; the **canonical payload** is the project's design and is specified in Section 10.6.1: a JSON serialisation with sorted keys of exactly six fields - evidence identifier, event type, ISO timestamp, outgoing investigator, incoming investigator, and file hash at the event.
 
-The signature column is `NOT NULL`, which encodes a policy: a custody record must always carry a signature slot. The error behaviour around that policy is deliberately **fail-visible** rather than fail-silent or fail-closed. If signing is unavailable — an account without a key, or a cryptographic error — the system records an explicit unsigned sentinel and warns the user, and the verifier then reports that link as unverified.
+The signature column is `NOT NULL`, which encodes a policy: a custody record must always carry a signature slot. The error behaviour around that policy is deliberately **fail-visible** rather than fail-silent or fail-closed. If signing is unavailable - an account without a key, or a cryptographic error - the system records an explicit unsigned sentinel and warns the user, and the verifier then reports that link as unverified.
 
 This was chosen over two worse alternatives. It is better than the original behaviour, which left the non-nullable column unset and raised a database error that aborted the transfer entirely. And it is better than silently storing a placeholder that would *look* signed. An unsigned event is instead made conspicuous twice over: in the interface through the warning, and in the integrity report through a verification failure at that node. The report describes this as implemented rather than claiming a stronger fail-closed guarantee than the code provides.
 
@@ -36,17 +36,17 @@ This was chosen over two worse alternatives. It is better than the original beha
 
 The verifier proves, or disproves, the integrity of an evidence item's **entire** custody history rather than merely its most recent record. This distinction is the whole point: a system that checks only the latest entry can be defeated by tampering with any earlier one, and legal admissibility depends on the whole chain, not its tail.
 
-Verifying the whole chain cannot be expressed as a database query or a library call. It requires modelling the history as a connected structure, walking it, and applying several independent cryptographic and temporal checks at every step while accumulating a complete picture of where — if anywhere — it fails. This reasoning is behind its thirteen-point estimate, the largest in the project.
+Verifying the whole chain cannot be expressed as a database query or a library call. It requires modelling the history as a connected structure, walking it, and applying several independent cryptographic and temporal checks at every step while accumulating a complete picture of where - if anywhere - it fails. This reasoning is behind its thirteen-point estimate, the largest in the project.
 
 ### 11.2.3 Data Structure
 
-The algorithm loads all custody-log records for the item ordered by timestamp and constructs a **directed acyclic graph** in memory. Each node wraps one custody record and holds a list of outgoing edges to its successors. The root is the `Upload` event — the one custody record with no predecessor, guaranteed to exist by the atomic-creation invariant of Section 10.4.2.
+The algorithm loads all custody-log records for the item ordered by timestamp and constructs a **directed acyclic graph** in memory. Each node wraps one custody record and holds a list of outgoing edges to its successors. The root is the `Upload` event - the one custody record with no predecessor, guaranteed to exist by the atomic-creation invariant of Section 10.4.2.
 
-In the common case the chain is linear, each event having a single successor. The structure is nevertheless a general graph so that a future branching scenario — an item split into derived exhibits — could be represented without redesign. This is the *generality* principle applied where it costs almost nothing (Section 3.8).
+In the common case the chain is linear, each event having a single successor. The structure is nevertheless a general graph so that a future branching scenario - an item split into derived exhibits - could be represented without redesign. This is the *generality* principle applied where it costs almost nothing (Section 3.8).
 
 ### 11.2.4 Traversal and Per-Node Validation
 
-**Table 11.2 — The three checks applied at every node**
+**Table 11.2 - The three checks applied at every node**
 
 | Check | What it verifies | What it detects |
 |---|---|---|
@@ -117,17 +117,17 @@ END
 
 ### 11.2.6 Single-Pass Failure Collection
 
-The design property that mattered most — and the one that cost three days of Increment 2 — is that **the traversal does not stop at the first failure**. When a check fails the algorithm records a structured failure (node identifier, event type, timestamp, failure category, human-readable explanation) and continues, so that all failures across the entire chain are discovered in one pass.
+The design property that mattered most - and the one that cost three days of Increment 2 - is that **the traversal does not stop at the first failure**. When a check fails the algorithm records a structured failure (node identifier, event type, timestamp, failure category, human-readable explanation) and continues, so that all failures across the entire chain are discovered in one pass.
 
 The first implementation short-circuited, which contradicted the acceptance criterion that all failures be found. Reworking the traversal to accumulate while continuing is what the plateau on the Increment 2 burndown (Figure 5.2) represents, and the rework additionally surfaced a payload-format bug: a timestamp-formatting mismatch that the canonical-format decision had been meant to prevent but that had crept back in.
 
-The forensic justification is straightforward. A verifier that reports only the first problem tells an investigator that the chain is broken; a verifier that reports all of them tells the investigator *where* and *how many times* — which is the difference between a verdict and evidence.
+The forensic justification is straightforward. A verifier that reports only the first problem tells an investigator that the chain is broken; a verifier that reports all of them tells the investigator *where* and *how many times* - which is the difference between a verdict and evidence.
 
 ### 11.2.7 Output and Complexity
 
 The algorithm returns a structured report carrying the verdict (Intact, Partially Verified, Broken), the completeness score as the proportion of nodes passing all three checks, the counts of total and verified nodes, the ordered failure list and a verified timeline. It is serialisable, so it can be stored as an audit record and consumed by the risk scorer.
 
-**Complexity.** The traversal visits each of the *n* custody nodes once and performs a constant number of checks at each, giving *O(V + E)*, which for a linear chain is *O(n)*. The constant is dominated by cryptographic work — one signature verification per node, plus one file decryption and hash at the root — rather than by the graph walk. This is acceptable for an operation invoked on demand rather than on every request.
+**Complexity.** The traversal visits each of the *n* custody nodes once and performs a constant number of checks at each, giving *O(V + E)*, which for a linear chain is *O(n)*. The constant is dominated by cryptographic work - one signature verification per node, plus one file decryption and hash at the root - rather than by the graph walk. This is acceptable for an operation invoked on demand rather than on every request.
 
 ---
 
@@ -141,7 +141,7 @@ A naive rule such as *flag items with more than five transfers* is inadequate be
 
 ### 11.3.2 The Eight Factors
 
-**Table 11.3 — The eight risk factors**
+**Table 11.3 - The eight risk factors**
 
 | Factor | Signal | Source | Default weight |
 |---|---|---|---|
@@ -156,13 +156,13 @@ A naive rule such as *flag items with more than five transfers* is inadequate be
 
 Two factors deserve particular note. `role_mismatch_count` and `duplicate_entry_count` are computed **live by the Category A audit-formula checks** built in Increment 1, so the simple formula computations feed directly into the complex algorithm rather than sitting in isolation. `integrity_status` reads the column the graph verifier writes, so the highest-weighted signal reflects a genuine verification result.
 
-Both of these connections were broken when originally written and were repaired in M2 (findings D5 and D2). Before that repair, the two formula factors counted the *wrong* audit events — integrity-check and warning-level records — with the perverse consequence that **running a verification raised an item's risk**, and the integrity factor read a column that did not exist, so a quarter of the algorithm's output was a constant. The repairs are what make Table 11.3 an accurate description rather than an intention.
+Both of these connections were broken when originally written and were repaired in M2 (findings D5 and D2). Before that repair, the two formula factors counted the *wrong* audit events - integrity-check and warning-level records - with the perverse consequence that **running a verification raised an item's risk**, and the integrity factor read a column that did not exist, so a quarter of the algorithm's output was a constant. The repairs are what make Table 11.3 an accurate description rather than an intention.
 
 ### 11.3.3 Normalisation
 
 Raw signals are not comparable in their natural units, so each is normalised to [0, 1] using a curve matched to its distribution. Choosing a curve per factor, rather than normalising everything linearly, is a small piece of modelling that materially improves the score's behaviour.
 
-**Table 11.4 — Normalisation curve families**
+**Table 11.4 - Normalisation curve families**
 
 | Curve | Applied to | Why this curve |
 |---|---|---|
@@ -171,7 +171,7 @@ Raw signals are not comparable in their natural units, so each is normalised to 
 | **Sigmoid centred at 30 days** | `time_since_last_activity` | Risk should rise sharply as the item passes the point where prolonged inactivity becomes suspicious, not linearly from day one |
 | **Bounded linear** | `role_mismatch_count`, `duplicate_entry_count` | Small integer counts where each additional occurrence carries similar weight |
 
-Every curve clamps to [0, 1], so the composite score is **provably bounded** — the property that makes it "rigorous" in Table 3.3.
+Every curve clamps to [0, 1], so the composite score is **provably bounded** - the property that makes it "rigorous" in Table 3.3.
 
 ### 11.3.4 Weighting and Interaction Detection
 
@@ -179,7 +179,7 @@ The normalised factors are combined by a weighted sum whose weights sum to 1.0, 
 
 On top of the base score, **five interaction rules** are evaluated. Each names a pair of factors and a threshold for each; when both exceed their thresholds, a multiplicative bonus is applied.
 
-**Table 11.5 — The five interaction rules**
+**Table 11.5 - The five interaction rules**
 
 | Factor A | Factor B | Thresholds | Multiplier | Forensic interpretation |
 |---|---|---|---|---|
@@ -229,11 +229,11 @@ ALGORITHM ScoreEvidenceRisk(evidence)
 END
 ```
 
-The output is not an opaque number: it carries each factor's normalised value and weighted contribution, the interaction reasons that fired, and recommendations keyed to which factors are elevated. This matters for the same reason DR-07 matters — an investigator must be able to see *why* an item is ranked where it is.
+The output is not an opaque number: it carries each factor's normalised value and weighted contribution, the interaction reasons that fired, and recommendations keyed to which factors are elevated. This matters for the same reason DR-07 matters - an investigator must be able to see *why* an item is ranked where it is.
 
 **Complexity.** *O(n)* in the number of custody and audit records for the item, dominated by factor extraction; the normalisation, weighting, five-rule interaction check and classification are all constant-time. Scoring a dashboard of *m* items is therefore *O(m · n)*.
 
-The score is recomputed whenever an item's state changes, because both the lifecycle-state factor and the integrity factor are inputs — which is why the state machine triggers a recalculation on every transition.
+The score is recomputed whenever an item's state changes, because both the lifecycle-state factor and the integrity factor are inputs - which is why the state machine triggers a recalculation on every transition.
 
 ---
 
@@ -241,7 +241,7 @@ The score is recomputed whenever an item's state changes, because both the lifec
 
 ### 11.4.1 Purpose and Why It Is Complex
 
-Reconstruction addresses the case where the custody record is incomplete — a transfer was never recorded, an entry was deleted, or timestamps are inconsistent — and the investigator nonetheless needs the most plausible account of what happened, **clearly separated into what is certain, what is inferred, and what cannot be resolved**.
+Reconstruction addresses the case where the custody record is incomplete - a transfer was never recorded, an entry was deleted, or timestamps are inconsistent - and the investigator nonetheless needs the most plausible account of what happened, **clearly separated into what is certain, what is inferred, and what cannot be resolved**.
 
 This is fundamentally a heuristic search rather than a lookup: there is no single correct answer when records are missing, so the algorithm must generate possible filling records, evaluate their plausibility against several criteria, and return the best-supported reconstruction together with an honest measure of confidence.
 
@@ -249,12 +249,12 @@ This is fundamentally a heuristic search rather than a lookup: there is no singl
 
 The algorithm loads the confirmed records in timestamp order and walks each consecutive pair, detecting gaps in two modes.
 
-**Table 11.6 — The two gap detection modes**
+**Table 11.6 - The two gap detection modes**
 
 | Mode | Condition | Example |
 |---|---|---|
 | **Structural** | The holder implied by one record does not match the holder named by the next | Investigator B is recorded as *receiving* an item, but there is no record of A, its previous holder, transferring it |
-| **Temporal** | More than a configured number of hours — 72 by default — separates two consecutive records with no intervening transfer | An item sat unaccounted-for for four days even though the holder fields happen to align |
+| **Temporal** | More than a configured number of hours - 72 by default - separates two consecutive records with no intervening transfer | An item sat unaccounted-for for four days even though the holder fields happen to align |
 
 The temporal mode was added during development because structural matching alone missed the common real-world case of an item that is simply unattended for an extended period. This is worth recording as a design history: the first version of the algorithm was structurally correct and forensically incomplete.
 
@@ -262,7 +262,7 @@ The temporal mode was added during development because structural matching alone
 
 For each gap the algorithm generates candidate filling records by querying the access log for events falling within the gap's time window that involve investigators who could plausibly have handled the item. Each candidate is scored by a plausibility function combining four independent criteria.
 
-**Table 11.7 — The four plausibility criteria**
+**Table 11.7 - The four plausibility criteria**
 
 | Criterion | Question | Evidence used |
 |---|---|---|
@@ -326,7 +326,7 @@ The plausibility threshold of 0.40 is what makes the guarantee real. An algorith
 
 ### 11.5.1 Purpose
 
-The state machine turns the evidence lifecycle from a convention that investigators are trained to follow into a rule that the system enforces. It guarantees that no item can be moved into an invalid state, that only authorised roles can trigger particular transitions, and that some transitions cannot occur until their preconditions are met — above all, that an item cannot be archived until its integrity has been verified as intact.
+The state machine turns the evidence lifecycle from a convention that investigators are trained to follow into a rule that the system enforces. It guarantees that no item can be moved into an invalid state, that only authorised roles can trigger particular transitions, and that some transitions cannot occur until their preconditions are met - above all, that an item cannot be archived until its integrity has been verified as intact.
 
 ### 11.5.2 The Automaton
 
@@ -373,7 +373,7 @@ END
 
 Two properties of this pipeline are worth emphasising.
 
-**Rejections are audited as fully as successes.** A failed attempt to move an item into a state the actor may not reach is itself forensically interesting — it may be the first sign of a procedural problem — so it is written to the trail with the exact condition that was not met, rather than merely refused in the interface.
+**Rejections are audited as fully as successes.** A failed attempt to move an item into a state the actor may not reach is itself forensically interesting - it may be the first sign of a procedural problem - so it is written to the trail with the exact condition that was not met, rather than merely refused in the interface.
 
 **The side effects are atomic with the state change.** The state update, the audit write and the risk recalculation occur in one transaction. If they did not, the system could reach a state where an item is Archived but no audit record says who archived it, which would defeat the purpose of the audit trail.
 
@@ -381,7 +381,7 @@ Two properties of this pipeline are worth emphasising.
 
 The state machine is more than a field update guarded by an `if`. It is a formal automaton whose transition relation, role guards and precondition predicates together encode a body of procedural law, and whose execution has side effects that must occur atomically with the state change.
 
-Its correctness is what allows the rest of the system to trust a claim it could not otherwise make: that an **Archived item really did pass integrity verification**. The archiving precondition enforces this by checking for an integrity-check audit record with an Intact verdict before permitting the transition. That single guard is guarantee G4 in its purest form — a rule of forensic procedure converted into a condition the system will not let anyone bypass.
+Its correctness is what allows the rest of the system to trust a claim it could not otherwise make: that an **Archived item really did pass integrity verification**. The archiving precondition enforces this by checking for an integrity-check audit record with an Intact verdict before permitting the transition. That single guard is guarantee G4 in its purest form - a rule of forensic procedure converted into a condition the system will not let anyone bypass.
 
 ---
 
@@ -389,13 +389,13 @@ Its correctness is what allows the rest of the system to trust a claim it could 
 
 ### 11.6.1 Purpose and Why It Is Complex
 
-The assistant lets an investigator ask questions in natural language — *"what is the risk score for evidence seven?"*, *"who has held this item?"*, *"what are my cases?"* — and receive answers grounded in the actual database rather than in the model's imagination.
+The assistant lets an investigator ask questions in natural language - *"what is the risk score for evidence seven?"*, *"who has held this item?"*, *"what are my cases?"* - and receive answers grounded in the actual database rather than in the model's imagination.
 
-The language model itself is a Category B service. What the project contributes, and what makes this Category C, is the **orchestration workflow around it**: the logic that decides what the question is about, retrieves exactly the right data while respecting access boundaries, constructs a prompt, and — critically — validates and fact-checks the answer before showing it. Figure 8.5 makes the proportion visible: the model call is one message in the middle; five of the six stages are the project's own.
+The language model itself is a Category B service. What the project contributes, and what makes this Category C, is the **orchestration workflow around it**: the logic that decides what the question is about, retrieves exactly the right data while respecting access boundaries, constructs a prompt, and - critically - validates and fact-checks the answer before showing it. Figure 8.5 makes the proportion visible: the model call is one message in the middle; five of the six stages are the project's own.
 
 ### 11.6.2 The Six Stages
 
-**Table 11.8 — The six orchestration stages**
+**Table 11.8 - The six orchestration stages**
 
 | Stage | Name | What it does | Whose work |
 |---|---|---|---|
@@ -408,7 +408,7 @@ The language model itself is a Category B service. What the project contributes,
 
 ### 11.6.3 Two Decisions That Shape the Pipeline
 
-**Access scoping in stage 2 is not an afterthought — it is what makes the assistant safe.** Because retrieval is filtered to the user's accessible cases, every downstream stage operates only on permitted data, so the assistant inherits the same case-level authorisation as the rest of the system rather than becoming a hole in it. Before M1 the retrieval was global, and a lead investigator could ask the assistant to list all cases and receive every case in the system — a defect that no amount of prompt engineering would have fixed, because the data was already in the prompt.
+**Access scoping in stage 2 is not an afterthought - it is what makes the assistant safe.** Because retrieval is filtered to the user's accessible cases, every downstream stage operates only on permitted data, so the assistant inherits the same case-level authorisation as the rest of the system rather than becoming a hole in it. Before M1 the retrieval was global, and a lead investigator could ask the assistant to list all cases and receive every case in the system - a defect that no amount of prompt engineering would have fixed, because the data was already in the prompt.
 
 **The mock fallback in stage 4 is what made the pipeline testable.** The model is invoked through a single method that tests can exercise without a network call, so stages 1, 2, 3, 5 and 6 are all covered by fast deterministic tests. This is the *dependency behind a seam* practice carried in as action A2-2 from the Increment 2 retrospective, and it paid off twice: once in test coverage, and again when the hosted model was retired mid-project and the change was confined to one method.
 
@@ -435,7 +435,7 @@ Because retrieval is access-scoped, the check does **double duty**: it catches b
 
 The `known` set deliberately includes two sources beyond the retrieved context. The **user's own identity** is included because it appears in the system prompt rather than the context block, and without it the assistant flagged an administrator's own role as a hallucination when answering "who am I". The **user's own question** is included because a user who names an entity is not being told something fabricated. Both additions came from observed false positives; a hallucination detector that cries wolf is worse than none, because its warnings stop being read.
 
-**The limits are stated plainly.** The check verifies *references, not reasoning*: it cannot establish that the model's prose is correct, only that the entities it names exist and were permitted. The assistant is therefore positioned as a convenience whose output is to be verified, not as an authority. But it addresses the most dangerous failure mode directly — an answer that confidently names an evidence item or investigator that does not exist or that the user cannot access.
+**The limits are stated plainly.** The check verifies *references, not reasoning*: it cannot establish that the model's prose is correct, only that the entities it names exist and were permitted. The assistant is therefore positioned as a convenience whose output is to be verified, not as an authority. But it addresses the most dangerous failure mode directly - an answer that confidently names an evidence item or investigator that does not exist or that the user cannot access.
 
 ### 11.6.5 A Note on the Isolation Forest
 
@@ -447,21 +447,21 @@ Classifying this as Category B rather than Category C is a deliberate act of the
 
 ## 11.7 Complexity Summary
 
-**Table 11.9 — Asymptotic complexity of the five algorithms**
+**Table 11.9 - Asymptotic complexity of the five algorithms**
 
 | Algorithm | Time complexity | Dominant cost | Space | Invocation |
 |---|---|---|---|---|
 | Graph integrity verification | *O(V + E)*, linear in custody records | Cryptographic: one signature verification per node; one file decrypt + hash at the root | *O(V)* for the graph and visited set | On demand |
-| Multi-factor risk scoring | *O(n)* per item; *O(m · n)* for a dashboard of *m* items | Factor extraction queries | *O(1)* — eight factors | On state change and on dashboard load |
+| Multi-factor risk scoring | *O(n)* per item; *O(m · n)* for a dashboard of *m* items | Factor extraction queries | *O(1)* - eight factors | On state change and on dashboard load |
 | Custody chain reconstruction | *O(n + Σ&#124;C_g&#124;)* | Candidate scoring per gap | *O(n)* for the link list | On demand |
-| Lifecycle state machine | *O(p)* where *p* is the number of preconditions on the transition — in practice at most one | Precondition evaluation (one audit-record query) | *O(1)* | Per transition request |
+| Lifecycle state machine | *O(p)* where *p* is the number of preconditions on the transition - in practice at most one | Precondition evaluation (one audit-record query) | *O(1)* | Per transition request |
 | AI orchestration | *O(k)* in retrieved context size, plus one bounded network call | The network call, bounded at 20 s per model and 60 s total | *O(k)* for context and history | Per question |
 
 None of these is worse than linear in the data it examines. This is a deliberate property rather than a happy accident: every algorithm was designed around a single pass over its input, which is why the verifier accumulates failures rather than restarting, why the risk scorer extracts all eight factors before combining any, and why reconstruction resolves each gap independently rather than searching over whole-chain hypotheses.
 
 ## 11.8 Summary
 
-This chapter gave an algorithmic account of the five Category C functionalities, applying throughout the test of what would remain if every third-party call were removed — and showing that for three of the five, nothing would be removed at all.
+This chapter gave an algorithmic account of the five Category C functionalities, applying throughout the test of what would remain if every third-party call were removed - and showing that for three of the five, nothing would be removed at all.
 
 The graph integrity verifier was presented with its directed-acyclic-graph representation, its three per-node checks, its single-pass failure accumulation and the three-day rework that produced it, together with an explicit statement of what its hash check does and does not prove. The risk scorer was given with its eight factors, four normalisation curve families, five interaction rules and capped bonus, including the account of how two of its inputs were silently broken until M2 repaired them. Chain reconstruction was presented as a heuristic best-first search whose central property is the number of paths that end in an honest *Unresolved*. The state machine was formalised as a partial transition function with role guards and precondition predicates, executing atomically, and identified as the mechanism by which forensic procedure becomes enforced logic. The AI orchestration was decomposed into six stages, five of them the project's own, with the hallucination detector's `known` set and its stated limits.
 

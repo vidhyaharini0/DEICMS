@@ -1,4 +1,4 @@
-# Chapter 1 — Introduction
+# Chapter 1 - Introduction
 
 ---
 
@@ -6,17 +6,17 @@
 
 Modern criminal and corporate investigations increasingly turn on *digital* evidence: disk images, memory dumps, log files, photographs, intercepted messages, database extracts, and the metadata that surrounds them. Unlike a physical exhibit sealed in an evidence bag, a digital artefact can be copied perfectly, altered without visible trace, and moved between investigators in seconds. This fluidity is precisely what makes digital evidence powerful and, at the same time, fragile as a matter of legal procedure.
 
-Courts admit an exhibit only when the party presenting it can demonstrate an unbroken *chain of custody*: a complete, tamper-evident record of who collected the item, who has held it at every moment since, what was done to it, and proof that its content has not changed between collection and presentation. A single unexplained gap — an hour during which no one is recorded as the custodian, a transfer with no signature, a file whose hash no longer matches the value recorded at seizure — is often sufficient for the evidence to be ruled inadmissible, regardless of how incriminating its content might be.
+Courts admit an exhibit only when the party presenting it can demonstrate an unbroken *chain of custody*: a complete, tamper-evident record of who collected the item, who has held it at every moment since, what was done to it, and proof that its content has not changed between collection and presentation. A single unexplained gap - an hour during which no one is recorded as the custodian, a transfer with no signature, a file whose hash no longer matches the value recorded at seizure - is often sufficient for the evidence to be ruled inadmissible, regardless of how incriminating its content might be.
 
-In practice, the chain of custody has historically been maintained on paper forms and spreadsheets. That approach scales poorly and fails silently. A spreadsheet cannot cryptographically prove that a file is unchanged, cannot prevent an unauthorised analyst from editing a record, and cannot detect that a custody entry has been deleted after the fact. The people who most need these guarantees — forensic investigators, evidence custodians, and the legal teams that rely on their work — are not usually in a position to build bespoke software, and general-purpose document systems do not encode the domain rules that a forensic workflow requires: who may hold which category of evidence, which lifecycle transitions are legally meaningful, and how integrity is proven.
+In practice, the chain of custody has historically been maintained on paper forms and spreadsheets. That approach scales poorly and fails silently. A spreadsheet cannot cryptographically prove that a file is unchanged, cannot prevent an unauthorised analyst from editing a record, and cannot detect that a custody entry has been deleted after the fact. The people who most need these guarantees - forensic investigators, evidence custodians, and the legal teams that rely on their work - are not usually in a position to build bespoke software, and general-purpose document systems do not encode the domain rules that a forensic workflow requires: who may hold which category of evidence, which lifecycle transitions are legally meaningful, and how integrity is proven.
 
-DEICMS — the **Digital Evidence Integrity & Chain-of-Custody Management System** — is a response to that gap. It is a web application in which every action that touches an evidence item is authenticated, authorised against a role and a case membership, cryptographically signed where a hand-off of responsibility occurs, and written to an append-only audit trail. Around this secure core, the system layers analytical capabilities: it verifies the integrity of an entire custody history as a graph rather than a single latest record, scores each item for risk across multiple interacting signals, reconstructs plausible custody chains where records are incomplete, and offers investigators a natural-language assistant that answers questions strictly from the data they are permitted to see.
+DEICMS - the **Digital Evidence Integrity & Chain-of-Custody Management System** - is a response to that gap. It is a web application in which every action that touches an evidence item is authenticated, authorised against a role and a case membership, cryptographically signed where a hand-off of responsibility occurs, and written to an append-only audit trail. Around this secure core, the system layers analytical capabilities: it verifies the integrity of an entire custody history as a graph rather than a single latest record, scores each item for risk across multiple interacting signals, reconstructs plausible custody chains where records are incomplete, and offers investigators a natural-language assistant that answers questions strictly from the data they are permitted to see.
 
 ## 1.2 Problem Definition
 
 The concrete problem DEICMS addresses can be stated as a set of guarantees that a credible digital-evidence system must provide and that ad-hoc tools do not. These five guarantees recur throughout this report as the criteria against which each increment's work is measured.
 
-**Table 1.1 — The five guarantees DEICMS was built to provide**
+**Table 1.1 - The five guarantees DEICMS was built to provide**
 
 | # | Guarantee | Why ad-hoc tools fail | How DEICMS delivers it |
 |---|---|---|---|
@@ -34,13 +34,13 @@ The project was undertaken as coursework for the Software Engineering module, an
 
 First, the domain **maps honestly onto the three feature categories the coursework requires**. A chain-of-custody system genuinely needs a rich relational model (Category A), genuinely needs established cryptographic and machine-learning libraries that it would be irresponsible to reimplement (Category B), and genuinely needs original algorithmic work that no library provides (Category C). Many project domains require the categories to be manufactured; this one supplies them.
 
-Second, the domain **has real, non-negotiable non-functional requirements**. Security, auditability and integrity are not decorative here — a forensic system that leaks case data or permits history to be rewritten has failed at its purpose, not merely fallen short of best practice. This makes the non-functional requirements examinable and testable rather than aspirational.
+Second, the domain **has real, non-negotiable non-functional requirements**. Security, auditability and integrity are not decorative here - a forensic system that leaks case data or permits history to be rewritten has failed at its purpose, not merely fallen short of best practice. This makes the non-functional requirements examinable and testable rather than aspirational.
 
 Third, the domain **rewards genuine algorithmic thinking**. Verifying that a custody chain is intact is not a database query: it requires modelling the chain as a directed graph, traversing it, and validating multiple independent conditions at every node and edge. That is the kind of problem the complex-functionality requirement exists to elicit.
 
 ## 1.4 Project Scope
 
-**Table 1.2 — Scope boundaries**
+**Table 1.2 - Scope boundaries**
 
 | In scope | Out of scope |
 |---|---|
@@ -61,7 +61,7 @@ Two **limitations** are worth stating at the outset because they are design cons
 
 ## 1.5 Objectives
 
-**Table 1.3 — Project objectives and how each was met**
+**Table 1.3 - Project objectives and how each was met**
 
 | # | Objective | Type | Met by |
 |---|---|---|---|
@@ -83,13 +83,13 @@ The project's contributions, stated without inflation, are as follows.
 - A **heuristic custody-chain reconstruction algorithm** that performs best-first search over candidate links when the recorded chain is incomplete, labelling each inferred link with a confidence level.
 - A **formal evidence lifecycle state machine** with six states, role-gated transitions and precondition guards, which converts procedural discipline into enforced logic.
 - A **six-stage AI orchestration workflow** with access-scoped retrieval and a hallucination-detection stage that cross-checks every entity reference in the model's reply against the retrieved context.
-- A **demonstration of the full software development process** — requirements engineering, modelling, architecture, implementation, testing, and two maintenance iterations — conducted and documented as an agile incremental project.
+- A **demonstration of the full software development process** - requirements engineering, modelling, architecture, implementation, testing, and two maintenance iterations - conducted and documented as an agile incremental project.
 
 ## 1.7 Structure of this Report
 
 This report is organised to follow the discipline of software engineering rather than the chronology of the project alone. Each chapter first presents the relevant engineering theory and then applies it concretely to DEICMS, so that the report documents both what was built and why it was built that way.
 
-**Table 1.4 — Report structure**
+**Table 1.4 - Report structure**
 
 | Chapter | Subject | Corresponding course topic |
 |---|---|---|
@@ -110,10 +110,10 @@ This report is organised to follow the discipline of software engineering rather
 | 15 | Software Reuse and Components | Software Reuse and Components |
 | 16 | Feature Categorisation Self-Assessment | Coursework categorisation requirement |
 | 17 | Deployment and Operation | DevOps |
-| 18 | System Output and Screenshots | — |
-| 19 | Conclusion | — |
-| 20 | References | — |
-| 21 | Appendices | — |
+| 18 | System Output and Screenshots | - |
+| 19 | Conclusion | - |
+| 20 | References | - |
+| 21 | Appendices | - |
 
 The three development increments and the two maintenance iterations are documented in Chapter 5, each with its own sprint goal, sprint backlog, burndown chart, review and retrospective, so that the per-increment reporting the coursework requires for an agile process is preserved while the syllabus structure of the report is maintained.
 
