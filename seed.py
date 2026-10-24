@@ -220,6 +220,42 @@ def seed():
             'IP logs, browser history exports, and social media data packages recovered.',
             'Open', 10, admin, analyst)
 
+        #  Case access (memberships) 
+        # Without these rows every non-Admin role sees an empty system:
+        # accessible_case_ids() returns [] for an investigator with no
+        # membership, so the case list, every dashboard panel, the risk views
+        # and the AI assistant all come back empty. Admins are exempt from the
+        # check, which is why the omission is invisible when testing as Admin.
+        from app.models.case_access import CaseAccess
+
+        def grant(case, investigator, permission):
+            row = CaseAccess.query.filter_by(
+                case_id=case.id, investigator_id=investigator.id).first()
+            if row:
+                return row
+            row = CaseAccess(
+                case_id=case.id,
+                investigator_id=investigator.id,
+                permission=permission,
+                granted_by_id=admin.id)
+            db.session.add(row)
+            return row
+
+        # The Lead owns most cases; the Analyst works a subset; the Read-Only
+        # auditor reviews a smaller subset still. Case 8 is deliberately left
+        # without an Analyst so that cross-case scoping can be demonstrated.
+        for c in (case1, case2, case3, case4, case5, case6, case7, case8):
+            grant(c, lead, 'Owner')
+        for c in (case1, case2, case3, case5, case7):
+            grant(c, analyst, 'Member')
+        for c in (case1, case2):
+            grant(c, readonly, 'ReadOnly')
+        db.session.commit()
+
+        total = CaseAccess.query.count()
+        print(f' Granted case access: {total} memberships '
+              f'(lead=8 owner, analyst=5 member, readonly=2 read-only)')
+
         #  Evidence items 
         # We only seed evidence if none exists yet
         if EvidenceItem.query.count() > 0:
