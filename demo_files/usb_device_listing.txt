@@ -1,0 +1,18 @@
+USB MASS STORAGE - DIRECTORY LISTING
+Device  : Kingston DataTraveler 3.0
+Serial  : 60A44C3F8E21B9D0
+Captured: 2026-10-24 11:05:00
+Imaged  : write-blocker ref WB-114
+
+Mode    Size (bytes)  Modified             Name
+-----   ------------  -------------------  ----------------------------
+-a---        1065330  2026-09-02 14:12:00  ledger_q3.xlsx
+-a---         688964  2026-09-02 21:12:00  contacts.vcf
+-a---        3362703  2026-09-03 04:12:00  notes.txt
+-a---        4020381  2026-09-03 11:12:00  scan_0012.jpg
+-a---        4450299  2026-09-03 18:12:00  backup_2026_09.zip
+-a---        4313153  2026-09-04 01:12:00  readme.md
+-a---        3059259  2026-09-04 08:12:00  invoice_8871.pdf
+
+Total: 7 files
+SHA-256 of device image recorded separately on the intake form.
