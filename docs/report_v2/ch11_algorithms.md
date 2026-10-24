@@ -105,7 +105,7 @@ ALGORITHM VerifyChainIntegrity(evidence)
           STACK.push(successor)                // CONTINUE - do not stop on failure
   END WHILE
 
-  completeness <- verified / |logs|
+  completeness <- 100 * verified / |logs|      // a percentage
   verdict <- INTACT             IF failures is empty
            <- BROKEN            IF verified = 0
            <- PARTIALLY_VERIFIED otherwise
