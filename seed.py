@@ -241,20 +241,25 @@ def seed():
             db.session.add(row)
             return row
 
-        # The Lead owns most cases; the Analyst works a subset; the Read-Only
-        # auditor reviews a smaller subset still. Case 8 is deliberately left
-        # without an Analyst so that cross-case scoping can be demonstrated.
-        for c in (case1, case2, case3, case4, case5, case6, case7, case8):
+        # Deliberately unequal, because the role-scoping screenshots depend
+        # on the four dashboards showing DIFFERENT totals over the same data.
+        # The Admin is exempt from the case check and therefore sees all 8;
+        # giving the Lead all 8 as well would make the comparison meaningless.
+        #
+        #   Admin      8 cases  (exempt - no rows needed)
+        #   Lead       4 cases  as Owner   (incl. the two with flagged evidence)
+        #   Analyst    3 cases  as Member
+        #   Read-Only  0 cases  - demonstrates the explanatory empty state (FR-52)
+        for c in (case1, case2, case3, case6):
             grant(c, lead, 'Owner')
-        for c in (case1, case2, case3, case5, case7):
+        for c in (case1, case3, case5):
             grant(c, analyst, 'Member')
-        for c in (case1, case2):
-            grant(c, readonly, 'ReadOnly')
+        # readonly is intentionally granted nothing.
         db.session.commit()
 
         total = CaseAccess.query.count()
         print(f' Granted case access: {total} memberships '
-              f'(lead=8 owner, analyst=5 member, readonly=2 read-only)')
+              f'(admin=exempt/8, lead=4 owner, analyst=3 member, readonly=0)')
 
         #  Evidence items 
         # We only seed evidence if none exists yet

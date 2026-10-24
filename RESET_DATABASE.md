@@ -40,7 +40,7 @@ finishes cleanly.
 Expected:
 
     investigators: 4
-    case_access  : 15
+    case_access  : 7
 
 `investigators: 0` is the exact symptom of "I cannot log in with any
 account". `case_access: 0` means Admin works but every other role sees an
@@ -57,13 +57,15 @@ warning.
 
 | Email | Password | Role | Sees |
 |---|---|---|---|
-| `admin@deicms.com` | `Admin@1234` | Admin | all 8 cases |
-| `lead@deicms.com` | `Lead@1234` | Lead Investigator | 8 cases, as Owner |
-| `analyst@deicms.com` | `Analyst@1234` | Analyst | 5 cases |
-| `readonly@deicms.com` | `Readonly@1234` | Read-Only | 2 cases |
+| `admin@deicms.com` | `Admin@1234` | Admin | all 8 cases (exempt from the check) |
+| `lead@deicms.com` | `Lead@1234` | Lead Investigator | 4 cases, as Owner |
+| `analyst@deicms.com` | `Analyst@1234` | Analyst | 3 cases, as Member |
+| `readonly@deicms.com` | `Readonly@1234` | Read-Only | **none** - shows the empty state |
 
-The differing counts are deliberate: they are what makes the role-scoping
-screenshots (18.3 vs 18.4) show different totals over the same database.
+The differing counts are deliberate. Only the Admin is exempt from the
+case-membership check; every other role sees a strict subset. This is what
+makes Figures 18.3 and 18.4 show different totals over the same database,
+and what gives Figure 18.5 its explanatory empty state.
 
 ## Note
 
