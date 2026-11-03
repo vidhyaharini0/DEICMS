@@ -1,0 +1,284 @@
+[
+ {
+  "order": 1,
+  "media": "image1.jpg",
+  "before": "Software Engineering Project Report",
+  "after": "University of Messina"
+ },
+ {
+  "order": 2,
+  "media": "image2.png",
+  "before": "Measured against the five guarantees of Table 1.1, Increment 1 fully delivered G3 (tamper-",
+  "after": "5.1.5 Burndown"
+ },
+ {
+  "order": 3,
+  "media": "image3.png",
+  "before": "Against the five guarantees, Increment 2 completed G1 (provable integrity) and delivered G",
+  "after": "5.2.5 Burndown"
+ },
+ {
+  "order": 4,
+  "media": "image4.png",
+  "before": "With this increment the fifth guarantee - G5, analytical prioritisation - was delivered, c",
+  "after": "5.3.5 Burndown"
+ },
+ {
+  "order": 5,
+  "media": "image5.png",
+  "before": "The system has forty-one use cases in total - too many for one readable diagram, and reada",
+  "after": "Figure 8.1 - Use Case Diagram"
+ },
+ {
+  "order": 6,
+  "media": "image6.png",
+  "before": "The emphasis on operations is not incidental - it is the defining characteristic. A class ",
+  "after": "Figure 8.2 - Design Class Diagram"
+ },
+ {
+  "order": 7,
+  "media": "image7.png",
+  "before": "A useful way to hold the distinction: the ER diagram is what survives if the application i",
+  "after": "8.5.2 The Diagram"
+ },
+ {
+  "order": 8,
+  "media": "image8.png",
+  "before": "Sequence diagrams take the interaction perspective, showing the messages exchanged between",
+  "after": "8.6.1 Chain-of-Custody Integrity Verification"
+ },
+ {
+  "order": 9,
+  "media": "image9.png",
+  "before": "The separation of the file store from the database makes visible that verification re-read",
+  "after": "8.6.2 AI Assistant Orchestration"
+ },
+ {
+  "order": 10,
+  "media": "image10.png",
+  "before": "Activity diagrams take the behavioural perspective on a single activity, showing control f",
+  "after": "8.7.1 Multi-Factor Risk Scoring"
+ },
+ {
+  "order": 11,
+  "media": "image11.png",
+  "before": "The note that the interaction bonus is capped records a design decision explained in Secti",
+  "after": "8.7.2 Custody Chain Reconstruction"
+ },
+ {
+  "order": 12,
+  "media": "image12.png",
+  "before": "8.8 State Machine Model: the Evidence Lifecycle",
+  "after": "The state machine diagram models an object\u2019s lifecycle: the states it may occupy, the even"
+ },
+ {
+  "order": 13,
+  "media": "image13.png",
+  "before": "8.9 Implementation and Deployment Models",
+  "after": "8.9.1 Component Diagram"
+ },
+ {
+  "order": 14,
+  "media": "image14.png",
+  "before": "The diagram is also where the cross-cutting utilities are visible as such. decorators, the",
+  "after": "8.9.2 Deployment Diagram"
+ },
+ {
+  "order": 15,
+  "media": "image15.png",
+  "before": "18.2 Access Control and Role Scoping",
+  "after": "Guarantee G2 - FR-01 to FR-06, FR-21, FR-47, FR-51, FR-52, NFR-01."
+ },
+ {
+  "order": 16,
+  "media": "image16.png",
+  "before": "Figure 18.1 - Login page. The form offers no registration link: accounts are created only ",
+  "after": "Figure 18.2 - Creating an investigator account. The administrator selects one of the four "
+ },
+ {
+  "order": 17,
+  "media": "image17.png",
+  "before": "Figure 18.1 - Login page. The form offers no registration link: accounts are created only ",
+  "after": "Figure 18.2 - Creating an investigator account. The administrator selects one of the four "
+ },
+ {
+  "order": 18,
+  "media": "image18.png",
+  "before": "Figure 18.2 - Creating an investigator account. The administrator selects one of the four ",
+  "after": "Figure 18.3 - Administrator dashboard. System-wide totals and the security-alerts panel. T"
+ },
+ {
+  "order": 19,
+  "media": "image19.png",
+  "before": "Figure 18.2 - Creating an investigator account. The administrator selects one of the four ",
+  "after": "Figure 18.3 - Administrator dashboard. System-wide totals and the security-alerts panel. T"
+ },
+ {
+  "order": 20,
+  "media": "image20.png",
+  "before": "Figure 18.3 - Administrator dashboard. System-wide totals and the security-alerts panel. T",
+  "after": "Figure 18.4 - Lead Investigator dashboard, same database. The panels are scoped to the cas"
+ },
+ {
+  "order": 21,
+  "media": "image21.png",
+  "before": "Figure 18.3 - Administrator dashboard. System-wide totals and the security-alerts panel. T",
+  "after": "Figure 18.4 - Lead Investigator dashboard, same database. The panels are scoped to the cas"
+ },
+ {
+  "order": 22,
+  "media": "image22.png",
+  "before": "Figure 18.4 - Lead Investigator dashboard, same database. The panels are scoped to the cas",
+  "after": "Figure 18.5 - Analyst dashboard, same database. A third view of the same data, narrower ag"
+ },
+ {
+  "order": 23,
+  "media": "image23.png",
+  "before": "Figure 18.4 - Lead Investigator dashboard, same database. The panels are scoped to the cas",
+  "after": "Figure 18.5 - Analyst dashboard, same database. A third view of the same data, narrower ag"
+ },
+ {
+  "order": 24,
+  "media": "image24.png",
+  "before": "Figure 18.5 - Analyst dashboard, same database. A third view of the same data, narrower ag",
+  "after": "Figure 18.6 - Read-Only auditor with no case memberships. Rather than a blank page or a gl"
+ },
+ {
+  "order": 25,
+  "media": "image25.png",
+  "before": "Figure 18.5 - Analyst dashboard, same database. A third view of the same data, narrower ag",
+  "after": "Figure 18.6 - Read-Only auditor with no case memberships. Rather than a blank page or a gl"
+ },
+ {
+  "order": 26,
+  "media": "image26.png",
+  "before": "Guarantee G3 - FR-10 to FR-15, FR-48.",
+  "after": "Figure 18.7 - Evidence upload form. The investigator selects the case, the evidence catego"
+ },
+ {
+  "order": 27,
+  "media": "image27.png",
+  "before": "Figure 18.7 - Evidence upload form. The investigator selects the case, the evidence catego",
+  "after": "Figure 18.8 - Upload rejected on a magic-byte mismatch. The file carries a .png extension "
+ },
+ {
+  "order": 28,
+  "media": "image28.png",
+  "before": "Figure 18.8 - Upload rejected on a magic-byte mismatch. The file carries a .png extension ",
+  "after": "Figure 18.9 - Registered evidence item. The record shows the generated evidence number, th"
+ },
+ {
+  "order": 29,
+  "media": "image29.png",
+  "before": "Guarantee G1 - FR-16, FR-17, FR-23 to FR-27, FR-33, FR-56.",
+  "after": "Figure 18.10 - Custody log for an evidence item. The chain runs from the initial Upload en"
+ },
+ {
+  "order": 30,
+  "media": "image30.png",
+  "before": "Figure 18.10 - Custody log for an evidence item. The chain runs from the initial Upload en",
+  "after": "Figure 18.11 - Integrity verification: Intact verdict. Every node passed all three checks "
+ },
+ {
+  "order": 31,
+  "media": "image31.png",
+  "before": "Figure 18.11 - Integrity verification: Intact verdict. Every node passed all three checks ",
+  "after": "Figure 18.12 - Integrity verification: failures located. The same report for a chain whose"
+ },
+ {
+  "order": 32,
+  "media": "image32.png",
+  "before": "Figure 18.12 - Integrity verification: failures located. The same report for a chain whose",
+  "after": "Figure 18.13 - Custody chain reconstruction. Confirmed, Inferred and Unresolved links are "
+ },
+ {
+  "order": 33,
+  "media": "image33.png",
+  "before": "Guarantee G4 - FR-28 to FR-30.",
+  "after": "Figure 18.14 - Transition rejected on an unmet precondition. An attempt to archive an item"
+ },
+ {
+  "order": 34,
+  "media": "image34.png",
+  "before": "Figure 18.14 - Transition rejected on an unmet precondition. An attempt to archive an item",
+  "after": "Figure 18.15 - Flagged evidence item. An item moved to Flagged after an integrity failure."
+ },
+ {
+  "order": 35,
+  "media": "image35.png",
+  "before": "Guarantee G5 - FR-36 to FR-46; and the Category C assistant, FR-40 to FR-43.",
+  "after": "Figure 18.16 - Per-item risk report. Each of the eight factors is shown with its normalise"
+ },
+ {
+  "order": 36,
+  "media": "image36.png",
+  "before": "Figure 18.16 - Per-item risk report. Each of the eight factors is shown with its normalise",
+  "after": "Figure 18.17 - Administrator risk settings. The eight factor weights and the three classif"
+ },
+ {
+  "order": 37,
+  "media": "image37.png",
+  "before": "Figure 18.17 - Administrator risk settings. The eight factor weights and the three classif",
+  "after": "Figure 18.18 - Assistant refusing an inaccessible case. A question about a case outside th"
+ },
+ {
+  "order": 38,
+  "media": "image38.png",
+  "before": "Figure 18.18 - Assistant refusing an inaccessible case. A question about a case outside th",
+  "after": "Figure 18.19 - Hallucination warning. An entity named in the reply that does not appear in"
+ },
+ {
+  "order": 39,
+  "media": "image39.png",
+  "before": "Guarantee G3 - FR-18 to FR-20, FR-49; and Chapter 12.",
+  "after": "Figure 18.20 - Signed export package. The downloaded archive contains the evidence files, "
+ },
+ {
+  "order": 40,
+  "media": "image40.png",
+  "before": "Figure 18.20 - Signed export package. The downloaded archive contains the evidence files, ",
+  "after": "Figure 18.21 - Test suite and coverage. The full suite of 172 tests passing, with the cove"
+ },
+ {
+  "order": 41,
+  "media": "image41.png",
+  "before": "Six listings accompany the algorithmic accounts of Chapters 10 and 11. Each shows the spec",
+  "after": "Listing 18.1 - graph_integrity.py, the traversal and its three checks. The depth-first wal"
+ },
+ {
+  "order": 42,
+  "media": "image42.png",
+  "before": "Listing 18.1 - graph_integrity.py, the traversal and its three checks. The depth-first wal",
+  "after": "Listing 18.2 - risk_scoring.py, weights, interaction rules and the cap. The eight weights "
+ },
+ {
+  "order": 43,
+  "media": "image43.png",
+  "before": "Listing 18.2 - risk_scoring.py, weights, interaction rules and the cap. The eight weights ",
+  "after": "Listing 18.3 - state_machine.py, the transition table. The lifecycle is declared as data r"
+ },
+ {
+  "order": 44,
+  "media": "image44.png",
+  "before": "Listing 18.2 - risk_scoring.py, weights, interaction rules and the cap. The eight weights ",
+  "after": "Listing 18.3 - state_machine.py, the transition table. The lifecycle is declared as data r"
+ },
+ {
+  "order": 45,
+  "media": "image45.png",
+  "before": "Listing 18.3 - state_machine.py, the transition table. The lifecycle is declared as data r",
+  "after": "Listing 18.4 - The canonical signature payload. Six fields serialised as JSON with sort_ke"
+ },
+ {
+  "order": 46,
+  "media": "image46.png",
+  "before": "Listing 18.4 - The canonical signature payload. Six fields serialised as JSON with sort_ke",
+  "after": "Listing 18.5 - case_access.py: accessible_case_ids. The single place that answers \"which c"
+ },
+ {
+  "order": 47,
+  "media": "image47.png",
+  "before": "Listing 18.5 - case_access.py: accessible_case_ids. The single place that answers \"which c",
+  "after": "Listing 18.6 - ORM event listeners enforcing the append-only trail. Any attempt to update "
+ }
+]
