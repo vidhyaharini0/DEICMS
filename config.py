@@ -37,7 +37,7 @@ class Config:
     # to time (the API then answers HTTP 410 Gone), so ai_assistant.py keeps an
     # ordered fallback list and tries the next candidate automatically. Pin a
     # specific model by setting AI_MODEL in .env.
-    AI_MODEL = os.environ.get('AI_MODEL', 'nvidia/nemotron-3.5-lightning-30b-a3b')
+    AI_MODEL = os.environ.get('AI_MODEL', 'google/diffusiongemma-26b-a4b-it')
     AI_MAX_TOKENS = int(os.environ.get('AI_MAX_TOKENS', 700))
     # Per-model timeout, and the total budget for the whole call stage
     # (including any fallback attempts). The total is kept below the browser's
@@ -142,25 +142,57 @@ _INSECURE_DEFAULTS = {
 _env = (os.environ.get('APP_ENV') or os.environ.get('FLASK_ENV') or 'development').lower()
 config = ProductionConfig if _env in ('production', 'prod') else DevelopmentConfig
 
-if config is ProductionConfig:
-    # Fail fast: production must not boot without real, non-default secrets.
-    for key in ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET', 'NVIDIA_API_KEY']:
-        value = getattr(config, key)
+# Secrets that must be real (not absent, not a known-weak default) before the
+# application may serve production traffic.
+REQUIRED_PRODUCTION_SECRETS = ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET',
+                               'NVIDIA_API_KEY']
+# Secrets whose weak value is tolerated in development, but warned about.
+WARN_DEVELOPMENT_SECRETS = ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET']
+
+
+def validate_production_secrets(cfg, insecure=None):
+    """
+    Raises ValueError if `cfg` would boot production with a missing or
+    known-weak secret. Returns the list of keys checked.
+
+    Extracted from module level so NFR-16 can be verified by a test rather
+    than by inspecting configuration by eye: an inline check at import time
+    runs exactly once per process and cannot be exercised against a
+    hypothetical bad configuration.
+    """
+    insecure = _INSECURE_DEFAULTS if insecure is None else insecure
+    for key in REQUIRED_PRODUCTION_SECRETS:
+        value = getattr(cfg, key, None)
         if not value:
             raise ValueError(
                 f"FATAL: Missing required environment variable for production: {key}")
-        if value in _INSECURE_DEFAULTS:
+        if value in insecure:
             raise ValueError(
                 f"FATAL: {key} is set to a known insecure default value in production.")
-else:
-    # Development: don't crash (existing data may have been encrypted with the
-    # fallback), but warn loudly so the weak secret is never mistaken for safe.
+    return list(REQUIRED_PRODUCTION_SECRETS)
+
+
+def warn_development_secrets(cfg, insecure=None):
+    """Emits a warning for each weak secret in development. Returns the keys warned about."""
     import warnings
-    for key in ['SECRET_KEY', 'KEY_ENCRYPTION_SECRET']:
-        if getattr(config, key) in _INSECURE_DEFAULTS:
+    insecure = _INSECURE_DEFAULTS if insecure is None else insecure
+    warned = []
+    for key in WARN_DEVELOPMENT_SECRETS:
+        if getattr(cfg, key, None) in insecure:
+            warned.append(key)
             warnings.warn(
                 f"SECURITY: {key} is using an insecure development default. "
                 f"Set it in your .env before any real deployment "
                 f"(and never rotate KEY_ENCRYPTION_SECRET after data exists, "
                 f"or encrypted files and private keys become unrecoverable).",
                 stacklevel=2)
+    return warned
+
+
+if config is ProductionConfig:
+    # Fail fast: production must not boot without real, non-default secrets.
+    validate_production_secrets(config)
+else:
+    # Development: don't crash (existing data may have been encrypted with the
+    # fallback), but warn loudly so the weak secret is never mistaken for safe.
+    warn_development_secrets(config)

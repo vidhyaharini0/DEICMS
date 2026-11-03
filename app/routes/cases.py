@@ -98,10 +98,16 @@ def view_case(case_id):
         flash('You do not have access to this case.', 'danger')
         return redirect(url_for('cases.list_cases'))
 
-    evidence_items = (case.evidence_items
-                  .filter_by(is_deleted=False)
-                  .order_by(EvidenceItem.created_at.desc())
-                  .all())
+    # Paginated, not .all(): NFR-17 requires listings to stay responsive as
+    # data grows, and a case with hundreds of exhibits is the realistic
+    # scenario this system is built for.
+    ev_page = request.args.get('ev_page', 1, type=int)
+    evidence_page = (case.evidence_items
+                     .filter_by(is_deleted=False)
+                     .order_by(EvidenceItem.created_at.desc())
+                     .paginate(page=ev_page, per_page=20, error_out=False))
+    evidence_items = evidence_page.items
+    evidence_total = evidence_page.total
 
     # Case membership data for the "Case Members" panel
     members = CaseAccess.query.filter_by(case_id=case_id).all()
@@ -118,6 +124,8 @@ def view_case(case_id):
 
     return render_template('cases/view.html', case=case,
                            evidence_items=evidence_items,
+                           evidence_page=evidence_page,
+                           evidence_total=evidence_total,
                            members=members,
                            can_manage_members=can_manage_members,
                            addable_investigators=addable_investigators)

@@ -4,7 +4,7 @@
 
 ## 18.1 Purpose of this Chapter
 
-The preceding chapters describe DEICMS as a design and as an argument; this chapter shows it running. Each screenshot is captioned with the requirements it demonstrates, so the evidence can be checked against the claims rather than merely admired. The set is deliberately **selective**: twenty screenshots chosen to evidence the five guarantees of Table 1.1, rather than a tour of every page.
+The preceding chapters describe DEICMS as a design and as an argument; this chapter shows it running. Each screenshot is captioned with the requirements it demonstrates, so the evidence can be checked against the claims rather than merely admired. The set is deliberately **selective**: twenty-one screenshots chosen to evidence the five guarantees of Table 1.1, rather than a tour of every page.
 
 Where two screenshots are more informative as a pair than individually - the same data seen by two roles, the intact and the failed verdict - they are presented that way and the comparison is stated in the caption.
 
@@ -26,7 +26,10 @@ Where two screenshots are more informative as a pair than individually - the sam
 **[SCREENSHOT 18.4 - Lead Investigator dashboard, same database]**
 *Pending actions within this investigator's cases only. **Compare the totals with 18.3** - the difference is the access scoping introduced in M1 (FR-51).*
 
-**[SCREENSHOT 18.5 - Read-Only auditor with no case memberships]**
+**[SCREENSHOT 18.5 - Analyst dashboard, same database]**
+*Narrower again: fewer case memberships than the Lead, and a different panel set - the workbench of items this analyst holds in place of pending actions, with the monitoring charts absent. **18.3 to 18.5** are one database seen three ways.*
+
+**[SCREENSHOT 18.6 - Read-Only auditor with no case memberships]**
 *The explanatory empty state rather than a blank page or a global view (FR-52). A security constraint producing a better interface, not a worse one.*
 
 ---
@@ -35,12 +38,12 @@ Where two screenshots are more informative as a pair than individually - the sam
 
 *Guarantee G3 - FR-10 to FR-15, FR-48.*
 
-**[SCREENSHOT 18.6 - Evidence upload form]**
+**[SCREENSHOT 18.7 - Evidence upload form]**
 
-**[SCREENSHOT 18.7 - Upload rejected on a magic-byte mismatch]**
+**[SCREENSHOT 18.8 - Upload rejected on a magic-byte mismatch]**
 *An executable renamed with an image extension is rejected because its actual content type does not match its declared one (FR-14). This is the control a file-extension check alone would miss.*
 
-**[SCREENSHOT 18.8 - Evidence detail view]**
+**[SCREENSHOT 18.9 - Evidence detail view]**
 *Evidence number, SHA-256 original hash, extracted EXIF metadata, current holder, lifecycle state and risk level.*
 
 ---
@@ -49,16 +52,16 @@ Where two screenshots are more informative as a pair than individually - the sam
 
 *Guarantee G1 - FR-16, FR-17, FR-23 to FR-27, FR-33, FR-56.*
 
-**[SCREENSHOT 18.9 - Custody log for an item]**
+**[SCREENSHOT 18.10 - Custody log for an item]**
 *The full chronological chain from the initial Upload entry onward, each event carrying its Ed25519 signature.*
 
-**[SCREENSHOT 18.10 - Integrity verification: Intact verdict]**
+**[SCREENSHOT 18.11 - Integrity verification: Intact verdict]**
 *A clean chain. Verdict `Intact`, completeness 100%, no failure rows.*
 
-**[SCREENSHOT 18.11 - Integrity verification: failures located]**
-*A tampered chain. **Compare with 18.10.** The failure table locates **every** failing node with its category and explanation - not just the first, which is the design decision of Section 11.2.6.*
+**[SCREENSHOT 18.12 - Integrity verification: failures located]**
+*A tampered chain. **Compare with 18.11.** The failure table locates **every** failing node with its category and explanation - not just the first, which is the design decision of Section 11.2.6.*
 
-**[SCREENSHOT 18.12 - Custody chain reconstruction]**
+**[SCREENSHOT 18.13 - Custody chain reconstruction]**
 *Confirmed, Inferred and Unresolved links visually distinguished, each inferred link showing its confidence and reasoning. An inferred link is never presented as confirmed (DR-07).*
 
 ---
@@ -67,10 +70,10 @@ Where two screenshots are more informative as a pair than individually - the sam
 
 *Guarantee G4 - FR-28 to FR-30.*
 
-**[SCREENSHOT 18.13 - Transition rejected on an unmet precondition]**
+**[SCREENSHOT 18.14 - Transition rejected on an unmet precondition]**
 *An attempt to archive an item whose integrity has not been verified as Intact. The exact unmet condition is returned, and the rejection is itself written to the audit trail (FR-29).*
 
-**[SCREENSHOT 18.14 - Flagged item]**
+**[SCREENSHOT 18.15 - Flagged item]**
 *An item moved to `Flagged` following an integrity failure. Only an Administrator can move it out again.*
 
 ---
@@ -79,16 +82,16 @@ Where two screenshots are more informative as a pair than individually - the sam
 
 *Guarantee G5 - FR-36 to FR-46; and the Category C assistant, FR-40 to FR-43.*
 
-**[SCREENSHOT 18.15 - Per-item risk detail]**
+**[SCREENSHOT 18.16 - Per-item risk detail]**
 *The full breakdown: each of the eight factors with its normalised value and weighted contribution, any interaction rules that fired with their reasons, and the generated recommendations. The score is an account, not an opaque number.*
 
-**[SCREENSHOT 18.16 - Admin risk settings]**
+**[SCREENSHOT 18.17 - Admin risk settings]**
 *The eight weights and three thresholds. Weights are re-normalised to sum to 1.0 on save; thresholds must be strictly increasing (FR-39).*
 
-**[SCREENSHOT 18.17 - Assistant refusing an inaccessible case]**
+**[SCREENSHOT 18.18 - Assistant refusing an inaccessible case]**
 *A request for a case outside the user's memberships returns an access-denied response. Retrieval is scoped, so the data is never in the prompt to begin with (FR-41).*
 
-**[SCREENSHOT 18.18 - Hallucination warning]**
+**[SCREENSHOT 18.19 - Hallucination warning]**
 *An entity reference not present in the retrieved context is flagged and shown as an explicit warning attached to the answer (FR-43).*
 
 ---
@@ -97,10 +100,10 @@ Where two screenshots are more informative as a pair than individually - the sam
 
 *Guarantee G3 - FR-18 to FR-20, FR-49; and Chapter 12.*
 
-**[SCREENSHOT 18.19 - Signed export package and audit trail]**
+**[SCREENSHOT 18.20 - Signed export package and audit trail]**
 *The downloaded ZIP with its manifest, audit trail, Ed25519 signature and verification instructions. A recipient can confirm the package is unaltered **without access to the system that produced it** (FR-49).*
 
-**[SCREENSHOT 18.20 - Full test suite and coverage]**
+**[SCREENSHOT 18.21 - Full test suite and coverage]**
 *`pytest` output showing 172 tests passing with no network access, and the `--cov` summary corresponding to Table 12.12.*
 
 ---
