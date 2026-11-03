@@ -198,11 +198,11 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-54 | The system shall attribute retained conversation to its owner and discard it both on entry and on departure | UR-03 | A | Must | M1 | US-29 | `test_scoping` |
 | SR-55 | The system shall treat removal of an exhibit as a marking that preserves its custody and audit history, and shall omit such exhibits from every listing and total | UR-04 | A | Must | M2 | D1 | `test_integration` |
 | SR-56 | The system shall record the outcome of a verification against the exhibit, so that a failed verification raises its attention level | UR-06 | **C** | Must | M2 | D2 | `test_integration` |
-| SR-57 | The system shall divide every listing into pages of bounded size | UR-21 | A | Must | M3 | CR-03 | `test_nfr` |
-| SR-58 | The system shall examine a custody history in time proportional to its size | UR-21 | **C** | Must | M3 | CR-04 | `test_nfr` |
-| SR-59 | The system shall compose four distinguishable overviews, one per function, none of them without content | UR-22 | A | Must | M1, M3 | US-28, CR-05 | `test_nfr` |
-| SR-60 | The system shall transmit with every response the directives that constrain where a browser may load content from and how it may frame or interpret the response | UNF-01 | A | Must | M2, M3 | D5, CR-06 | `test_nfr` |
-| SR-61 | The system shall refuse to begin serving in a production configuration whose secrets are absent or known-weak, and shall warn when they are weak in development | UNF-01 | A | Must | M2, M3 | D6, CR-07 | `test_nfr` |
+| SR-57 | The system shall divide every listing into pages of bounded size | UR-21 | A | Must | M3 | US-33 | `test_nfr` |
+| SR-58 | The system shall examine a custody history in time proportional to its size | UR-21 | **C** | Must | M3 | US-34 | `test_nfr` |
+| SR-59 | The system shall compose four distinguishable overviews, one per function, none of them without content | UR-22 | A | Must | M1, M3 | US-28, US-35 | `test_nfr` |
+| SR-60 | The system shall transmit with every response the directives that constrain where a browser may load content from and how it may frame or interpret the response | UNF-01 | A | Must | M2, M3 | D5, US-31 | `test_nfr` |
+| SR-61 | The system shall refuse to begin serving in a production configuration whose secrets are absent or known-weak, and shall warn when they are weak in development | UNF-01 | A | Must | M2, M3 | D6, US-32 | `test_nfr` |
 
 ## 3.6 Why Some System Requirements Are Negative
 
