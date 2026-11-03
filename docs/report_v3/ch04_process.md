@@ -69,7 +69,7 @@ not practised.
 | R3 | Feedback between sprints should change the next sprint's plan, through a retrospective whose actions are binding | Incremental development alone prescribes no reflection step |
 | R4 | The process must leave behind backlogs, burndowns, reviews and retrospectives as evidence | Spiral produces risk analyses rather than these; plain incremental produces none |
 
-Chapter 11 returns to this table and assesses each reason against the outcome.
+Chapter 13 returns to this table and assesses each reason against the outcome.
 
 ## 4.2 Scrum With One Developer - What Was Kept, Adapted and Abandoned
 
@@ -333,7 +333,7 @@ onward, capacity was set by the previous sprint's observed velocity.
 | 5 (M2) | Defect sprint; no point commitment (see Section 4.5) | - |
 | 6 (M3) | Mean of Sprints 1-3 (40), reduced for a short fixed window | 23 |
 
-**A caution that Chapter 11 develops.** Velocity is meaningful when the
+**A caution that Chapter 13 develops.** Velocity is meaningful when the
 estimator and the implementer are different people, because then the estimate
 is an independent prediction. Here they are the same person, so an estimate
 can be - and unconsciously is - adjusted to the implementer's known pace.

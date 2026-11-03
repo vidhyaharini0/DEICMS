@@ -37,6 +37,24 @@ java -jar plantuml.jar -tpng -o . *.puml
 | 20 | `20_timing_assistant` | Timing | Bounded waiting on the model service |
 | 21 | `21_profile_stereotypes` | Profile | Every stereotype this report uses, declared |
 | 22 | `22_class_traceability` | Class | The traceability metamodel itself |
+| 23 | `23_activity_integrity` | Activity | Chain integrity verification (Algorithm 1) |
+| 24 | `24_activity_state_machine` | Activity | The lifecycle transition validation pipeline (Algorithm 4) |
+| 25 | `25_sequence_reconstruction` | Sequence | Custody chain reconstruction (Algorithm 3) |
+| 26 | `26_activity_assistant` | Activity | Assistant orchestration, six stages (Algorithm 5) |
+
+## UML coverage of the five Category C algorithms
+
+The guidelines require the complex custom logic to be described
+algorithmically by proper UML diagrams. Each algorithm has at least two
+independent behavioural views:
+
+| Algorithm | Diagrams |
+|---|---|
+| 1. Chain integrity verification | 23 activity, 12 sequence, 10 composite structure |
+| 2. Multi-factor risk assessment | 17 activity, 14 communication |
+| 3. Custody chain reconstruction | 18 activity, 25 sequence |
+| 4. Evidence lifecycle state machine | 15 state machine, 24 activity |
+| 5. Assistant orchestration | 26 activity, 13 sequence, 20 timing |
 
 **Eleven distinct UML diagram kinds**: use case, class, object, package,
 component, composite structure, deployment, sequence, communication, state

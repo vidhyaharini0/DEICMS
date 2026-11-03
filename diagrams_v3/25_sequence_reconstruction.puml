@@ -1,0 +1,62 @@
+@startuml
+' Figure - Sequence Diagram: custody chain reconstruction
+!include _header.txt
+autonumber
+
+actor Investigator as INV
+participant "custody : Route" as RT
+participant "engine : ChainReconstructor" as ENG
+database "db : RelationalStore" as DB
+participant "scorer : PlausibilityScorer" as PS
+
+INV -> RT : reconstruct(evidenceId)
+activate RT
+RT -> ENG : reconstruct()
+activate ENG
+
+ENG -> DB : confirmed custody records
+activate DB
+DB --> ENG : records
+deactivate DB
+ENG -> ENG : detect discontinuities
+
+loop for each discontinuity
+  ENG -> DB : access events within the gap window
+  activate DB
+  DB --> ENG : candidates
+  deactivate DB
+
+  alt no candidate
+    ENG -> ENG : mark UNRESOLVED
+  else candidates exist
+    loop for each candidate
+      ENG -> PS : score(candidate, gap)
+      activate PS
+      PS -> PS : temporal proximity
+      PS -> PS : function consistency
+      PS -> PS : place consistency
+      PS -> PS : behavioural consistency
+      PS --> ENG : plausibility
+      deactivate PS
+    end
+    ENG -> ENG : select the highest
+    alt best >= 0.40
+      ENG -> ENG : mark INFERRED, attach reasoning
+    else best < 0.40
+      ENG -> ENG : mark UNRESOLVED
+      note right of ENG
+        Below the threshold the algorithm
+        declines to infer. Declining is a
+        result, not a failure (DR-02).
+      end note
+    end
+  end
+end
+
+ENG -> ENG : merge into one ordered timeline
+ENG -> ENG : confidence := (confirmed + inferred) / expected
+ENG --> RT : ReconstructionReport
+deactivate ENG
+RT --> INV : timeline, every link labelled
+deactivate RT
+@enduml

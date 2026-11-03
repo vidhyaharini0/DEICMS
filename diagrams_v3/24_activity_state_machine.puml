@@ -1,0 +1,57 @@
+@startuml
+' Figure - Activity Diagram: the lifecycle transition validation pipeline
+!include _header.txt
+
+start
+:Receive (current state, target state,
+requesting account, justification);
+
+if (pair present in the transition table?) then (no)
+  :Reject: "no such transition";
+  :Record the rejection in the audit trail;
+  stop
+else (yes)
+endif
+
+:Look up the entry:
+required functions, preconditions;
+
+if (requesting account's function
+is among the required ones?) then (no)
+  :Reject naming the function required;
+  :Record the rejection in the audit trail;
+  stop
+else (yes)
+endif
+
+while (another precondition to evaluate?) is (yes)
+  :Evaluate the precondition;
+  if (satisfied?) then (no)
+    :Reject naming the EXACT condition unmet;
+    :Record the rejection in the audit trail;
+    stop
+  else (yes)
+  endif
+endwhile (no)
+
+if (justification supplied?) then (no)
+  :Reject: justification required;
+  stop
+else (yes)
+endif
+
+:Apply the new state;
+:Write the custody and audit records;
+:Re-run the risk assessment so the new
+state is reflected immediately;
+:Commit;
+:Return success;
+stop
+
+note right
+  A rejection is written to the audit trail as
+  readily as a success. An attempt that failed
+  is forensically interesting in its own right
+  (SR-29).
+end note
+@enduml

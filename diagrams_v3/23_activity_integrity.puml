@@ -1,0 +1,73 @@
+@startuml
+' Figure - Activity Diagram: chain integrity verification
+!include _header.txt
+
+start
+:Load every custody record for the item;
+if (any record?) then (no)
+  :verdict := Broken;
+  :completeness := 0;
+  stop
+else (yes)
+endif
+
+:Order the records by time;
+:Build a directed acyclic graph,
+rooted at the registration event;
+
+:push root onto the stack;
+while (stack not empty?) is (yes)
+  :pop node;
+  if (node already visited?) then (yes)
+  else (no)
+    :mark visited;
+
+    partition "Three independent checks" {
+      :Content check:
+      recompute the fingerprint of the stored
+      content and compare with the registered value;
+      :Authorship check:
+      verify the record's signature against
+      the signer's public key;
+      :Order check:
+      confirm this record's time is strictly
+      later than its predecessor's;
+    }
+
+    if (any check failed?) then (yes)
+      :Record a failure naming the node,
+      the category and the explanation;
+    else (no)
+      :verified := verified + 1;
+    endif
+
+    :push every child onto the stack;
+    note right
+      Children are pushed WHETHER OR NOT this
+      node passed. Nothing routes a failure back
+      to the traversal, so all failures are found
+      in one pass rather than only the first.
+    end note
+  endif
+endwhile (no)
+
+:completeness := 100 * verified / total;
+
+if (no failures?) then (yes)
+  :verdict := Intact;
+elseif (every node failed?) then (yes)
+  :verdict := Broken;
+else (no)
+  :verdict := Partially Verified;
+endif
+
+:Write the verdict back onto the evidence item;
+if (verdict = Broken and item not already Flagged?) then (yes)
+  :Drive the item to Flagged;
+else (no)
+endif
+:Record the verification in the audit trail;
+:Return verdict, completeness,
+ordered failures and verified timeline;
+stop
+@enduml

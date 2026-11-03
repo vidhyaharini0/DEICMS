@@ -44,10 +44,10 @@ the two columns is the whole point.
 |---|---|---|
 | "compute a SHA-256 fingerprint at upload" | **UR-06 / SR-13:** the system shall be able to determine, at any later time, whether the stored content of an exhibit differs in any way from the content registered at intake | §5.3 - cryptographic hash function selection |
 | "sign every transfer with the outgoing investigator's Ed25519 private key" | **UR-09 / SR-23:** the system shall enable any holder of a custody record to establish which investigator created it and whether it has been altered since | §5.4 - signature scheme selection |
-| "flag outliers with an Isolation Forest" | **UR-13 / SR-44:** the system shall identify exhibits whose handling pattern differs markedly from the rest of the population | §7.6 - anomaly detection approach |
+| "flag outliers with an Isolation Forest" | **UR-13 / SR-44:** the system shall identify exhibits whose handling pattern differs markedly from the rest of the population | §11.7 - anomaly detection approach |
 | "encrypt stored files with AES-256-GCM" | **UR-18 / SR-48:** the system shall ensure that evidence content is unintelligible to anyone obtaining the storage medium without authorisation | §5.5 - encryption scheme selection |
 | "support TOTP two-factor authentication" | **UR-01 / SR-47:** the system shall allow an account to require a second, independently held factor before granting access | §5.6 - second-factor mechanism |
-| "fit the model via the NVIDIA NIM endpoint" | **UR-15 / SR-40:** the system shall answer questions posed in ordinary language using only the records the questioner is entitled to see | §7.5 - language model procurement |
+| "fit the model via the NVIDIA NIM endpoint" | **UR-15 / SR-40:** the system shall answer questions posed in ordinary language using only the records the questioner is entitled to see | §11.6 - language model procurement |
 
 The last row matters for an additional reason. The accepted project proposal
 named a particular commercial language-model API. That service proved
@@ -56,7 +56,7 @@ was used instead. **Because the requirement asks for an answer in ordinary
 language rather than for a named vendor, the substitution changed the design
 and not the requirements.** Had the requirement named the vendor, a commercial
 fact outside the project's control would have invalidated a requirement.
-Section 5.8 records the substitution as a design decision with its rationale.
+Section 11.6.1 records the substitution as a design decision with its rationale.
 
 ## 3.2 Stakeholders
 

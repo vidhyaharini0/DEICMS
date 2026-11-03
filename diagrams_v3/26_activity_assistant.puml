@@ -1,0 +1,77 @@
+@startuml
+' Figure - Activity Diagram: assistant orchestration, six stages
+!include _header.txt
+
+start
+partition "1. Intent classification" {
+  :Match the question against the keyword
+  sets of seven intents;
+  :Break ties by a fixed priority order;
+  :Parse any numeric identifier present;
+  if (any intent matched?) then (no)
+    :intent := UNKNOWN;
+  else (yes)
+  endif
+}
+
+partition "2. Access scoping" {
+  :Determine the investigations this
+  account may see;
+}
+
+partition "3. Context retrieval" {
+  if (intent = IDENTITY?) then (yes)
+    :Answer from the authenticated session;
+  else (no)
+    :Run the query sequence for this intent,
+    restricted to the permitted investigations;
+    if (intent = INTEGRITY_QUERY?) then (yes)
+      :Run a fresh verification
+      and include its result;
+    else (no)
+    endif
+  endif
+  :Serialise the records into a context object;
+}
+note right
+  Scoping precedes retrieval, and retrieval
+  precedes the prompt. Data the account may
+  not see never enters the prompt, so no
+  phrasing of a question can extract it.
+end note
+
+partition "4. Prompt construction" {
+  :Select the template for this intent;
+  :Assemble role definition, question
+  and serialised context;
+}
+
+partition "5. Model invocation" {
+  :Call the model within its per-call budget;
+  if (answered within budget?) then (yes)
+    :reply := model output;
+  else (no)
+    if (another candidate model and budget left?) then (yes)
+      :Try the next candidate;
+    else (no)
+      :reply := compose from the context alone,
+      stating that the service was unavailable;
+    endif
+  endif
+}
+
+partition "6. Reference validation" {
+  :Extract every case number, evidence
+  identifier and personal name from the reply;
+  while (another reference?) is (yes)
+    if (present in the retrieved context?) then (no)
+      :Add to the warning list;
+    else (yes)
+    endif
+  endwhile (no)
+}
+
+:Return reply, intent, context flag
+and any warnings;
+stop
+@enduml
