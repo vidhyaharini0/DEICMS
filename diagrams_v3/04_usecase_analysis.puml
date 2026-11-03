@@ -1,0 +1,85 @@
+@startuml
+' Figure - Use Case Diagram: the use cases each role ADDS
+!include _header.txt
+left to right direction
+
+actor "Read-Only Viewer" as RO
+actor "Forensic Analyst"  as ANA
+actor "Lead Investigator" as LEAD
+actor "Administrator"     as ADM
+ANA  --|> RO
+LEAD --|> ANA
+ADM  --|> LEAD
+
+rectangle "Analysis (added by the Analyst: 5)" as BOX1 {
+  usecase "Verify chain integrity"     as UC21
+  usecase "Read verification as data"  as UC22
+  usecase "Reconstruct custody chain"  as UC23
+  usecase "Record custody transfer"    as UC33
+  usecase "Change lifecycle state"     as UC34
+  usecase "Locate every failure"       as UC38
+  usecase "Re-assess risk"             as UC37
+}
+
+rectangle "Management (added by the Lead: 7)" as BOX2 {
+  usecase "Create case"        as UC5
+  usecase "Edit case"          as UC6
+  usecase "Add case member"    as UC7
+  usecase "Remove case member" as UC8
+  usecase "Register evidence"  as UC9
+  usecase "Edit evidence"      as UC10
+  usecase "Export signed case" as UC35
+}
+
+rectangle "Administration (added by the Administrator: 9)" as BOX3 {
+  usecase "View global audit trail"    as UC30
+  usecase "Archive case"               as UC11
+  usecase "Delete evidence"            as UC12
+  usecase "List accounts"              as UC45
+  usecase "Create account"             as UC46
+  usecase "Change account function"    as UC47
+  usecase "Suspend or restore account" as UC48
+  usecase "Release a locked account"   as UC49
+  usecase "Configure risk weights"     as UC50
+}
+
+ANA  --> UC21
+ANA  --> UC22
+ANA  --> UC23
+ANA  --> UC33
+ANA  --> UC34
+LEAD --> UC5
+LEAD --> UC6
+LEAD --> UC7
+LEAD --> UC8
+LEAD --> UC9
+LEAD --> UC10
+LEAD --> UC35
+ADM  --> UC30
+ADM  --> UC11
+ADM  --> UC12
+ADM  --> UC45
+ADM  --> UC46
+ADM  --> UC47
+ADM  --> UC48
+ADM  --> UC49
+ADM  --> UC50
+
+UC21 ..> UC38 : <<include>>
+UC34 ..> UC37 : <<include>>
+UC35 ..> UC21 : <<include>>
+UC23 .> UC21  : <<extend>>
+
+note top of BOX1
+  Verification is an ANALYST operation, not a read:
+  it writes the verdict onto the evidence item and,
+  on a Broken verdict, drives it to Flagged. A
+  Read-Only Viewer is refused at the route (SR-06).
+end note
+
+note bottom of BOX3
+  Totals by role, each inheriting the one before it:
+  Read-Only Viewer 20, Analyst 25, Lead Investigator 32,
+  Administrator 41 - one use case per system operation.
+end note
+@enduml

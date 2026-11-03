@@ -33,6 +33,24 @@ def _deny_if_no_case_access(evidence):
     return None
 
 
+def _deny_if_cannot_analyse():
+    """
+    Return a redirect response if the current user may not run an analysis
+    operation, else None.
+
+    Running the integrity verification is NOT a read: it writes the verdict
+    back onto the evidence row and, on a Broken verdict, drives the item into
+    the Flagged state. A Read-Only account must therefore be refused here, or
+    the role's name is false and SR-06 ('prevent an account limited to review
+    from causing any change of state') is violated. Reconstruction is grouped
+    with it because both are analyst operations rather than case reading.
+    """
+    if not current_user.can_analyse():
+        flash('Your role does not permit running analysis operations.', 'danger')
+        return redirect(url_for('cases.list_cases'))
+    return None
+
+
 def _build_transfer_payload(evidence_id: int, event_type: str,
                              timestamp: datetime, from_id, to_id,
                              file_hash: str) -> bytes:
@@ -200,6 +218,10 @@ def verify_integrity(evidence_id):
     if _denied:
         return _denied
 
+    _denied = _deny_if_cannot_analyse()
+    if _denied:
+        return _denied
+
     from app.logic.graph_integrity import GraphIntegrityEngine
     engine = GraphIntegrityEngine(evidence)
     report = engine.verify()
@@ -250,6 +272,12 @@ def verify_integrity_json(evidence_id):
     _denied = _deny_if_no_case_access(evidence)
     if _denied:
         return _denied
+
+    # A JSON endpoint answers with JSON, not a redirect to an HTML page.
+    if not current_user.can_analyse():
+        return jsonify(
+            {'error': 'Your role does not permit running analysis operations.'}), 403
+
     from app.logic.graph_integrity import GraphIntegrityEngine
     engine = GraphIntegrityEngine(evidence)
     report = engine.verify()
@@ -262,6 +290,10 @@ def reconstruct_chain(evidence_id):
     """Run the Custody Chain Reconstruction Algorithm."""
     evidence = EvidenceItem.query.get_or_404(evidence_id)
     _denied = _deny_if_no_case_access(evidence)
+    if _denied:
+        return _denied
+
+    _denied = _deny_if_cannot_analyse()
     if _denied:
         return _denied
 

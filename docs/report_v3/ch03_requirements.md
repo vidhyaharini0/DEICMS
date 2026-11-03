@@ -67,7 +67,7 @@ Section 5.8 records the substitution as a design decision with its rationale.
 | Administrator | Operates the system | Nothing is lost; everything is attributable |
 | Lead Investigator | Owns investigations | Her team's exhibits are sound and court-admissible |
 | Forensic Analyst | Examines exhibits | Analysis is not invalidated by a procedural gap |
-| Read-Only Auditor | Reviews after the fact | The record can be inspected but not disturbed |
+| Read-Only Viewer | Reviews after the fact | The record can be inspected but not disturbed |
 | The court (indirect) | Consumes the output | The chain of custody is unbroken and demonstrably so |
 | Opposing counsel (adversarial) | Attacks the output | Any weakness in the chain is found and exploited |
 

@@ -14,10 +14,15 @@
     <a href="{{ url_for('custody.change_state', evidence_id=evidence.id) }}"
        class="btn btn-outline-secondary btn-sm">Change State</a>
     {% endif %}
+    {# Running a verification writes the verdict back and can flag the item,
+       so it is an analysis operation, not a read. Read-Only accounts are
+       refused at the route as well as here (SR-06). #}
+    {% if current_user.can_analyse() %}
     <a href="{{ url_for('custody.verify_integrity', evidence_id=evidence.id) }}"
        class="btn btn-outline-success btn-sm"><i class="bi bi-shield-check me-1"></i>Verify Integrity</a>
     <a href="{{ url_for('custody.reconstruct_chain', evidence_id=evidence.id) }}"
        class="btn btn-outline-info btn-sm"><i class="bi bi-diagram-3 me-1"></i>Reconstruct Chain</a>
+    {% endif %}
     <a href="{{ url_for('audit.evidence_audit', evidence_id=evidence.id) }}"
        class="btn btn-outline-dark btn-sm"><i class="bi bi-journal-text me-1"></i>Audit Trail</a>
     <a href="{{ url_for('risk.evidence_risk', evidence_id=evidence.id) }}"

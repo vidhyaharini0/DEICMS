@@ -3,7 +3,7 @@
 !include _header.txt
 left to right direction
 
-actor "Read-Only Auditor" as RO
+actor "Read-Only Viewer" as RO
 actor "Forensic Analyst"  as ANA
 actor "Lead Investigator" as LEAD
 actor "Administrator"     as ADM

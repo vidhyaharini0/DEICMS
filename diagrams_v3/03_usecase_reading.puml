@@ -1,0 +1,83 @@
+@startuml
+' Figure - Use Case Diagram: what a Read-Only Viewer may do
+!include _header.txt
+left to right direction
+
+actor "Read-Only Viewer" as RO
+
+rectangle "Reading and monitoring" {
+  usecase "Sign in"                  as A1
+  usecase "Sign out"                 as A2
+  usecase "Present second factor"    as A3
+  usecase "Enrol second factor"      as A4
+  usecase "Withdraw second factor"   as A5
+
+  usecase "View own overview"        as R1
+  usecase "List permitted cases"     as R2
+  usecase "View a permitted case"    as R3
+  usecase "View an evidence item"    as R4
+  usecase "View custody log"         as R5
+  usecase "View item audit trail"    as R6
+  usecase "Run formula checks"       as R7
+  usecase "Download custody report"  as R8
+
+  usecase "View risk ranking"        as R9
+  usecase "View item risk report"    as R10
+  usecase "Read risk as data"        as R11
+  usecase "View anomaly report"      as R12
+  usecase "Ask the assistant"        as R13
+  usecase "Open the assistant"       as R14
+  usecase "Clear own conversation"   as R15
+}
+
+RO --> A1
+
+A3 .> A1 : <<extend>>
+RO --> A2
+RO --> A3
+RO --> A4
+RO --> A5
+RO --> R1
+RO --> R2
+RO --> R3
+RO --> R4
+RO --> R5
+RO --> R6
+RO --> R7
+RO --> R8
+RO --> R9
+RO --> R10
+RO --> R11
+RO --> R12
+RO --> R13
+RO --> R14
+RO --> R15
+
+note right of R3
+  Twenty use cases in total, and every one of
+  them leaves the data unchanged. Each of R2
+  to R8 is additionally confined to the cases
+  this account is a member of.
+end note
+
+note right of R9
+  These five are reachable and linked in the
+  sidebar. They aggregate over the SAME
+  permitted cases and write nothing.
+end note
+
+note bottom of A3
+  Presenting a second factor EXTENDS signing in:
+  it happens only when the account has one enrolled.
+  Signing in is NOT <<include>>d by the other use
+  cases - authentication is a precondition of the
+  subject, not a step repeated inside each one.
+end note
+
+note bottom of A1
+  The Read-Only Viewer is the BASE actor. Every
+  other role specialises it and therefore inherits
+  all twenty of these use cases, which is why they
+  are drawn once here rather than repeated.
+end note
+@enduml

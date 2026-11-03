@@ -17,8 +17,8 @@ java -jar plantuml.jar -tpng -o . *.puml
 |---|---|---|---|
 | 01 | `01_usecase_overview` | Use case | Four actors, 41 use cases grouped, actor specialisation |
 | 02 | `02_usecase_case_evidence` | Use case | Cases and evidence, with `«include»` |
-| 03 | `03_usecase_custody_integrity` | Use case | Custody, integrity, assessment, with `«extend»` |
-| 04 | `04_usecase_administration` | Use case | Authentication and administration |
+| 03 | `03_usecase_reading` | Use case | The 20 use cases of the Read-Only Viewer, the base actor |
+| 04 | `04_usecase_analysis` | Use case | What each role ADDS: Analyst +5, Lead +7, Administrator +9 |
 | 05 | `05_class_domain` | Class | Domain model: attributes, operations, visibility, `«engine»` classes |
 | 06 | `06_class_persistent` | Class | The relational schema as stereotyped classes - **replaces the ER diagram** |
 | 07 | `07_object_snapshot` | Object | One flagged evidence item at an instant, with the two violations visible |
@@ -50,6 +50,9 @@ machine, activity, timing, profile.
 | **`«extend»` drawn backwards** | An arrow from the base use case to the extending one | `«extend»` now points **from the extending use case to the base**: "Present second factor" extends "Sign in", "Reconstruct" extends "Verify" |
 | **Login as an included use case** | `Register evidence ..> Log in : «include»` | Removed. Authentication is a **precondition of the subject**, not a step repeated inside each use case. Noted on the diagram so the omission reads as a decision |
 | **Only 12 of 41 use cases shown** | One diagram, 12 use cases | An overview plus three detail diagrams covering all 41, one per system operation |
+| **Role named wrongly throughout** | "Read-Only Auditor" - a name that exists nowhere in the system | **Read-Only Viewer**, the name the seeded account actually carries; the role value is `Read-Only` |
+| **Global audit trail attributed to the wrong role** | Drawn on the Read-Only actor | It is `is_admin()` only, in the route and in the sidebar. Moved to the Administrator |
+| **Verification drawn as a read** | Drawn on the Read-Only actor | Running a verification writes `integrity_status` and can drive an item to Flagged. It is an Analyst operation; a role guard now enforces it (SR-06) |
 | **ER diagram is not UML** | `entity` notation | A class diagram with `«table»`, `«PK»`, `«FK»`, `«UQ»` stereotypes, declared in the profile diagram |
 | **Architecture figures are not UML** | Block diagrams | A package diagram for the layering and a component diagram for the interfaces |
 | **Stereotypes used but never defined** | `«engine»`, `«value»`, `«external»` used without declaration | Declared in diagram 21 |

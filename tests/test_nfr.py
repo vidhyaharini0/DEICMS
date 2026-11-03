@@ -541,3 +541,79 @@ class TestRoleInterfaces:
             client.get('/logout')
         assert len(set(bodies.values())) == 4, \
             'two roles render an identical dashboard - NFR-07 requires four'
+
+
+# -------------------------------------------------------------------------
+# SR-06 - an account limited to review causes no change of state
+# -------------------------------------------------------------------------
+
+class TestReadOnlyCausesNoChange:
+    """
+    Sprint 6 change request. Running a verification is not a read: it writes
+    integrity_status back onto the evidence row and, on a Broken verdict,
+    drives the item into Flagged. Before this guard a Read-Only Viewer could
+    do both, which made the role's name false and violated SR-06.
+    """
+
+    def _as_readonly(self, client, app, tmp_path):
+        with app.app_context():
+            case = Case.query.filter_by(case_number='CASE-N1').first()
+            lead = Investigator.query.filter_by(email='lead@t.com').first()
+            ro = Investigator.query.filter_by(email='ray@t.com').first()
+            CaseAccess.grant(case.id, ro.id, 'Member', lead.id)
+            db.session.commit()
+            ev = _make_evidence(case.id, lead.id, 'ROGuard', 3, str(tmp_path))
+            ids = (case.id, ev.id, ev.integrity_status, ev.lifecycle_state)
+        _login(client, 'ray@t.com')
+        return ids
+
+    def test_readonly_cannot_run_verification(self, client, app, tmp_path):
+        case_id, ev_id, before_status, before_state = \
+            self._as_readonly(client, app, tmp_path)
+        r = client.get(f'/evidence/{ev_id}/verify', follow_redirects=True)
+        body = r.get_data(as_text=True)
+        assert 'does not permit running analysis' in body
+        with app.app_context():
+            ev = EvidenceItem.query.get(ev_id)
+            assert ev.integrity_status == before_status, \
+                'a Read-Only account changed integrity_status (SR-06)'
+            assert ev.lifecycle_state == before_state, \
+                'a Read-Only account changed the lifecycle state (SR-06)'
+
+    def test_readonly_cannot_run_verification_as_json(self, client, app, tmp_path):
+        _, ev_id, _, _ = self._as_readonly(client, app, tmp_path)
+        r = client.get(f'/evidence/{ev_id}/verify/json')
+        assert r.status_code == 403
+        assert 'error' in r.get_json()
+
+    def test_readonly_cannot_run_reconstruction(self, client, app, tmp_path):
+        _, ev_id, _, _ = self._as_readonly(client, app, tmp_path)
+        r = client.get(f'/evidence/{ev_id}/reconstruct', follow_redirects=True)
+        assert 'does not permit running analysis' in r.get_data(as_text=True)
+
+    def test_analyst_may_still_run_verification(self, client, app, tmp_path):
+        with app.app_context():
+            case = Case.query.filter_by(case_number='CASE-N1').first()
+            lead = Investigator.query.filter_by(email='lead@t.com').first()
+            ev = _make_evidence(case.id, lead.id, 'AnaGuard', 3, str(tmp_path))
+            ev_id = ev.id
+        _login(client, 'ana@t.com')
+        r = client.get(f'/evidence/{ev_id}/verify', follow_redirects=True)
+        assert 'does not permit running analysis' not in r.get_data(as_text=True)
+
+    def test_readonly_keeps_the_reads_it_is_entitled_to(self, client, app, tmp_path):
+        case_id, ev_id, _, _ = self._as_readonly(client, app, tmp_path)
+        for path in (f'/cases/{case_id}',
+                     f'/evidence/{ev_id}/custody-log',
+                     f'/audit/evidence/{ev_id}',
+                     '/risk/dashboard',
+                     '/assistant/'):
+            r = client.get(path, follow_redirects=True)
+            assert r.status_code == 200, f'{path} unreachable for Read-Only'
+            assert 'does not permit running analysis' not in r.get_data(as_text=True), \
+                f'{path} was wrongly caught by the analysis guard'
+
+    def test_readonly_is_still_refused_the_global_audit_trail(self, client, app, tmp_path):
+        self._as_readonly(client, app, tmp_path)
+        r = client.get('/audit', follow_redirects=True)
+        assert 'restricted to administrators' in r.get_data(as_text=True)
