@@ -1,0 +1,37 @@
+@startuml
+' Figure - Composite Structure Diagram: internals of the integrity verifier
+!include _header.txt
+
+interface "EvidenceItem" as pIn
+interface "IntegrityReport" as pOut
+
+package "GraphIntegrityEngine" <<composite>> {
+  component "dagBuilder : DagBuilder"          as DB
+  component "walker : DepthFirstWalker"        as W
+  component "hashCheck : ContentCheck"         as C1
+  component "sigCheck : AuthorshipCheck"       as C2
+  component "timeCheck : OrderCheck"           as C3
+  component "collector : FailureCollector"     as FC
+  component "scorer : CompletenessScorer"      as CS
+}
+
+pIn --> DB  : evidence
+DB  --> W   : rooted node list
+W   --> C1  : node
+W   --> C2  : node
+W   --> C3  : node, predecessor time
+C1  --> FC  : NodeFailure
+C2  --> FC  : NodeFailure
+C3  --> FC  : NodeFailure
+W   --> FC  : verified count
+FC  --> CS
+CS  --> pOut : verdict, completeness, failures
+
+note right of FC
+  The collector sits BETWEEN the checks and the
+  scorer, and nothing routes a failure back to
+  the walker. That absent connector is the
+  structural reason a failure does not stop the
+  traversal - the property SR-26 requires.
+end note
+@enduml

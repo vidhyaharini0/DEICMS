@@ -1,0 +1,69 @@
+@startuml
+' Figure - Activity Diagram: multi-factor risk assessment
+!include _header.txt
+
+start
+:Load evidence item and its handling history;
+partition "Indicator extraction" {
+  fork
+    :integrity outcome;
+  fork again
+    :content kind;
+  fork again
+    :handover frequency;
+  fork again
+    :distinct handlers;
+  fork again
+    :function mismatches;
+  fork again
+    :dormancy;
+  fork again
+    :repeated records;
+  fork again
+    :lifecycle state;
+  end fork
+}
+
+partition "Normalisation" {
+  :Bring each indicator onto a common
+  zero-to-one scale, using a curve
+  suited to its own distribution;
+}
+note right
+  Linear, logarithmic or sigmoid - chosen
+  per indicator, because a single curve
+  would misrepresent at least one of them.
+end note
+
+:base := sum over i of (weight_i * normalised_i);
+
+partition "Interaction" {
+  :Evaluate the five interaction rules;
+  if (any rule fired?) then (yes)
+    :bonus := sum of the effects that fired;
+    if (bonus > 0.30?) then (yes)
+      :bonus := 0.30;
+    else (no)
+    endif
+  else (no)
+    :bonus := 0;
+  endif
+}
+
+:final := base + bonus;
+
+if (final < low threshold?) then (yes)
+  :level := LOW;
+elseif (final < medium threshold?) then (yes)
+  :level := MEDIUM;
+elseif (final < high threshold?) then (yes)
+  :level := HIGH;
+else (no)
+  :level := CRITICAL;
+endif
+
+:Generate a per-indicator explanation
+and the actions it suggests;
+:Return the assessment;
+stop
+@enduml

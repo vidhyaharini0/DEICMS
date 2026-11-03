@@ -1,0 +1,39 @@
+@startuml
+' Figure - State Machine Diagram: evidence lifecycle
+!include _header.txt
+
+[*] --> Collected : register
+
+Collected     --> Submitted      : submit [custody record exists]
+Submitted     --> UnderAnalysis  : begin analysis [analyst or above]
+UnderAnalysis --> Transferred    : hand over [recipient entitled]
+Transferred   --> UnderAnalysis  : resume analysis
+UnderAnalysis --> Archived       : archive [integrity verified Intact]\n[administrator]
+Transferred   --> Archived       : archive [integrity verified Intact]\n[administrator]
+Submitted     --> Archived       : archive [integrity verified Intact]\n[administrator]
+
+Collected     --> Flagged : integrity failed
+Submitted     --> Flagged : integrity failed
+UnderAnalysis --> Flagged : integrity failed
+Transferred   --> Flagged : integrity failed
+Archived      --> Flagged : integrity failed
+
+Flagged --> UnderAnalysis : clear [administrator]\n[re-verified Intact]
+
+Archived --> [*] : retained indefinitely
+
+note right of Flagged
+  Flagged is reachable from EVERY state but
+  escapable from ONE, by an administrator, and
+  only after re-verification. An item whose
+  integrity has failed cannot quietly resume
+  normal handling (DR-06).
+end note
+
+note left of Collected
+  Every transition carries a required function
+  and a set of preconditions. 14 transitions
+  over 6 states, declared as a table rather
+  than as branching code.
+end note
+@enduml

@@ -1,0 +1,87 @@
+@startuml
+' Figure - Class Diagram (persistent view): the relational schema in UML
+!include _header.txt
+hide methods
+hide empty members
+
+class investigators <<table>> {
+  + {field} <<PK>> id : INTEGER
+  + {field} <<UQ>> email : VARCHAR(120)
+  + {field} password_hash : VARCHAR(255)
+  + {field} role : ENUM(4)
+  + {field} public_key : TEXT
+  + {field} private_key_encrypted : TEXT
+  + {field} failed_login_count : INTEGER
+  + {field} locked_until : DATETIME
+  + {field} totp_secret : VARCHAR(255)
+  + {field} is_active : BOOLEAN
+}
+
+class cases <<table>> {
+  + {field} <<PK>> id : INTEGER
+  + {field} <<UQ>> case_number : VARCHAR(50)
+  + {field} title : VARCHAR(200)
+  + {field} status : ENUM(4)
+  + {field} is_archived : BOOLEAN
+  + {field} <<FK>> created_by_id : INTEGER
+}
+
+class evidence_items <<table>> {
+  + {field} <<PK>> id : INTEGER
+  + {field} <<UQ>> evidence_number : VARCHAR(50)
+  + {field} <<FK>> case_id : INTEGER
+  + {field} original_hash : CHAR(64) NOT NULL
+  + {field} current_hash : CHAR(64) NOT NULL
+  + {field} lifecycle_state : ENUM(6)
+  + {field} integrity_status : ENUM
+  + {field} risk_level : ENUM(3)
+  + {field} is_deleted : BOOLEAN
+  + {field} <<FK>> uploaded_by_id : INTEGER
+}
+
+class custody_logs <<table>> {
+  + {field} <<PK>> id : INTEGER
+  + {field} <<FK>> evidence_id : INTEGER
+  + {field} event_type : ENUM(4)
+  + {field} timestamp : DATETIME
+  + {field} file_hash_at_event : CHAR(64) NOT NULL
+  + {field} digital_signature : TEXT NOT NULL
+  + {field} <<FK>> from_investigator_id : INTEGER
+  + {field} <<FK>> to_investigator_id : INTEGER
+}
+
+class audit_records <<table>> {
+  + {field} <<PK>> id : INTEGER
+  + {field} <<FK>> investigator_id : INTEGER
+  + {field} <<FK>> case_id : INTEGER
+  + {field} event_type : VARCHAR(50)
+  + {field} timestamp : DATETIME
+  + {field} ip_address : VARCHAR(45)
+}
+
+class case_access <<associative table>> {
+  + {field} <<PK>> id : INTEGER
+  + {field} <<FK>> case_id : INTEGER
+  + {field} <<FK>> investigator_id : INTEGER
+  + {field} permission : ENUM(2)
+  + {field} <<FK>> granted_by_id : INTEGER
+  .. UNIQUE (case_id, investigator_id) ..
+}
+
+cases "1" -- "0..*" evidence_items
+evidence_items "1" -- "1..*" custody_logs
+investigators "1" -- "0..*" custody_logs
+investigators "1" -- "0..*" audit_records
+cases "1" -- "0..*" audit_records
+cases "1" -- "0..*" case_access
+investigators "1" -- "0..*" case_access
+
+note bottom
+  Expressed as a UML class diagram with <<table>> stereotypes
+  rather than as an ER diagram, so that one notation describes
+  the whole system. Compare with the previous figure: no
+  operations, no visibility that means anything, no <<engine>>
+  classes, and the three behaviour-holding classes have vanished
+  entirely - they persist nothing.
+end note
+@enduml

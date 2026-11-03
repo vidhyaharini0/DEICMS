@@ -1,0 +1,55 @@
+@startuml
+' Figure - Sequence Diagram: chain integrity verification
+!include _header.txt
+autonumber
+
+actor Investigator as INV
+participant "custody : Route" as RT
+participant "access : CaseAccess" as AC
+participant "engine : GraphIntegrityEngine" as ENG
+participant "store : FileSystem" as FS
+database "db : RelationalStore" as DB
+participant "audit : AuditRecord" as AU
+
+INV -> RT : verify(evidenceId)
+activate RT
+RT -> AC : canAccess(caseId, user)
+activate AC
+AC --> RT : true
+deactivate AC
+
+RT -> ENG : verify()
+activate ENG
+ENG -> DB : custody logs for evidence
+activate DB
+DB --> ENG : logs
+deactivate DB
+ENG -> ENG : buildDag(logs)
+
+loop for every node, depth-first
+  ENG -> FS : read stored content
+  activate FS
+  FS --> ENG : bytes
+  deactivate FS
+  ENG -> ENG : checkHash(node)
+  ENG -> ENG : checkSignature(node)
+  ENG -> ENG : checkTimestamp(node, prev)
+  alt any check failed
+    ENG -> ENG : record NodeFailure
+    note right of ENG
+      The traversal CONTINUES.
+      All failures are found in
+      one pass, not just the first.
+    end note
+  end
+end
+
+ENG -> ENG : completeness = 100 * verified / total
+ENG --> RT : IntegrityReport
+deactivate ENG
+
+RT -> DB : write integrity_status
+RT -> AU : record the verification
+RT --> INV : verdict, completeness, failure list
+deactivate RT
+@enduml

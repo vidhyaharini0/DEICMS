@@ -1,0 +1,60 @@
+@startuml
+' Figure - Component Diagram: components and their interfaces
+!include _header.txt
+
+component "Web Interface" as WEB
+component "Authentication" as AUTH
+component "Case Management" as CASES
+component "Evidence Management" as EVID
+component "Custody and Integrity" as CUST
+component "Risk Assessment" as RISK
+component "Investigation Assistant" as AI
+component "Audit and Export" as AUD
+component "Access Control" as AC
+database "Evidence Store" as FS
+database "Relational Store" as DB
+component "Language Model Service" as LLM <<external>>
+
+interface "ISession"    as I1
+interface "IAccess"     as I2
+interface "IIntegrity"  as I3
+interface "IRisk"       as I4
+interface "IAudit"      as I5
+interface "IChat"       as I6
+
+AUTH  -up- I1
+AC    -up- I2
+CUST  -up- I3
+RISK  -up- I4
+AUD   -up- I5
+AI    -up- I6
+
+WEB   ..> I1
+WEB   ..> I3
+WEB   ..> I4
+WEB   ..> I6
+CASES ..> I2
+EVID  ..> I2
+CUST  ..> I2
+RISK  ..> I3
+AI    ..> I2
+AI    ..> I3
+AI    ..> I4
+AUD   ..> I2
+
+EVID  --> FS
+CASES --> DB
+EVID  --> DB
+CUST  --> DB
+RISK  --> DB
+AUD   --> DB
+AC    --> DB
+AI    ..> LLM : <<external call>>
+
+note right of AC
+  Every component that reads case-scoped data
+  depends on IAccess. One provider, one rule -
+  the abstraction introduced in Sprint 4 after
+  aggregates were found unscoped.
+end note
+@enduml

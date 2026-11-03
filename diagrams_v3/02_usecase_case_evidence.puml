@@ -1,0 +1,55 @@
+@startuml
+' Figure - Use Case Diagram: cases and evidence
+!include _header.txt
+left to right direction
+
+actor "Read-Only Auditor" as RO
+actor "Forensic Analyst"  as ANA
+actor "Lead Investigator" as LEAD
+actor "Administrator"     as ADM
+ANA --|> RO
+LEAD --|> ANA
+ADM --|> LEAD
+
+rectangle "Cases and Evidence" {
+  usecase "View dashboard"        as UC1
+  usecase "List cases"            as UC2
+  usecase "View case"             as UC3
+  usecase "View evidence"         as UC4
+  usecase "Create case"           as UC5
+  usecase "Edit case"             as UC6
+  usecase "Add case member"       as UC7
+  usecase "Remove case member"    as UC8
+  usecase "Upload evidence"       as UC9
+  usecase "Edit evidence"         as UC10
+  usecase "Archive case"          as UC11
+  usecase "Delete evidence"       as UC12
+  usecase "Validate file content" as UC13
+  usecase "Fingerprint content"   as UC14
+  usecase "Open first custody record" as UC15
+}
+
+RO   --> UC1
+RO   --> UC2
+RO   --> UC3
+RO   --> UC4
+ANA  --> UC10
+LEAD --> UC5
+LEAD --> UC6
+LEAD --> UC7
+LEAD --> UC8
+LEAD --> UC9
+ADM  --> UC11
+ADM  --> UC12
+
+UC9 ..> UC13 : <<include>>
+UC9 ..> UC14 : <<include>>
+UC9 ..> UC15 : <<include>>
+
+note right of UC11
+  Archiving and deletion are
+  reserved to the Administrator:
+  both are irreversible in effect
+  even though reversible in data.
+end note
+@enduml

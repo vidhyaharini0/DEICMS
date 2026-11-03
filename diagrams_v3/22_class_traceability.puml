@@ -1,0 +1,69 @@
+@startuml
+!include _header.txt
+' Figure 3.1 - Requirements traceability metamodel (UML class diagram)
+
+
+
+
+
+hide circle
+
+class "User Requirement" as UR {
+  + id : String
+  + statement : String
+}
+
+class "System Requirement" as SR {
+  + id : String
+  + statement : String
+  + category : Category
+  + priority : MoSCoW
+}
+
+class "Quality Requirement" as QR {
+  + measurement : String
+  + acceptanceCriterion : String
+}
+
+class "User Story" as US {
+  + id : String
+  + points : Integer
+}
+
+class Sprint {
+  + number : Integer
+  + goal : String
+}
+
+class Module {
+  + path : String
+}
+
+class Test {
+  + name : String
+  + passes() : Boolean
+}
+
+UR "1" -- "1..*" SR : is derived into >
+SR "1" -- "1..*" US : is carried by >
+US "1..*" -- "1" Sprint : is scheduled into >
+US "1" -- "1..*" Module : is implemented in >
+Module "1" -- "1..*" Test : is verified by >
+Test "1..*" -- "1" SR : demonstrates >
+
+QR --|> SR
+
+note right of QR
+  A quality requirement is a system
+  requirement that additionally states
+  how it is measured and what value
+  constitutes a pass.
+end note
+
+note bottom of Test
+  The cycle SR -> US -> Module -> Test -> SR
+  closing is what makes coverage checkable:
+  an unverified requirement leaves it open.
+end note
+
+@enduml

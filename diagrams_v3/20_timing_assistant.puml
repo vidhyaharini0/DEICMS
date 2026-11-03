@@ -1,0 +1,35 @@
+@startuml
+' Figure - Timing Diagram: bounded waiting on the model service
+!include _header.txt
+
+robust "Browser"       as B
+robust "Application"   as A
+robust "Model service" as M
+
+@0
+B is Waiting
+A is Scoping
+M is Idle
+
+@2
+A is Building
+
+@3
+A is Calling
+M is Answering
+
+@23
+M is "Timed out"
+A is Deciding
+
+@25
+A is "From records"
+M is Idle
+
+@27
+A is Idle
+B is Rendering
+
+@29
+B is Idle
+@enduml

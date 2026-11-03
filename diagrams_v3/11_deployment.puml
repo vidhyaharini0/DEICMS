@@ -1,0 +1,43 @@
+@startuml
+' Figure - Deployment Diagram
+!include _header.txt
+
+node "Investigator Workstation" <<device>> as WS {
+  artifact "Web Browser" as BR
+}
+
+node "Application Host" <<device>> as HOST {
+  node "Python Runtime" <<execution environment>> as PY {
+    artifact "run.py" as RUN
+    artifact "DEICMS application" as APP
+    artifact "logic modules" as LOGIC
+  }
+  node "File System" <<execution environment>> as FSN {
+    artifact "uploads/ (encrypted)" as UP
+    artifact "deicms.db" as DBF
+  }
+}
+
+cloud "Model Provider" <<external>> as CLOUD {
+  artifact "Hosted language model" as LLM
+}
+
+BR ..> APP : HTTPS/TLS
+RUN --> APP : <<deploy>>
+APP --> LOGIC
+APP --> DBF : file I/O
+APP --> UP  : file I/O
+APP ..> LLM : HTTPS, 20 s per call,\n60 s total budget
+
+note bottom of FSN
+  Evidence content and the relational store sit on
+  the same host but in separate artifacts. Losing
+  the medium yields encrypted bytes only (SR-48).
+end note
+
+note right of CLOUD
+  The only component outside the trust boundary.
+  Access-scoped records are placed in the prompt;
+  nothing else leaves the host.
+end note
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+' Figure - Use Case Diagram: system overview
+!include _header.txt
+left to right direction
+
+actor "Read-Only Auditor" as RO
+actor "Forensic Analyst"  as ANA
+actor "Lead Investigator" as LEAD
+actor "Administrator"     as ADM
+
+' Specialisation: the Auditor is the MOST GENERAL actor. Each actor below
+' specialises the one above it and therefore inherits its associations.
+ANA  --|> RO
+LEAD --|> ANA
+ADM  --|> LEAD
+
+rectangle DEICMS {
+  usecase "Review case records\n(23 use cases)"      as P1
+  usecase "Examine and handle evidence\n(+2)"        as P2
+  usecase "Manage investigations\n(+7)"              as P3
+  usecase "Administer the system\n(+9)"              as P4
+}
+
+RO   --> P1
+ANA  --> P2
+LEAD --> P3
+ADM  --> P4
+
+note bottom of DEICMS
+  41 use cases in total, one per system operation.
+  Each actor is joined only to the use cases it ADDS;
+  the rest are inherited through specialisation.
+  Totals: Auditor 23, Analyst 25, Lead 32, Administrator 41.
+  Detail follows in the three diagrams after this one.
+end note
+@enduml

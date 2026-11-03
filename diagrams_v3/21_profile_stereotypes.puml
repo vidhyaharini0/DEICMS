@@ -1,0 +1,49 @@
+@startuml
+' Figure - Profile Diagram: the stereotypes this report uses
+!include _header.txt
+hide empty members
+
+package "UML Metamodel (extract)" <<Frame>> {
+  class Class <<metaclass>>
+  class Component <<metaclass>>
+  class Node <<metaclass>>
+  class Property <<metaclass>>
+}
+
+package "DEICMS Profile" <<Frame>> {
+  class "<<table>>" as ST_TABLE <<stereotype>> {
+    schemaName : String
+  }
+  class "<<associative table>>" as ST_ASSOC <<stereotype>>
+  class "<<engine>>" as ST_ENG <<stereotype>> {
+    stateless : Boolean = true
+  }
+  class "<<value>>" as ST_VAL <<stereotype>> {
+    immutable : Boolean = true
+  }
+  class "<<external>>" as ST_EXT <<stereotype>> {
+    trusted : Boolean = false
+  }
+  class "<<PK>>" as ST_PK <<stereotype>>
+  class "<<FK>>" as ST_FK <<stereotype>>
+  class "<<UQ>>" as ST_UQ <<stereotype>>
+}
+
+ST_TABLE ..|> Class     : <<extend>>
+ST_ASSOC ..|> ST_TABLE  : <<generalize>>
+ST_ENG   ..|> Class     : <<extend>>
+ST_VAL   ..|> Class     : <<extend>>
+ST_EXT   ..|> Component : <<extend>>
+ST_EXT   ..|> Node      : <<extend>>
+ST_PK    ..|> Property  : <<extend>>
+ST_FK    ..|> Property  : <<extend>>
+ST_UQ    ..|> Property  : <<extend>>
+
+note bottom
+  Every stereotype used anywhere in this report is
+  declared here. Stereotypes are UML's own extension
+  mechanism, so describing the relational schema as
+  stereotyped classes keeps the whole model inside
+  one notation rather than importing a second one.
+end note
+@enduml

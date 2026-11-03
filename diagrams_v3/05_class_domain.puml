@@ -1,0 +1,129 @@
+@startuml
+' Figure - Class Diagram: domain model with behaviour
+!include _header.txt
+hide empty members
+
+class Investigator {
+  - passwordHash : String
+  - privateKeyEncrypted : String
+  + fullName : String
+  + role : Role
+  + publicKey : String
+  + isAdmin() : Boolean
+  + canManage() : Boolean
+  + canAnalyse() : Boolean
+  + setPassword(plain) : void
+  + checkPassword(plain) : Boolean
+  + sign(payload) : Signature
+}
+
+class Case {
+  + caseNumber : String
+  + title : String
+  + status : CaseStatus
+  + isArchived : Boolean
+  + archive() : void
+  + evidenceCount() : Integer
+}
+
+class EvidenceItem {
+  + evidenceNumber : String
+  + originalHash : Digest
+  + currentHash : Digest
+  + lifecycleState : LifecycleState
+  + integrityStatus : IntegrityStatus
+  + isDeleted : Boolean
+  + hasChanged() : Boolean
+  + softDelete() : void
+}
+
+class CustodyLog {
+  + eventType : EventType
+  + timestamp : DateTime
+  + fileHashAtEvent : Digest
+  + digitalSignature : Signature
+  + verifySignature() : Boolean
+}
+
+class AuditRecord {
+  + eventType : String
+  + description : String
+  + timestamp : DateTime
+  .. insert-only ..
+}
+
+class CaseAccess {
+  + permission : Permission
+  + {static} canAccess(caseId, user) : Boolean
+  + {static} accessibleCaseIds(user) : List
+  + {static} grant(caseId, userId, perm) : CaseAccess
+}
+
+enum Role {
+  Admin
+  LeadInvestigator
+  Analyst
+  ReadOnly
+}
+
+enum LifecycleState {
+  Collected
+  Submitted
+  UnderAnalysis
+  Transferred
+  Archived
+  Flagged
+}
+
+class GraphIntegrityEngine <<engine>> {
+  - evidence : EvidenceItem
+  + verify() : IntegrityReport
+  - buildDag(logs) : List
+  - dfs(node, predecessorTime) : void
+  - checkHash(node) : Boolean
+  - checkSignature(node) : Boolean
+  - checkTimestamp(node, prev) : Boolean
+}
+
+class EvidenceRiskScorer <<engine>> {
+  + score(evidence) : RiskReport
+  - extractAndNormalise(ev, logs) : List
+  - classify(score) : RiskLevel
+}
+
+class EvidenceStateMachine <<engine>> {
+  - {static} TRANSITION_TABLE : Map
+  + transitionTo(target, reason) : TransitionResult
+  - recalculateRiskScore() : void
+}
+
+class IntegrityReport <<value>> {
+  + verdict : Verdict
+  + completeness : Percent
+  + failures : List
+}
+
+Case "1" *-- "0..*" EvidenceItem : contains >
+EvidenceItem "1" *-- "1..*" CustodyLog : is traced by >
+Investigator "1" -- "0..*" CustodyLog : creates >
+Investigator "1" -- "0..*" AuditRecord : causes >
+Case "1" -- "0..*" CaseAccess : is shared through >
+Investigator "1" -- "0..*" CaseAccess : is granted >
+Investigator --> Role
+EvidenceItem --> LifecycleState
+
+GraphIntegrityEngine ..> EvidenceItem : <<use>>
+GraphIntegrityEngine ..> CustodyLog : <<use>>
+GraphIntegrityEngine ..> IntegrityReport : <<create>>
+EvidenceRiskScorer ..> EvidenceItem : <<use>>
+EvidenceStateMachine ..> EvidenceItem : <<use>>
+EvidenceStateMachine ..> EvidenceRiskScorer : <<use>>
+
+note right of GraphIntegrityEngine
+  The three <<engine>> classes hold BEHAVIOUR
+  and have no persistent state of their own.
+  They have no counterpart in the data model
+  of the next figure - which is the clearest
+  single difference between the two models.
+end note
+@enduml

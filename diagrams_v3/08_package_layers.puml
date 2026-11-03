@@ -1,0 +1,41 @@
+@startuml
+' Figure - Package Diagram: layered architecture
+!include _header.txt
+
+package "Presentation" <<Layer>> {
+  package "templates" as T
+}
+package "Interface" <<Layer>> {
+  package "routes" as R {
+  }
+}
+package "Application Logic" <<Layer>> {
+  package "logic" as L {
+  }
+}
+package "Domain and Persistence" <<Layer>> {
+  package "models" as M
+}
+package "Framework and Libraries" <<Layer>> {
+  package "external" as X
+}
+
+R ..> T   : <<use>>
+R ..> L   : <<use>>
+R ..> M   : <<use>>
+L ..> M   : <<use>>
+M ..> X   : <<use>>
+L ..> X   : <<use>>
+
+note right of L
+  The logic package does NOT depend on routes.
+  This is requirement SNF-12 and is enforced by
+  a static test, not by convention.
+end note
+
+note bottom of X
+  Dependencies point downward only.
+  No upward or cyclic dependency exists
+  between the five layers.
+end note
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+' Figure - Communication Diagram: risk assessment collaboration
+!include _header.txt
+hide empty members
+top to bottom direction
+
+object ": Route"                     as RT
+object "scorer : EvidenceRiskScorer" as SC
+object "ev : EvidenceItem"           as EV
+object ": CustodyLog [*]"            as CL
+object ": WeightProvider"            as WP
+object ": InteractionRules"          as IR
+object "report : RiskReport"         as RP
+
+RT --> SC : "1: score(ev)"
+SC --> EV : "2: read indicators"
+SC --> CL : "3: read handling history"
+SC --> SC : "4: normalise each indicator"
+SC --> WP : "5: currentWeights()"
+SC --> SC : "6: base := sum(w * n)"
+SC --> IR : "7: fired(indicators)"
+IR --> SC : "8: effects"
+SC --> SC : "9: bonus := min(sum, 0.30)"
+SC --> SC : "10: classify(base + bonus)"
+SC --> RP : "11: create"
+RP --> RT : "12: factors, reasons"
+
+note top of SC
+  The same interaction a sequence diagram
+  would show, organised by STRUCTURE
+  rather than by time: the emphasis falls
+  on which objects collaborate, and the
+  numbering carries the ordering.
+end note
+
+note bottom of IR
+  Step 9 applies the cap. Without it,
+  several rules firing together would
+  saturate every item and destroy the
+  ranking the feature exists to provide.
+end note
+@enduml

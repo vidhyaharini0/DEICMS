@@ -1,0 +1,40 @@
+@startuml
+' Figure - State Machine Diagram: account access state
+!include _header.txt
+
+[*] --> Active : account created
+
+state Active {
+  [*] --> SignedOut
+  SignedOut --> Authenticating : present credentials
+  Authenticating --> SignedOut : rejected / failures++
+  Authenticating --> AwaitingSecondFactor : accepted [second factor enrolled]
+  Authenticating --> SignedIn : accepted [no second factor]
+  AwaitingSecondFactor --> SignedIn : factor valid
+  AwaitingSecondFactor --> SignedOut : factor invalid
+  SignedIn --> SignedOut : sign out / discard conversation
+  SignedIn --> SignedOut : 30 minutes idle
+}
+
+Active --> Locked : failures reach 5
+Locked --> Active : 15 minutes elapsed
+Locked --> Active : released by administrator
+Active --> Suspended : suspended by administrator
+Suspended --> Active : restored by administrator
+Suspended --> [*] : account retired
+
+note right of Locked
+  Lockout is time-bounded as well as
+  administratively releasable, so a denial
+  of service against one account cannot be
+  made permanent by an attacker.
+end note
+
+note bottom of Active
+  A second state machine in the system, shown
+  because the lifecycle of ACCESS is as
+  procedurally constrained as the lifecycle of
+  EVIDENCE - and because a composite state is
+  the natural way to express it.
+end note
+@enduml

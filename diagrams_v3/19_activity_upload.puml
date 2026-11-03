@@ -1,0 +1,56 @@
+@startuml
+' Figure - Activity Diagram with partitions: registering evidence
+!include _header.txt
+
+|Investigator|
+start
+:Choose investigation and submit content;
+
+|Interface Layer|
+:Check the account's function;
+if (entitled to register?) then (no)
+  :Refuse with an explanation;
+  |Audit|
+  :Record the refusal;
+  stop
+else (yes)
+endif
+
+|Validation|
+:Check the declared kind
+against the content itself;
+if (content matches its declared kind?) then (no)
+  :Refuse the upload;
+  |Audit|
+  :Record the refusal;
+  stop
+else (yes)
+endif
+
+|Application Logic|
+:Derive the content fingerprint;
+:Extract embedded metadata;
+:Encrypt the content for storage;
+
+|Persistence|
+fork
+  :Write the evidence record;
+fork again
+  :Write the first custody record
+  carrying the same fingerprint;
+end fork
+note right
+  One indivisible operation. No evidence
+  item can exist without a custody history
+  (SR-12, DR-01).
+end note
+:Commit;
+
+|Audit|
+:Record the registration;
+
+|Investigator|
+:Show the registered item
+with its fingerprint;
+stop
+@enduml

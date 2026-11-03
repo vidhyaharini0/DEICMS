@@ -1,0 +1,55 @@
+@startuml
+' Figure - Activity Diagram: custody chain reconstruction
+!include _header.txt
+
+start
+:Load confirmed custody records;
+:Order them by time;
+:Identify discontinuities
+where a holder changes without a handover;
+
+if (any discontinuity?) then (no)
+  :Chain is complete;
+  :confidence := 100%;
+  stop
+else (yes)
+endif
+
+while (another discontinuity to resolve?) is (yes)
+  :Take the next discontinuity;
+  :Gather candidate records from the access log
+  falling inside its time window;
+
+  if (any candidate?) then (no)
+    :Mark UNRESOLVED;
+  else (yes)
+    partition "Plausibility scoring" {
+      :For each candidate, score:
+      temporal proximity,
+      function consistency,
+      place consistency,
+      behavioural consistency;
+      :Combine into a plausibility value;
+    }
+    :Select the highest-scoring candidate;
+    if (best >= 0.40?) then (yes)
+      :Mark INFERRED;
+      :Attach the value and the reasoning;
+    else (no)
+      :Mark UNRESOLVED;
+      note right
+        Below the threshold the algorithm
+        declines to guess. Declining is a
+        result, not a failure (DR-02).
+      end note
+    endif
+  endif
+endwhile (no)
+
+:Merge confirmed and inferred links
+into a single ordered timeline;
+:confidence := (confirmed + inferred) / expected;
+:Return the reconstruction,
+every link labelled by its kind;
+stop
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+' Figure - Object Diagram: one evidence item at a moment in time
+!include _header.txt
+hide empty members
+
+object "ev7 : EvidenceItem" as EV {
+  evidenceNumber = "EV-2026-007"
+  originalHash = "a3f1...9c"
+  currentHash = "a3f1...9c"
+  lifecycleState = Flagged
+  integrityStatus = FAILED
+  riskLevel = High
+}
+object "case2 : Case" as C {
+  caseNumber = "CASE-2026-002"
+  status = Active
+  isArchived = false
+}
+object "log1 : CustodyLog" as L1 {
+  eventType = Upload
+  timestamp = "2026-10-24 09:12"
+  fileHashAtEvent = "a3f1...9c"
+}
+object "log2 : CustodyLog" as L2 {
+  eventType = Transfer
+  timestamp = "2026-10-24 11:40"
+  fileHashAtEvent = "a3f1...9c"
+}
+object "log3 : CustodyLog" as L3 {
+  eventType = Access
+  timestamp = "2026-10-24 10:05"
+  fileHashAtEvent = "b7e2...41"
+}
+object "lead : Investigator" as I {
+  fullName = "Lead Investigator"
+  role = LeadInvestigator
+}
+
+C *-- EV
+EV *-- L1
+EV *-- L2
+EV *-- L3
+I -- L2
+
+note bottom of L3
+  This instance is why the item is Flagged.
+  Its timestamp precedes log2 (order violated)
+  AND its hash differs from the registered
+  value (content violated). A single snapshot
+  makes concrete what the class diagram can
+  only state as a constraint.
+end note
+@enduml

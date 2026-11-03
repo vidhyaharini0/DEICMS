@@ -1,0 +1,64 @@
+@startuml
+' Figure - Sequence Diagram: assistant orchestration
+!include _header.txt
+autonumber
+
+actor Investigator as INV
+participant "assistant : Route" as RT
+participant "classifier : IntentClassifier" as IC
+participant "retriever : ContextRetriever" as CR
+participant "access : CaseAccess" as AC
+database "db : RelationalStore" as DB
+participant "builder : PromptBuilder" as PB
+participant "model : LanguageModel" as LM <<external>>
+participant "validator : ReferenceValidator" as RV
+
+INV -> RT : ask(question)
+activate RT
+RT -> IC : classify(question)
+activate IC
+IC --> RT : intent, entityId
+deactivate IC
+
+RT -> CR : retrieve(intent, user)
+activate CR
+CR -> AC : accessibleCaseIds(user)
+activate AC
+AC --> CR : [caseIds]
+deactivate AC
+CR -> DB : records within [caseIds] only
+activate DB
+DB --> CR : records
+deactivate DB
+CR --> RT : RetrievedContext
+deactivate CR
+note right of CR
+  Scoping happens HERE, before the prompt
+  exists. Data the user may not see is never
+  placed in the prompt, so the model cannot
+  disclose it however it is asked.
+end note
+
+RT -> PB : build(intent, question, context)
+activate PB
+PB --> RT : prompt
+deactivate PB
+
+RT -> LM : complete(prompt)
+activate LM
+alt model answers within budget
+  LM --> RT : reply
+else unavailable or over budget
+  LM --> RT : error
+  RT -> RT : compose answer from context alone
+end
+deactivate LM
+
+RT -> RV : check(reply, context)
+activate RV
+RV --> RT : unknown references
+deactivate RV
+
+RT --> INV : reply, intent, warnings
+deactivate RT
+@enduml
