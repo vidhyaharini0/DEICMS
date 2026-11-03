@@ -46,7 +46,7 @@ machine, activity, timing, profile.
 
 | Issue | Was | Now |
 |---|---|---|
-| **Generalisation / specialisation inverted** | The text read "the Analyst *generalises* the Read-Only Auditor". Backwards: the parent generalises, the child specialises | The Read-Only Auditor is the most general actor; the Analyst **specialises** it, the Lead specialises the Analyst, the Administrator specialises the Lead. Stated that way in both the diagrams and the text |
+| **Generalisation / specialisation inverted** | The text read "the Analyst *generalises* the Read-Only Viewer". Backwards: the parent generalises, the child specialises | The Read-Only Viewer is the most general actor; the Analyst **specialises** it, the Lead specialises the Analyst, the Administrator specialises the Lead. Stated that way in both the diagrams and the text |
 | **`«extend»` drawn backwards** | An arrow from the base use case to the extending one | `«extend»` now points **from the extending use case to the base**: "Present second factor" extends "Sign in", "Reconstruct" extends "Verify" |
 | **Login as an included use case** | `Register evidence ..> Log in : «include»` | Removed. Authentication is a **precondition of the subject**, not a step repeated inside each use case. Noted on the diagram so the omission reads as a decision |
 | **Only 12 of 41 use cases shown** | One diagram, 12 use cases | An overview plus three detail diagrams covering all 41, one per system operation |
