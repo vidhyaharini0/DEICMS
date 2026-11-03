@@ -34,9 +34,8 @@ become a design decision wearing a requirement's clothes. It forecloses
 alternatives before they have been weighed, and it cannot survive the
 technology being replaced.
 
-The first version of this requirements set made this mistake repeatedly. The
-correction is recorded here rather than hidden, because the difference between
-the two columns is the whole point.
+The first version of this requirements set made this error repeatedly. The
+difference between the two columns below carries the principle.
 
 **Table 3.2 - Requirements restated as problems**
 
@@ -49,14 +48,13 @@ the two columns is the whole point.
 | "support TOTP two-factor authentication" | **UR-01 / SR-47:** the system shall allow an account to require a second, independently held factor before granting access | §5.6 - second-factor mechanism |
 | "fit the model via the NVIDIA NIM endpoint" | **UR-15 / SR-40:** the system shall answer questions posed in ordinary language using only the records the questioner is entitled to see | §11.6 - language model procurement |
 
-The last row matters for an additional reason. The accepted project proposal
-named a particular commercial language-model API. That service proved
-unavailable on the terms the project could meet, and a different hosted model
-was used instead. **Because the requirement asks for an answer in ordinary
-language rather than for a named vendor, the substitution changed the design
-and not the requirements.** Had the requirement named the vendor, a commercial
-fact outside the project's control would have invalidated a requirement.
-Section 11.6.1 records the substitution as a design decision with its rationale.
+The last row carries a further consequence. The language model originally
+selected proved unavailable on terms the project could meet, and a different
+hosted model was used. Because the requirement asks for an answer in ordinary
+language rather than for a named vendor, the substitution altered the design
+and not the requirements; had the requirement named the vendor, a commercial
+fact outside the project's control would have invalidated it. Section 11.6.1
+records the substitution as a design decision.
 
 ## 3.2 Stakeholders
 
@@ -71,11 +69,11 @@ Section 11.6.1 records the substitution as a design decision with its rationale.
 | The court (indirect) | Consumes the output | The chain of custody is unbroken and demonstrably so |
 | Opposing counsel (adversarial) | Attacks the output | Any weakness in the chain is found and exploited |
 
-The last stakeholder is the reason several requirements are phrased
-negatively. A system of this kind is specified as much by what it must make
-impossible as by what it must allow, and the adversarial reader is the one who
-determines whether a negative requirement was written broadly enough. This
-proved to be exactly where the project's own defects lay (Section 3.10).
+The last stakeholder accounts for the several requirements phrased negatively.
+A system of this kind is specified as much by what it must make impossible as
+by what it must permit, and an adversarial reader determines whether a
+negative requirement was written broadly enough - which is where the project's
+own defects proved to lie (Section 3.10).
 
 ## 3.3 User Requirements - Functional
 
@@ -125,11 +123,10 @@ a mechanism.
 | UNF-08 | The system must not be tied to one database product | Portability |
 | UNF-09 | Claims the system makes about itself must be independently checkable | Verifiability |
 
-These are deliberately unmeasurable. That is what distinguishes a user quality
-requirement from a system one: "quickly enough not to interrupt an
-investigator's work" is the right thing to say to a customer and the wrong
-thing to hand a tester. Section 3.7 converts each into statements that can
-pass or fail.
+These are deliberately unmeasurable, which is what distinguishes a user
+quality requirement from a system one: "quickly enough not to interrupt an
+investigator's work" is appropriate for a customer and insufficient for a
+tester. Section 3.7 converts each into statements that can pass or fail.
 
 ## 3.5 System Requirements - Functional
 
@@ -208,22 +205,19 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 
 Seven system requirements say what the system must make impossible: SR-01
 (identical failure messages), SR-06, SR-08, SR-12, SR-19, SR-21, SR-24, SR-33,
-SR-45. These are harder to satisfy than positive requirements, because a
-positive requirement is met by one correct path while a negative one is met
-only when **every** path is correct.
+SR-45. These are harder to satisfy than positive requirements: a positive requirement
+is met by one correct path, a negative one only when every path is correct.
 
-This is not a theoretical observation. Both maintenance iterations of this
-project were caused by negative requirements applied to fewer surfaces than
-they governed - SR-09 was enforced on record access but not on aggregates, and
-SR-55 was enforced in the interface but not in the listing queries. Section
-3.10 records the lesson.
+Both maintenance sprints were caused by negative requirements applied to fewer
+surfaces than they governed. SR-09 was enforced on record access but not on
+aggregates, and SR-55 in the interface but not in the listing queries.
 
 ## 3.7 System Requirements - Quality
 
-This is the table the first version of the report lacked. Every row carries
-the three things a quality requirement needs to be real: **how it is
-measured**, **what value constitutes a pass**, and **the test that applies
-the measurement**. A quality requirement without all three is an aspiration.
+Every row carries the three elements a quality requirement requires to be
+verifiable: how it is measured, what value constitutes a pass, and the test
+that applies the measurement. A quality requirement lacking any of the three
+is an aspiration.
 
 **Table 3.7 - System quality requirements**
 
@@ -251,9 +245,8 @@ the measurement**. A quality requirement without all three is an aspiration.
 | SNF-20 | UNF-09 | The whole verification suite shall run without reaching any external service | Execute the suite with no network configuration | All tests pass; no external call attempted | Suite execution |
 | SNF-21 | UNF-09 | Each role's overview shall be distinguishable from every other | Render the overview as each of four roles and compare | Four distinct renderings; administrative panels absent from the other three | `test_nfr` |
 
-**Coverage.** Every one of the twenty-one system quality requirements names a
-test. Section 3.11 records what this table looked like before the revision and
-why the difference matters.
+**Coverage.** Each of the twenty-one system quality requirements names a test.
+Table 12.5 compares this position with the one preceding Sprint 6.
 
 ## 3.8 Domain Requirements
 
@@ -274,9 +267,8 @@ wish. They are separated because they are not negotiable and not traded off.
 
 ## 3.9 Traceability
 
-The chain is complete in both directions and is carried inline rather than in
-an appendix, so that a reader checking any single requirement need not turn
-pages. Its six links are: a **user requirement** is derived into one or more
+The chain is complete in both directions and carried inline in Tables 3.4, 3.6
+and 3.7. Its six links are: a **user requirement** is derived into one or more
 **system requirements**; each system requirement is carried by a **user
 story**; each user story is scheduled into a **sprint**; each sprint
 implements it in a **module**; and each module is verified by a named
@@ -297,11 +289,10 @@ expressed in the notation the rest of the report uses.
 
 ## 3.10 What the Requirements Process Got Wrong
 
-Two failures are recorded here because the report's account of its own process
-is worth more than a claim of having had none.
+Two failures in the requirements process are given below with their causes.
 
-**Negative requirements were scoped to the surfaces their author had in mind.**
-UR-03 and SNF-01 were stated correctly from the start, but the system
+**Negative requirements were scoped to the surfaces their author had in
+mind.** UR-03 and SNF-01 were stated correctly from the outset, but the system
 requirements realising them addressed record access alone. Aggregates -
 counts, charts, rankings, exports, generated answers - were not enumerated, and
 so were not protected. The requirement was right; its scope of application was
@@ -309,21 +300,19 @@ incomplete. SR-51 exists because of this, and the maintenance iteration M1 is
 its consequence. **A negative requirement must enumerate the surfaces it
 governs, or it will be applied only to those its author pictured.**
 
-**Quality requirements were stated without the means to check them.** The first
-version of Table 3.7 gave each quality requirement a property and a sentence
-of justification, but nine of eighteen named only "code review", "configuration
-inspection", "manual check" or an analytical argument as their verification. A
-verification method that does not re-run cannot fail, and a requirement that
-cannot fail is not a requirement. The most pointed instance: the requirement
-that untrusted text never be rendered as markup (now SNF-17) arose from a
-defect found and fixed in maintenance iteration M2 - and was given no test, so
-the fix could have been removed without a single failure anywhere in the suite.
-**A fixed defect without a regression test is an unfixed defect with a delay
-built in.**
+**Quality requirements were stated without the means to check them.** The
+first version of Table 3.7 gave each quality requirement a property and a
+sentence of justification, but nine of eighteen named only code review,
+configuration inspection, a manual check or an analytical argument as their
+verification. A verification method that does not re-run cannot fail, and a
+requirement that cannot fail is not a requirement. In the clearest instance,
+SNF-17 - that untrusted text never be rendered as markup - arose from a defect
+found and repaired in Sprint 5 and received no test, leaving the repair
+removable without any failure in the suite.
 
-Both failures share a shape: the requirement was correct and the verification
-was not. This is why Section 3.7 now treats the measurement and the acceptance
-criterion as part of the requirement rather than as commentary on it.
+Both share a shape: the requirement was correct and its verification was not.
+Section 3.7 consequently treats the measurement and the acceptance criterion as
+part of the requirement rather than as commentary upon it.
 
 ---
 

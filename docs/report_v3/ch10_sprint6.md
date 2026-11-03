@@ -6,14 +6,11 @@
 
 ## 10.1 Why There Is a Sixth Sprint
 
-An external review of the project raised, among other things, that the
-non-functional requirements were *"mostly missing"* - not absent from the
-document, but unimplemented and untested.
+Sprint 6 began with an audit of the eighteen non-functional requirements,
+checking each against the code that enforced it and the test that would fail
+if that enforcement were removed.
 
-The review was correct, and the audit that followed was worse reading than
-expected.
-
-**Table 10.1 - The state of the eighteen quality requirements before this sprint**
+**Table 10.1 - State of the eighteen quality requirements before Sprint 6**
 
 | Verdict | Count |
 |---|---|
@@ -22,14 +19,10 @@ expected.
 | Asserted analytically, never measured | 2 |
 | **Claim did not match the code** | 1 |
 
-Nine of eighteen named only "code review", "configuration inspection",
-"manual check" or an analytical argument as their verification method. The
-document was honest about this - the verification column said so plainly - but
-stating a weak verification method is still stating a weak verification
-method.
-
-**A verification method that does not re-run cannot fail, and a requirement
-that cannot fail is not a requirement.**
+Nine of eighteen named only code review, configuration inspection, a manual
+check or an analytical argument as their verification method. A verification
+method that does not re-run cannot fail, and a requirement that cannot fail is
+not a requirement.
 
 ## 10.2 Sprint Goal
 
@@ -87,10 +80,10 @@ evidence_items = (case.evidence_items
 
 An investigation with four hundred exhibits would render four hundred rows.
 
-**The repair changed the code, not the requirement.** Softening the
-requirement to match the implementation would have been the easier edit and
-the wrong one: an exhibit-heavy investigation is the realistic case for a
-forensic system, not an edge case.
+The repair changed the code rather than the requirement. Softening the
+requirement to match the implementation would have been the smaller edit, but
+an exhibit-heavy investigation is the realistic case for a forensic system
+rather than an edge case.
 
 ## 10.6 US-34: Complexity Measured Rather Than Argued
 
@@ -106,27 +99,27 @@ both, and assert the **growth ratio**:
 | Assessment linear in record count | 20 and 200 records, best of three | Tenfold records under thirtyfold time |
 | A 100-element chain verifies within tolerance | Single run | Under 5 seconds |
 
-The thresholds are deliberately loose. **They are set to catch a change in the
-shape of the cost, not to certify a particular machine's speed** - a quadratic
-implementation would need roughly a hundredfold increase and would fail.
+The thresholds are deliberately loose: they detect a change in the shape of
+the cost rather than certifying a particular machine's speed. A quadratic
+implementation would require roughly a hundredfold increase and would fail.
 
 ## 10.7 US-36: The Regression Test That Should Have Existed
 
 Finding H1 in Sprint 5 - text rendered as markup - was repaired and closed
 with no test, in a sprint whose own retrospective action E2 required one.
 
-The consequence: the escape function could have been deleted and **all 172
-tests would still have passed**. A defect found, understood, documented and
-repaired was protected by nothing.
+In consequence the escape function could have been deleted and all 172 tests
+would still have passed: a defect found, understood, documented and repaired
+was protected by nothing.
 
 Three tests now guard it: an investigation title containing markup renders
 escaped; stored conversation cannot close the element containing it; and the
 escape helper is asserted to run *before* insertion rather than merely to
 exist.
 
-**This is the sharpest lesson in the project.** The claim throughout the
-report had been that M2 taught the value of testing what you fix. Until this
-sprint, that claim was contradicted by the repository.
+Sprint 5's retrospective had recorded that a repaired defect requires a
+regression test before it is closed. The practice was adopted and, in the same
+sprint, not applied to the defect that prompted it.
 
 ## 10.8 US-31, US-32, US-35: Enforcement Made Visible
 
@@ -136,11 +129,11 @@ sprint, that claim was contradicted by the repository.
 | US-32 | Production refuses absent or weak secrets | 6 tests, against absent, weak and sound configurations |
 | US-35 | Four role-specific overviews | 7 tests, including that all four renderings differ |
 
-US-32 required a small refactor worth noting: the check ran as inline code at
-import time, so it executed once per process and could never be exercised
-against a hypothetical bad configuration. Extracting it into a function made
-the requirement testable. **A requirement that cannot be exercised is not
-testable, however correct the code is.**
+US-32 required a small refactor. The check ran as inline code at import time,
+executing once per process and never exercisable against a hypothetical bad
+configuration; extracting it into a function made the requirement testable.
+Correct code is not sufficient if the requirement governing it cannot be
+exercised.
 
 ## 10.9 A Defect Found During the Sprint
 
@@ -149,8 +142,8 @@ Reviewing the use-case model against the routes revealed that
 writes the verdict onto the exhibit and, on a Broken verdict, drives it to
 Flagged through a transition that deliberately bypasses the role check.
 
-**A Read-Only Viewer could therefore change an exhibit's lifecycle state** -
-contradicting SR-06 and making the role's name false.
+A Read-Only Viewer could therefore change an exhibit's lifecycle state,
+contradicting SR-06.
 
 **Table 10.4 - Root cause**
 
@@ -191,15 +184,14 @@ actually paginated, so a requirement had to be **met** before it could be
 
 ## 10.11 Retrospective
 
-**The lesson.** A requirement and its verification are one artefact, not two.
-Separating them lets a document describe a quality the system does not have,
-honestly and in good faith, for as long as nobody checks.
+**The lesson.** A requirement and its verification form one artefact. Treating
+them separately allows a specification to describe a quality the system does
+not possess, undetected until something checks.
 
-**What this sprint says about the process.** Sprints 4, 5 and 6 each exist
-because something was found wrong, by three different means - adversarial
-testing, structured reading, and external review. **No sprint found its own
-sprint's defects.** That is not a failure of the increments; it is the reason
-there is more than one.
+**Process observation.** Sprints 4, 5 and 6 each arose from a defect found by
+a different means: adversarial testing, structured code reading, and a review
+against the specification. In no case did a sprint find its own defects, which
+is the condition that makes successive increments necessary.
 
 **Table 10.7 - Actions**
 

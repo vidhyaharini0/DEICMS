@@ -108,33 +108,27 @@ multi-language interface, model fine-tuning - is unchanged.
 
 ## 13.5 What the Project Demonstrates
 
-Three things, in ascending order of what they are worth.
-
 **A system.** Six entities, five algorithms implemented from first principles,
 eleven third-party integrations with the boundary stated, four roles with
 case-level membership, and a history that cannot be rewritten.
 
 **A process.** A development model chosen for stated reasons and judged
-against outcomes; a product backlog that was prioritised, refined and
-decomposed into tasks; requirements at two levels, each traced to a test; and
-twenty-six UML diagrams generated from versioned source, so that no figure in
-this report can contradict the code it describes.
+against outcomes; a product backlog prioritised, refined and decomposed into
+tasks; requirements at two levels, each traced to a test; and twenty-six UML
+diagrams generated from versioned source, so that no figure can drift from the
+code it describes.
 
-**An account that does not flatter itself.** Three of the six sprints exist
-because something was found wrong. The scoping leak, the verdict that was
-computed and never stored, the repair that went five sprints without a
-regression test, the requirement that claimed a pagination the code did not
-do, the role whose name its own route contradicted - each is described here at
-the length it deserves rather than minimised.
+**A record of defect detection.** Three of the six sprints arose from defects
+found after acceptance: the scoping leak across every aggregate, the integrity
+verdict computed and never stored, the repair that went five sprints without a
+regression test, the requirement claiming a pagination the code did not
+implement, and the role whose guard contradicted its name.
 
-That last quality is the one this report would most want to be judged by. The
-three maintenance sprints are not embarrassments that survived editing; they
-are the process working. A green suite met an adversarial tester, then a
-careful reader, then an external reviewer, and each found what the one before
-could not.
-
-**In a system built to be trustworthy, the trustworthiness of the account of
-how it was built is not a separate matter.**
+Each was found by a different means - adversarial testing, structured code
+reading, and audit against the specification - and in no case did a sprint
+detect its own defects. That is the condition under which successive
+increments earn their cost, and it is the strongest evidence the project
+offers for the process it chose.
 
 ---
 

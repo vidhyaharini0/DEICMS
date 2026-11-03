@@ -16,7 +16,7 @@ against what was hoped.
 
 | Characteristic | Value | Bearing on the choice |
 |---|---|---|
-| Team size | One developer | Collaborative ceremonies must be adapted or honestly abandoned |
+| Team size | One developer | Collaborative ceremonies must be adapted or abandoned |
 | Customer availability | None - no external client | On-site customer is impossible; the acceptance criterion must substitute |
 | Requirements volatility | Low for the data layer, **high for the algorithms** | The algorithms resist being specified fully in advance |
 | Technical risk | Concentrated in five custom algorithms | Risk must be attacked early, not deferred |
@@ -29,7 +29,7 @@ completely before a line was written: six entities, their relationships, their
 constraints. The five algorithms could not. The traversal semantics of the
 integrity verifier, the normalisation curve for each risk indicator, the
 plausibility criteria for reconstruction - none of these could be settled
-honestly on paper, because settling them required running them against data.
+on paper, because settling them required running them against data.
 
 ### 4.1.2 Candidates
 
@@ -91,7 +91,7 @@ section states exactly what was done.
 |---|---|---|
 | Sprint | **Yes, unchanged** | Six fixed-length sprints, each ending in a working increment |
 | Sprint Planning | **Yes, adapted** | Backlog items selected against a capacity figure, then decomposed into tasks (Section 4.7) |
-| Daily Scrum | **No - abandoned honestly** | A daily stand-up with oneself synchronises nothing. Replaced by a daily written progress note feeding the burndown, which serves the *tracking* purpose but not the *coordination* purpose |
+| Daily Scrum | **No - abandoned** | A daily stand-up with oneself synchronises nothing. Replaced by a daily written progress note feeding the burndown, which serves the *tracking* purpose but not the *coordination* purpose |
 | Sprint Review | **Yes, adapted** | Increment demonstrated against each story's acceptance criteria; outcome recorded per sprint |
 | Sprint Retrospective | **Yes, unchanged in substance** | Process examined, actions recorded, actions carried into the next sprint's plan |
 | Backlog Refinement | **Yes** | Performed between sprints; the backlog's version history is in Table 4.9 |
@@ -244,7 +244,7 @@ review, and re-estimating where the first estimate proved wrong.
 | v1.2 | Before Sprint 3 | US-22 lowered from Should to **Could**; US-24 raised from Could to **Should** | Review of Sprint 2 showed authentication hardening mattered more than statistical anomaly detection |
 | v2.0 | After Sprint 3 review | **US-28, US-29 added** (10 points) | Adversarial testing found aggregates unscoped - a change request, not a defect, because no stated requirement had been broken |
 | v2.1 | After Sprint 4 | **D1 to D6, H1 to H3, R1, R2 added** as defect items, not stories | Structured code review found 11 issues; a defect restores an accepted requirement rather than adding one |
-| v3.0 | After Sprint 5 | **US-30 to US-36 added** (23 points) | External review found quality requirements stated without the means to verify them |
+| v3.0 | After Sprint 5 | **US-30 to US-36 added** (23 points) | An audit found quality requirements stated without the means to verify them |
 | | | **Final scope: 36 stories, 153 points, 11 defects** | |
 
 **Table 4.10a - Items added to the backlog after v1.0**
@@ -363,11 +363,10 @@ implementation, tests, burndown, review against acceptance criteria, and
 retrospective with binding actions.
 
 **Sprints 4, 5 and 6 are the ones worth attention.** Sprints 1 to 3 delivered
-the planned system; they demonstrate that the process functions. Sprints 4, 5
-and 6 each exist because something was found wrong - by adversarial testing, by
-structured reading, and by external review respectively - and each therefore
-demonstrates something the first three cannot: that the process **detects and
-responds**, which is the property an incremental model is chosen for.
+the planned system. Sprints 4, 5 and 6 each arose from a defect found after
+acceptance - by adversarial testing, by structured code reading, and by audit
+against the specification respectively - and together they exercise the
+detection and response an incremental model is chosen for.
 
 ---
 

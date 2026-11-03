@@ -2,38 +2,35 @@
 
 ---
 
-The project guidelines require the system's functionalities to be listed under
-three categories, the categorisation to be motivated - particularly for the
-complex features - and the result to be **self-assessed for balance**, with
-functionality added wherever a category is thin. This chapter does all three,
-and records what the self-assessment changed.
+DEICMS delivers forty-six functionalities across three categories: data and
+repository operations, third-party services, and complex application logic
+designed and implemented within the project. The sections below list them,
+motivate each categorisation, and assess the resulting balance.
 
-## 2.1 The Three Categories, and the Test Used
+## 2.1 The Three Categories
 
-**Table 2.1 - The categories as the guidelines define them, and the test applied**
+**Table 2.1 - Category definitions and the test applied to each functionality**
 
-| | Category | Guideline definition | Test applied in this report |
+| | Category | Definition | Test applied |
 |---|---|---|---|
 | **A** | Data / repository / DB-oriented | CRUD operations, formulae | Is the behaviour obtained by storing, retrieving or arithmetically combining records? |
 | **B** | Third-party services | Libraries, APIs, tools, pre-trained models | Is the behaviour obtained by calling something that implements it? |
 | **C** | Complex application logic | Algorithm and workflow mostly implemented by the author; may exploit third-party services inside an elaborated logic | Does the behaviour require a data structure, control flow or search that this project designed? |
 
-The guidelines warn specifically that pre-trained models are *"mainly a 3rd
-party service, unless you propose a complex logic workflow from the
-information gathered"*. This report takes that warning as the governing rule
-and applies it in both directions:
+A pre-trained model is a third-party service unless the project builds a
+substantial workflow around the information it produces. That rule governs two
+decisions here, and it is applied in both directions:
 
-- The language model is **B**. The six-stage pipeline around it is **C**, and
-  Section 11.6 shows the boundary is real rather than claimed.
-- The Isolation Forest is **B and stays B**, even though it feeds the same
-  dashboard as a Category C algorithm, because the library *is* the algorithm
-  there.
+- The language model is **B**; the six-stage pipeline around it is **C**
+  (Section 11.6).
+- The Isolation Forest is **B**, although it feeds the same dashboard as a
+  Category C algorithm, because the library implements the detection itself.
 
-**The decisive question is not "does it call a library?" but "if the library
-were replaced by an equivalent, would anything this project designed have to
-change?"** For the hash function inside the integrity verifier the answer is
-no, so the verifier stays C. For the Isolation Forest the answer is yes, so it
-is B.
+The decisive question is not whether a functionality calls a library, but
+whether replacing that library with an equivalent would require any of the
+project's own design to change. For the hash function inside the integrity
+verifier it would not, so the verifier is C. For the Isolation Forest it
+would, so it is B.
 
 ## 2.2 Category A - Data, Repository and Formula Functionalities
 
@@ -76,10 +73,10 @@ constraints, not in any algorithm.
 | A30 | Paginated listings | Case, EvidenceItem, AuditRecord | SR-57 |
 
 **Motivation.** Every row is a persistence operation or arithmetic over stored
-fields. A25 to A27 are the "formulae" the guidelines name: timestamp
-subtraction against a configurable threshold, equality over three columns, and
-set membership of a role in a permitted list. None requires a data structure
-or a search, which is precisely why none is claimed as C.
+fields. A25 to A27 are formula-based checks: timestamp subtraction against a
+configurable threshold, equality over three columns, and set membership of a
+function in a permitted list. None requires a data structure or a search, and
+none is therefore classified as C.
 
 ## 2.3 Category B - Third-Party Services
 
@@ -102,17 +99,17 @@ Eleven integrations, consumed as they are.
 | B11 | Request rate limiting | Limiter | Counting and refusal | Which endpoints, and at what rates |
 
 **Motivation.** In every row the behaviour named in column three is
-implemented elsewhere. B7 is the row that proves the categorisation is applied
-honestly: anomaly detection is visible in the interface beside a Category C
-algorithm and could have been presented as a sixth complex feature. It is not,
-because the library is the algorithm and this project supplies only its input.
+implemented elsewhere. B7 warrants particular note: anomaly detection appears
+in the interface beside a Category C algorithm, but the library implements the
+detection and the project supplies only the feature vector, so it is
+classified B.
 
 ## 2.4 Category C - Complex Application Logic
 
-Five algorithms, each designed and implemented in this project. Each is given
-a full section in **Chapter 11** with pseudocode, UML behavioural diagrams,
-complexity analysis and the design decision that defines it. Summarised here
-with the motivation the guidelines require.
+Five algorithms, each designed and implemented within the project. Chapter 11
+gives each a full section with pseudocode, UML behavioural diagrams,
+complexity analysis and the design decision that defines it; the motivation
+for each categorisation is summarised below.
 
 **Table 2.4 - Category C functionalities, with motivation**
 
@@ -124,19 +121,16 @@ with the motivation the guidelines require.
 | **C4** | **Evidence lifecycle state machine** (§11.5) | A formal automaton declared as data: six states, fourteen transitions, each gated by permitted function and preconditions, with a four-gate validation pipeline and audited refusals | A status column is data; a role-gated, precondition-constrained automaton with explained refusals is control | No library knows this domain's procedure |
 | **C5** | **Assistant orchestration** (§11.6) | Six stages: intent classification over seven intents, **access-scoped** retrieval, template selection, budgeted invocation with fallback, context-only degradation, and reference validation against the retrieved records | Retrieval is queries; the pipeline that decides what to retrieve and what to do with the answer is not | **The model is B.** The pipeline is C, and the substitution of one model for another changed no stage, no requirement and no test |
 
-**The guidelines' own example, answered directly.** They note that an ML model
-is usually a third-party service *"unless you propose a complex logic workflow
-from the information gathered, maybe including multiple ML steps and
-workflow"*. C5 is exactly that workflow, and C1 is invoked **inside** it:
-an integrity question causes the assistant to run a fresh verification and
-include its result in the retrieved context. Two Category C algorithms compose,
-with a Category B model producing only the final sentence.
+C5 is the workflow built around a pre-trained model, and C1 is invoked
+**inside** it: an integrity question causes the assistant to run a fresh
+verification and include its result in the retrieved context. Two Category C
+algorithms compose, with a Category B model producing only the final sentence.
 
-## 2.5 Self-Assessment: Is the Project Balanced?
+## 2.5 Balance Across the Three Categories
 
-Counting functionalities alone would be misleading - thirty CRUD operations
-are not thirty times the work of one graph algorithm. The balance is therefore
-assessed on four measures.
+Counting functionalities alone is misleading: thirty CRUD operations are not
+thirty times the work of one graph algorithm. Balance is therefore assessed on
+four measures.
 
 **Table 2.5 - Balance across four measures**
 
@@ -158,39 +152,29 @@ assessed on four measures.
 | `state_machine.py` | 209 | C4 |
 | **Total** | **1,970** | |
 
-The whole of Category B is **439 lines**, less than any two Category C
-modules combined. That single comparison is the most direct answer to the
-question the guidelines pose: this is not a project in which libraries do the
-work.
+The whole of Category B is **439 lines**, less than any two Category C modules
+combined.
 
-**The verdict.** The project is balanced, with the qualification that it is
-balanced *by effort* rather than *by count*. Category A is the largest by
-functionality count and will be in any system with a real data model;
-Category C is the largest by estimated effort and nearly the largest by code
-size. Category B is deliberately the smallest, because a project judged on
-engineering should not be mostly borrowed.
+The distribution is balanced by effort rather than by count. Category A is
+the largest by functionality count, as it will be in any system with a
+substantial data model; Category C is the largest by estimated effort and
+nearly the largest by code size; Category B is the smallest by both measures.
 
-## 2.6 What the Self-Assessment Changed
+## 2.6 Functionality Added After Assessment
 
-The guidelines ask for functionality to be added where a category is thin. It
-was, twice, and both occasions are recorded rather than presented as original
-design.
+Functionality was added to a thin category on two occasions.
 
 **Table 2.7 - Functionality added after a balance assessment**
 
 | When | Category found thin | Added | Effect |
 |---|---|---|---|
 | Proposal revision, before implementation | **C** - the first draft offered rule-based checks that were really formulae in disguise | C1, C2 and C3 replaced them; C4 and C5 were re-argued at the level of their workflow rather than their output | C went from a contested claim to five defensible algorithms |
-| Sprint 6, after external review | **A and the quality attributes** - enforcement existed but was unverified | A30 (paginated listings) implemented; 21 system quality requirements given measurements, acceptance criteria and tests | 8 of 18 quality requirements verified became 21 of 21 |
+| Sprint 6, after a specification audit | **A and the quality attributes** - enforcement existed but was unverified | A30 (paginated listings) implemented; 21 system quality requirements given measurements, acceptance criteria and tests | 8 of 18 quality requirements verified became 21 of 21 |
 
-The first change is the one the guidelines anticipate. An earlier version of
-the proposal claimed as "complex" a set of threshold checks over stored
-fields. They were honestly re-categorised as Category A formulae - where they
-remain, as A25 to A27 - and three genuine algorithms were designed to replace
-them.
-
-**A categorisation that never demotes anything is not a categorisation**, and
-this one demoted its own first attempt before the professor had to.
+The first is the more substantial. An earlier draft of the proposal classified
+a set of threshold checks over stored fields as complex logic. On review they
+were re-categorised as Category A formulae, where they remain as A25 to A27,
+and three algorithms were designed to occupy Category C in their place.
 
 ## 2.7 Mapping to the Delivery Sequence
 
@@ -205,10 +189,10 @@ this one demoted its own first attempt before the professor had to.
 | 5 (M2) - Defects | - | - | - | Eleven findings, no new scope |
 | 6 (M3) - Quality | 23 pts | - | - | Verification of what the other five built |
 
-The ordering is not accidental: Category A first because the algorithms need
-records to operate on, Category C concentrated in Sprints 2 and 3, and
-Category B spread across both because each integration attaches to the feature
-that needs it. Section 4.4.1 gives the four rules that produced this order.
+Category A comes first because the algorithms require records to operate on;
+Category C is concentrated in Sprints 2 and 3; Category B is spread across
+both, each integration attaching to the feature that needs it. Section 4.4.1
+gives the four rules that produced this ordering.
 
 ---
 

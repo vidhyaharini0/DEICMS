@@ -57,22 +57,21 @@ pipeline around a language model. By estimated effort these account for 43% of
 the project and by source size 42%; the whole of the third-party category is
 439 lines, less than any two of the five algorithm modules combined.
 
-The project followed **Scrum**, an agile incremental framework, across six
-sprints. Three delivered the planned system. The remaining three exist because
-something was found wrong - by adversarial testing, by structured code
-reading, and by external review respectively - and each is described here at
-the same length as the sprints that went to plan. This report is organised
-with **one chapter per sprint**, each carrying that sprint's backlog, tasks,
-UML models, tests, burndown, review and retrospective, and with a dedicated
-chapter describing each complex algorithm through UML behavioural diagrams.
+Development followed **Scrum**, an agile incremental framework, across six
+sprints. Three delivered the planned system; the remaining three each arose
+from a defect found after acceptance, by adversarial testing, by structured
+code reading, and by audit against the specification respectively. The report
+is organised with **one chapter per sprint**, each carrying that sprint's
+backlog, tasks, UML models, tests, burndown, review and retrospective, with a
+dedicated chapter describing each complex algorithm through UML behavioural
+diagrams.
 
 The delivered system comprises approximately 4,700 source lines across ten
 blueprints and six entities, verified by **216 automated tests** reaching 78%
 statement coverage overall and 80% across the five algorithms, with every one
 of the twenty-one system quality requirements carrying a measurement, an
-acceptance value and a named test. Twenty-six UML diagrams are generated from
-versioned source, so no figure in this report can contradict the code it
-describes.
+acceptance value and a named test. Twenty-six UML diagrams are generated from versioned
+source, so no figure can drift from the code it describes.
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
@@ -113,9 +112,9 @@ history cannot be rewritten.
 
 ## 1.2 Why This Project
 
-The project had to satisfy two conditions simultaneously: be a credible
-software system, and provide honest material for all three feature categories
-the guidelines require.
+The project had to satisfy two conditions simultaneously: to be a credible
+software system, and to provide substantial material in each of the three
+feature categories.
 
 Forensic evidence management does both without strain. It has a genuine
 relational model with real constraints (Category A). It needs cryptographic,
@@ -124,15 +123,13 @@ reimplement (Category B). And it poses problems that no library solves -
 verifying a chain of custody, ranking exhibits by the attention they need,
 reconstructing a history with gaps in it (Category C).
 
-**The domain was chosen because its hardest problems are algorithmic rather
-than merely procedural.** Chapter 2 gives the full categorisation and assesses
-whether the balance was actually achieved.
+The domain was chosen because its hardest problems are algorithmic rather
+than merely procedural. Chapter 2 gives the categorisation across the three
+feature categories and assesses its balance.
 
 ## 1.3 The Five Guarantees
 
-Everything the system does serves one of five guarantees. They are stated
-here because the chapters that follow refer to them, and because a system's
-claims are easier to judge when they are enumerated.
+Everything the system does serves one of five guarantees. The chapters that follow refer to them by number.
 
 **Table 1.1 - The guarantees, and what would falsify each**
 
@@ -144,29 +141,27 @@ claims are easier to judge when they are enumerated.
 | **G4** | An exhibit moves only as its procedure permits, at the hands of someone entitled | A transition that succeeds when the procedure forbids it |
 | **G5** | Exhibits can be prioritised by the attention they need, with the reasoning exposed | A ranking its user cannot interrogate |
 
-G2 is the guarantee this project failed twice and repaired twice, in Sprints 4
-and 6. That history is in Chapters 9 and 10, told as what it is rather than
-minimised.
+G2 was breached twice during development and repaired in Sprints 4 and 6;
+Chapters 9 and 10 give both cases.
 
 ## 1.4 Objectives
 
 **Table 1.2 - Objectives and where each is assessed**
 
 | | Objective | Assessed in |
-|---|-----------------------------------------------------------|---------|
+|---|-----------------------------------------------------------|----------|
 | O1 | A working system managing the full evidence lifecycle | Ch. 6-10 |
 | O2 | Access controlled by both function and case membership, on every route and aggregate | Ch. 9 |
 | O3 | A cryptographically verifiable chain of custody with an append-only history | §11.2 |
 | O4 | At least three non-trivial algorithms designed and implemented in this project | **Ch. 11 - five delivered** |
-| O5 | Third-party services consumed correctly, with the boundary stated honestly | Ch. 2, §11.7 |
+| O5 | Third-party services consumed correctly, with the boundary stated | Ch. 2, §11.7 |
 | O6 | A genuine agile incremental project with per-iteration artefacts | Ch. 4, 6-10 |
 | O7 | An automated test suite of meaningful coverage | Ch. 12 |
 | O8 | Quality attributes implemented **and demonstrably enforced** | Ch. 10, §3.7 |
 
-O8 is stated in the form it reached after Sprint 6. Its original wording asked
-only that the system be hardened; the word *demonstrably* was added when an
-external review observed that enforcement without verification is a claim
-rather than a property.
+O8 reached this wording in Sprint 6. It originally asked only that the system
+be hardened; *demonstrably* was added once it became clear that enforcement
+without verification is a claim rather than a property.
 
 ## 1.5 Scope
 
@@ -180,56 +175,8 @@ rather than a property.
 | An automated suite running without network access | A mobile client; a multi-language interface |
 | | Fine-tuning of the language model - would move Category B work into the project without adding design |
 
-The exclusions are recorded in the product backlog's *won't have* list
-(Section 4.4), so the boundary is a decision rather than an omission.
-
-## 1.6 Relationship to the Accepted Proposal
-
-The project proposal approved before implementation specified the Agile
-Incremental Model, three increments, five entities, three core algorithms plus
-a state machine and an orchestration workflow, and a report structured with
-one section per increment.
-
-**Table 1.4 - Deviations from the accepted proposal**
-
-| Proposed | Delivered | Why |
-|------------|-------------------|---------------------------------------|
-| Agile Incremental Model | **Scrum**, an agile incremental framework, with its artefacts implemented | The proposal named the family; §4.1.3 names the member and commits to its artefacts |
-| Three increments | **Six sprints** - three planned, three arising from findings | Sprints 4, 5 and 6 each exist because something was found wrong (Ch. 9, 10) |
-| Five entities | **Six** - `CaseAccess` added | Case-level membership proved to need its own associative entity (Sprint 4) |
-| Six risk signals, three risk levels | **Eight signals, four levels** | Two further signals proved discriminating; a fourth band separated the genuinely critical |
-| A named commercial language-model API | **A different hosted model** | The named service was unavailable on terms the project could meet. The requirement never named a vendor, so this changed the design and not the requirements (§3.1.1, §11.6.1) |
-| Test coverage above 70% | **78%**, 216 tests | - |
-
-**Every deviation is an addition or a substitution forced by circumstance;
-none removes something promised.** They are collected here rather than
-scattered, so that a reader holding the proposal can check the delivery
-against it in one place.
-
-## 1.7 How to Read This Report
-
-The report is organised according to the development process it used, as the
-guidelines require of an incremental model: **one chapter per sprint**, each
-containing that sprint's own backlog, tasks, models, tests, burndown, review
-and retrospective.
-
-**Table 1.5 - Structure**
-
-| Chapters | Content |
-|-----|------------------------------------------------------------------|
-| 1-2 | The problem, and the feature categorisation with its balance self-assessment |
-| 3-5 | Requirements at two levels, the process and its justification, the architecture |
-| **6-10** | **The six sprints, one chapter each** |
-| 11 | The five Category C algorithms, each with pseudocode and UML |
-| 12-13 | Verification and validation; conclusions |
-
-Three things are deliberately *not* in this report. There is no restatement of
-software-engineering theory: the process is described where it was used, not
-in a chapter of its own. There is no diagram that is not UML, and every one is
-generated from versioned source so it cannot drift from the code. And there is
-no claim of a flawless result - the three maintenance sprints are described at
-the same length as the three that went to plan, because a process is
-demonstrated by what it catches, not by what it avoids.
+The exclusions are held in the product backlog's *won't have* list
+(Section 4.4).
 
 ---
 
@@ -242,38 +189,35 @@ demonstrated by what it catches, not by what it avoids.
 
 ---
 
-The project guidelines require the system's functionalities to be listed under
-three categories, the categorisation to be motivated - particularly for the
-complex features - and the result to be **self-assessed for balance**, with
-functionality added wherever a category is thin. This chapter does all three,
-and records what the self-assessment changed.
+DEICMS delivers forty-six functionalities across three categories: data and
+repository operations, third-party services, and complex application logic
+designed and implemented within the project. The sections below list them,
+motivate each categorisation, and assess the resulting balance.
 
-## 2.1 The Three Categories, and the Test Used
+## 2.1 The Three Categories
 
-**Table 2.1 - The categories as the guidelines define them, and the test applied**
+**Table 2.1 - Category definitions and the test applied to each functionality**
 
-| | Category | Guideline definition | Test applied in this report |
-|---|----------|-------------------------|----------------------------------|
+| | Category | Definition | Test applied |
+|---|-----------|-------------------------|---------------------------------|
 | **A** | Data / repository / DB-oriented | CRUD operations, formulae | Is the behaviour obtained by storing, retrieving or arithmetically combining records? |
 | **B** | Third-party services | Libraries, APIs, tools, pre-trained models | Is the behaviour obtained by calling something that implements it? |
 | **C** | Complex application logic | Algorithm and workflow mostly implemented by the author; may exploit third-party services inside an elaborated logic | Does the behaviour require a data structure, control flow or search that this project designed? |
 
-The guidelines warn specifically that pre-trained models are *"mainly a 3rd
-party service, unless you propose a complex logic workflow from the
-information gathered"*. This report takes that warning as the governing rule
-and applies it in both directions:
+A pre-trained model is a third-party service unless the project builds a
+substantial workflow around the information it produces. That rule governs two
+decisions here, and it is applied in both directions:
 
-- The language model is **B**. The six-stage pipeline around it is **C**, and
-  Section 11.6 shows the boundary is real rather than claimed.
-- The Isolation Forest is **B and stays B**, even though it feeds the same
-  dashboard as a Category C algorithm, because the library *is* the algorithm
-  there.
+- The language model is **B**; the six-stage pipeline around it is **C**
+  (Section 11.6).
+- The Isolation Forest is **B**, although it feeds the same dashboard as a
+  Category C algorithm, because the library implements the detection itself.
 
-**The decisive question is not "does it call a library?" but "if the library
-were replaced by an equivalent, would anything this project designed have to
-change?"** For the hash function inside the integrity verifier the answer is
-no, so the verifier stays C. For the Isolation Forest the answer is yes, so it
-is B.
+The decisive question is not whether a functionality calls a library, but
+whether replacing that library with an equivalent would require any of the
+project's own design to change. For the hash function inside the integrity
+verifier it would not, so the verifier is C. For the Isolation Forest it
+would, so it is B.
 
 ## 2.2 Category A - Data, Repository and Formula Functionalities
 
@@ -316,10 +260,10 @@ constraints, not in any algorithm.
 | A30 | Paginated listings | Case, EvidenceItem, AuditRecord | SR-57 |
 
 **Motivation.** Every row is a persistence operation or arithmetic over stored
-fields. A25 to A27 are the "formulae" the guidelines name: timestamp
-subtraction against a configurable threshold, equality over three columns, and
-set membership of a role in a permitted list. None requires a data structure
-or a search, which is precisely why none is claimed as C.
+fields. A25 to A27 are formula-based checks: timestamp subtraction against a
+configurable threshold, equality over three columns, and set membership of a
+function in a permitted list. None requires a data structure or a search, and
+none is therefore classified as C.
 
 ## 2.3 Category B - Third-Party Services
 
@@ -342,17 +286,17 @@ Eleven integrations, consumed as they are.
 | B11 | Request rate limiting | Limiter | Counting and refusal | Which endpoints, and at what rates |
 
 **Motivation.** In every row the behaviour named in column three is
-implemented elsewhere. B7 is the row that proves the categorisation is applied
-honestly: anomaly detection is visible in the interface beside a Category C
-algorithm and could have been presented as a sixth complex feature. It is not,
-because the library is the algorithm and this project supplies only its input.
+implemented elsewhere. B7 warrants particular note: anomaly detection appears
+in the interface beside a Category C algorithm, but the library implements the
+detection and the project supplies only the feature vector, so it is
+classified B.
 
 ## 2.4 Category C - Complex Application Logic
 
-Five algorithms, each designed and implemented in this project. Each is given
-a full section in **Chapter 11** with pseudocode, UML behavioural diagrams,
-complexity analysis and the design decision that defines it. Summarised here
-with the motivation the guidelines require.
+Five algorithms, each designed and implemented within the project. Chapter 11
+gives each a full section with pseudocode, UML behavioural diagrams,
+complexity analysis and the design decision that defines it; the motivation
+for each categorisation is summarised below.
 
 **Table 2.4 - Category C functionalities, with motivation**
 
@@ -364,19 +308,16 @@ with the motivation the guidelines require.
 | **C4** | **Evidence lifecycle state machine** (§11.5) | A formal automaton declared as data: six states, fourteen transitions, each gated by permitted function and preconditions, with a four-gate validation pipeline and audited refusals | A status column is data; a role-gated, precondition-constrained automaton with explained refusals is control | No library knows this domain's procedure |
 | **C5** | **Assistant orchestration** (§11.6) | Six stages: intent classification over seven intents, **access-scoped** retrieval, template selection, budgeted invocation with fallback, context-only degradation, and reference validation against the retrieved records | Retrieval is queries; the pipeline that decides what to retrieve and what to do with the answer is not | **The model is B.** The pipeline is C, and the substitution of one model for another changed no stage, no requirement and no test |
 
-**The guidelines' own example, answered directly.** They note that an ML model
-is usually a third-party service *"unless you propose a complex logic workflow
-from the information gathered, maybe including multiple ML steps and
-workflow"*. C5 is exactly that workflow, and C1 is invoked **inside** it:
-an integrity question causes the assistant to run a fresh verification and
-include its result in the retrieved context. Two Category C algorithms compose,
-with a Category B model producing only the final sentence.
+C5 is the workflow built around a pre-trained model, and C1 is invoked
+**inside** it: an integrity question causes the assistant to run a fresh
+verification and include its result in the retrieved context. Two Category C
+algorithms compose, with a Category B model producing only the final sentence.
 
-## 2.5 Self-Assessment: Is the Project Balanced?
+## 2.5 Balance Across the Three Categories
 
-Counting functionalities alone would be misleading - thirty CRUD operations
-are not thirty times the work of one graph algorithm. The balance is therefore
-assessed on four measures.
+Counting functionalities alone is misleading: thirty CRUD operations are not
+thirty times the work of one graph algorithm. Balance is therefore assessed on
+four measures.
 
 **Table 2.5 - Balance across four measures**
 
@@ -398,39 +339,29 @@ assessed on four measures.
 | `state_machine.py` | 209 | C4 |
 | **Total** | **1,970** | |
 
-The whole of Category B is **439 lines**, less than any two Category C
-modules combined. That single comparison is the most direct answer to the
-question the guidelines pose: this is not a project in which libraries do the
-work.
+The whole of Category B is **439 lines**, less than any two Category C modules
+combined.
 
-**The verdict.** The project is balanced, with the qualification that it is
-balanced *by effort* rather than *by count*. Category A is the largest by
-functionality count and will be in any system with a real data model;
-Category C is the largest by estimated effort and nearly the largest by code
-size. Category B is deliberately the smallest, because a project judged on
-engineering should not be mostly borrowed.
+The distribution is balanced by effort rather than by count. Category A is
+the largest by functionality count, as it will be in any system with a
+substantial data model; Category C is the largest by estimated effort and
+nearly the largest by code size; Category B is the smallest by both measures.
 
-## 2.6 What the Self-Assessment Changed
+## 2.6 Functionality Added After Assessment
 
-The guidelines ask for functionality to be added where a category is thin. It
-was, twice, and both occasions are recorded rather than presented as original
-design.
+Functionality was added to a thin category on two occasions.
 
 **Table 2.7 - Functionality added after a balance assessment**
 
 | When | Category found thin | Added | Effect |
-|---------|---------------------|---------------------------|--------------|
+|---------|---------------------|---------------------------|-------------|
 | Proposal revision, before implementation | **C** - the first draft offered rule-based checks that were really formulae in disguise | C1, C2 and C3 replaced them; C4 and C5 were re-argued at the level of their workflow rather than their output | C went from a contested claim to five defensible algorithms |
-| Sprint 6, after external review | **A and the quality attributes** - enforcement existed but was unverified | A30 (paginated listings) implemented; 21 system quality requirements given measurements, acceptance criteria and tests | 8 of 18 quality requirements verified became 21 of 21 |
+| Sprint 6, after a specification audit | **A and the quality attributes** - enforcement existed but was unverified | A30 (paginated listings) implemented; 21 system quality requirements given measurements, acceptance criteria and tests | 8 of 18 quality requirements verified became 21 of 21 |
 
-The first change is the one the guidelines anticipate. An earlier version of
-the proposal claimed as "complex" a set of threshold checks over stored
-fields. They were honestly re-categorised as Category A formulae - where they
-remain, as A25 to A27 - and three genuine algorithms were designed to replace
-them.
-
-**A categorisation that never demotes anything is not a categorisation**, and
-this one demoted its own first attempt before the professor had to.
+The first is the more substantial. An earlier draft of the proposal classified
+a set of threshold checks over stored fields as complex logic. On review they
+were re-categorised as Category A formulae, where they remain as A25 to A27,
+and three algorithms were designed to occupy Category C in their place.
 
 ## 2.7 Mapping to the Delivery Sequence
 
@@ -445,10 +376,10 @@ this one demoted its own first attempt before the professor had to.
 | 5 (M2) - Defects | - | - | - | Eleven findings, no new scope |
 | 6 (M3) - Quality | 23 pts | - | - | Verification of what the other five built |
 
-The ordering is not accidental: Category A first because the algorithms need
-records to operate on, Category C concentrated in Sprints 2 and 3, and
-Category B spread across both because each integration attaches to the feature
-that needs it. Section 4.4.1 gives the four rules that produced this order.
+Category A comes first because the algorithms require records to operate on;
+Category C is concentrated in Sprints 2 and 3; Category B is spread across
+both, each integration attaching to the feature that needs it. Section 4.4.1
+gives the four rules that produced this ordering.
 
 ---
 
@@ -493,9 +424,8 @@ become a design decision wearing a requirement's clothes. It forecloses
 alternatives before they have been weighed, and it cannot survive the
 technology being replaced.
 
-The first version of this requirements set made this mistake repeatedly. The
-correction is recorded here rather than hidden, because the difference between
-the two columns is the whole point.
+The first version of this requirements set made this error repeatedly. The
+difference between the two columns below carries the principle.
 
 **Table 3.2 - Requirements restated as problems**
 
@@ -508,14 +438,13 @@ the two columns is the whole point.
 | "support TOTP two-factor authentication" | **UR-01 / SR-47:** the system shall allow an account to require a second, independently held factor before granting access | §5.6 - second-factor mechanism |
 | "fit the model via the NVIDIA NIM endpoint" | **UR-15 / SR-40:** the system shall answer questions posed in ordinary language using only the records the questioner is entitled to see | §11.6 - language model procurement |
 
-The last row matters for an additional reason. The accepted project proposal
-named a particular commercial language-model API. That service proved
-unavailable on the terms the project could meet, and a different hosted model
-was used instead. **Because the requirement asks for an answer in ordinary
-language rather than for a named vendor, the substitution changed the design
-and not the requirements.** Had the requirement named the vendor, a commercial
-fact outside the project's control would have invalidated a requirement.
-Section 11.6.1 records the substitution as a design decision with its rationale.
+The last row carries a further consequence. The language model originally
+selected proved unavailable on terms the project could meet, and a different
+hosted model was used. Because the requirement asks for an answer in ordinary
+language rather than for a named vendor, the substitution altered the design
+and not the requirements; had the requirement named the vendor, a commercial
+fact outside the project's control would have invalidated it. Section 11.6.1
+records the substitution as a design decision.
 
 ## 3.2 Stakeholders
 
@@ -530,11 +459,11 @@ Section 11.6.1 records the substitution as a design decision with its rationale.
 | The court (indirect) | Consumes the output | The chain of custody is unbroken and demonstrably so |
 | Opposing counsel (adversarial) | Attacks the output | Any weakness in the chain is found and exploited |
 
-The last stakeholder is the reason several requirements are phrased
-negatively. A system of this kind is specified as much by what it must make
-impossible as by what it must allow, and the adversarial reader is the one who
-determines whether a negative requirement was written broadly enough. This
-proved to be exactly where the project's own defects lay (Section 3.10).
+The last stakeholder accounts for the several requirements phrased negatively.
+A system of this kind is specified as much by what it must make impossible as
+by what it must permit, and an adversarial reader determines whether a
+negative requirement was written broadly enough - which is where the project's
+own defects proved to lie (Section 3.10).
 
 ## 3.3 User Requirements - Functional
 
@@ -584,11 +513,10 @@ a mechanism.
 | UNF-08 | The system must not be tied to one database product | Portability |
 | UNF-09 | Claims the system makes about itself must be independently checkable | Verifiability |
 
-These are deliberately unmeasurable. That is what distinguishes a user quality
-requirement from a system one: "quickly enough not to interrupt an
-investigator's work" is the right thing to say to a customer and the wrong
-thing to hand a tester. Section 3.7 converts each into statements that can
-pass or fail.
+These are deliberately unmeasurable, which is what distinguishes a user
+quality requirement from a system one: "quickly enough not to interrupt an
+investigator's work" is appropriate for a customer and insufficient for a
+tester. Section 3.7 converts each into statements that can pass or fail.
 
 ## 3.5 System Requirements - Functional
 
@@ -667,22 +595,19 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 
 Seven system requirements say what the system must make impossible: SR-01
 (identical failure messages), SR-06, SR-08, SR-12, SR-19, SR-21, SR-24, SR-33,
-SR-45. These are harder to satisfy than positive requirements, because a
-positive requirement is met by one correct path while a negative one is met
-only when **every** path is correct.
+SR-45. These are harder to satisfy than positive requirements: a positive requirement
+is met by one correct path, a negative one only when every path is correct.
 
-This is not a theoretical observation. Both maintenance iterations of this
-project were caused by negative requirements applied to fewer surfaces than
-they governed - SR-09 was enforced on record access but not on aggregates, and
-SR-55 was enforced in the interface but not in the listing queries. Section
-3.10 records the lesson.
+Both maintenance sprints were caused by negative requirements applied to fewer
+surfaces than they governed. SR-09 was enforced on record access but not on
+aggregates, and SR-55 in the interface but not in the listing queries.
 
 ## 3.7 System Requirements - Quality
 
-This is the table the first version of the report lacked. Every row carries
-the three things a quality requirement needs to be real: **how it is
-measured**, **what value constitutes a pass**, and **the test that applies
-the measurement**. A quality requirement without all three is an aspiration.
+Every row carries the three elements a quality requirement requires to be
+verifiable: how it is measured, what value constitutes a pass, and the test
+that applies the measurement. A quality requirement lacking any of the three
+is an aspiration.
 
 **Table 3.7 - System quality requirements**
 
@@ -710,9 +635,8 @@ the measurement**. A quality requirement without all three is an aspiration.
 | SNF-20 | UNF-09 | The whole verification suite shall run without reaching any external service | Execute the suite with no network configuration | All tests pass; no external call attempted | Suite execution |
 | SNF-21 | UNF-09 | Each role's overview shall be distinguishable from every other | Render the overview as each of four roles and compare | Four distinct renderings; administrative panels absent from the other three | `test_nfr` |
 
-**Coverage.** Every one of the twenty-one system quality requirements names a
-test. Section 3.11 records what this table looked like before the revision and
-why the difference matters.
+**Coverage.** Each of the twenty-one system quality requirements names a test.
+Table 12.5 compares this position with the one preceding Sprint 6.
 
 ## 3.8 Domain Requirements
 
@@ -733,9 +657,8 @@ wish. They are separated because they are not negotiable and not traded off.
 
 ## 3.9 Traceability
 
-The chain is complete in both directions and is carried inline rather than in
-an appendix, so that a reader checking any single requirement need not turn
-pages. Its six links are: a **user requirement** is derived into one or more
+The chain is complete in both directions and carried inline in Tables 3.4, 3.6
+and 3.7. Its six links are: a **user requirement** is derived into one or more
 **system requirements**; each system requirement is carried by a **user
 story**; each user story is scheduled into a **sprint**; each sprint
 implements it in a **module**; and each module is verified by a named
@@ -756,11 +679,10 @@ expressed in the notation the rest of the report uses.
 
 ## 3.10 What the Requirements Process Got Wrong
 
-Two failures are recorded here because the report's account of its own process
-is worth more than a claim of having had none.
+Two failures in the requirements process are given below with their causes.
 
-**Negative requirements were scoped to the surfaces their author had in mind.**
-UR-03 and SNF-01 were stated correctly from the start, but the system
+**Negative requirements were scoped to the surfaces their author had in
+mind.** UR-03 and SNF-01 were stated correctly from the outset, but the system
 requirements realising them addressed record access alone. Aggregates -
 counts, charts, rankings, exports, generated answers - were not enumerated, and
 so were not protected. The requirement was right; its scope of application was
@@ -768,21 +690,19 @@ incomplete. SR-51 exists because of this, and the maintenance iteration M1 is
 its consequence. **A negative requirement must enumerate the surfaces it
 governs, or it will be applied only to those its author pictured.**
 
-**Quality requirements were stated without the means to check them.** The first
-version of Table 3.7 gave each quality requirement a property and a sentence
-of justification, but nine of eighteen named only "code review", "configuration
-inspection", "manual check" or an analytical argument as their verification. A
-verification method that does not re-run cannot fail, and a requirement that
-cannot fail is not a requirement. The most pointed instance: the requirement
-that untrusted text never be rendered as markup (now SNF-17) arose from a
-defect found and fixed in maintenance iteration M2 - and was given no test, so
-the fix could have been removed without a single failure anywhere in the suite.
-**A fixed defect without a regression test is an unfixed defect with a delay
-built in.**
+**Quality requirements were stated without the means to check them.** The
+first version of Table 3.7 gave each quality requirement a property and a
+sentence of justification, but nine of eighteen named only code review,
+configuration inspection, a manual check or an analytical argument as their
+verification. A verification method that does not re-run cannot fail, and a
+requirement that cannot fail is not a requirement. In the clearest instance,
+SNF-17 - that untrusted text never be rendered as markup - arose from a defect
+found and repaired in Sprint 5 and received no test, leaving the repair
+removable without any failure in the suite.
 
-Both failures share a shape: the requirement was correct and the verification
-was not. This is why Section 3.7 now treats the measurement and the acceptance
-criterion as part of the requirement rather than as commentary on it.
+Both share a shape: the requirement was correct and its verification was not.
+Section 3.7 consequently treats the measurement and the acceptance criterion as
+part of the requirement rather than as commentary upon it.
 
 ---
 
@@ -809,7 +729,7 @@ against what was hoped.
 
 | Characteristic | Value | Bearing on the choice |
 |------------|----------------------|------------------------------------|
-| Team size | One developer | Collaborative ceremonies must be adapted or honestly abandoned |
+| Team size | One developer | Collaborative ceremonies must be adapted or abandoned |
 | Customer availability | None - no external client | On-site customer is impossible; the acceptance criterion must substitute |
 | Requirements volatility | Low for the data layer, **high for the algorithms** | The algorithms resist being specified fully in advance |
 | Technical risk | Concentrated in five custom algorithms | Risk must be attacked early, not deferred |
@@ -822,7 +742,7 @@ completely before a line was written: six entities, their relationships, their
 constraints. The five algorithms could not. The traversal semantics of the
 integrity verifier, the normalisation curve for each risk indicator, the
 plausibility criteria for reconstruction - none of these could be settled
-honestly on paper, because settling them required running them against data.
+on paper, because settling them required running them against data.
 
 ### 4.1.2 Candidates
 
@@ -881,10 +801,10 @@ section states exactly what was done.
 **Table 4.5 - Scrum events**
 
 | Event | Performed? | Form it took |
-|-------|----------|-----------------------------------------------------|
+|-------|----------|------------------------------------------------------|
 | Sprint | **Yes, unchanged** | Six fixed-length sprints, each ending in a working increment |
 | Sprint Planning | **Yes, adapted** | Backlog items selected against a capacity figure, then decomposed into tasks (Section 4.7) |
-| Daily Scrum | **No - abandoned honestly** | A daily stand-up with oneself synchronises nothing. Replaced by a daily written progress note feeding the burndown, which serves the *tracking* purpose but not the *coordination* purpose |
+| Daily Scrum | **No - abandoned** | A daily stand-up with oneself synchronises nothing. Replaced by a daily written progress note feeding the burndown, which serves the *tracking* purpose but not the *coordination* purpose |
 | Sprint Review | **Yes, adapted** | Increment demonstrated against each story's acceptance criteria; outcome recorded per sprint |
 | Sprint Retrospective | **Yes, unchanged in substance** | Process examined, actions recorded, actions carried into the next sprint's plan |
 | Backlog Refinement | **Yes** | Performed between sprints; the backlog's version history is in Table 4.9 |
@@ -1031,13 +951,13 @@ review, and re-estimating where the first estimate proved wrong.
 **Table 4.10 - Backlog version history**
 
 | Version | At | Change | Cause |
-|---|------|---------------------------|------------------------------------|
+|---|-------|---------------------------|-----------------------------------|
 | v1.0 | End of Sprint 0 | 27 stories, 120 points | Initial planning |
 | v1.1 | Before Sprint 2 | US-13 re-estimated 8 → **13**; US-16, US-17 split out of US-13 as separate reporting stories | The design spike showed presentation was distinct work from traversal |
 | v1.2 | Before Sprint 3 | US-22 lowered from Should to **Could**; US-24 raised from Could to **Should** | Review of Sprint 2 showed authentication hardening mattered more than statistical anomaly detection |
 | v2.0 | After Sprint 3 review | **US-28, US-29 added** (10 points) | Adversarial testing found aggregates unscoped - a change request, not a defect, because no stated requirement had been broken |
 | v2.1 | After Sprint 4 | **D1 to D6, H1 to H3, R1, R2 added** as defect items, not stories | Structured code review found 11 issues; a defect restores an accepted requirement rather than adding one |
-| v3.0 | After Sprint 5 | **US-30 to US-36 added** (23 points) | External review found quality requirements stated without the means to verify them |
+| v3.0 | After Sprint 5 | **US-30 to US-36 added** (23 points) | An audit found quality requirements stated without the means to verify them |
 | | | **Final scope: 36 stories, 153 points, 11 defects** | |
 
 **Table 4.10a - Items added to the backlog after v1.0**
@@ -1156,11 +1076,10 @@ implementation, tests, burndown, review against acceptance criteria, and
 retrospective with binding actions.
 
 **Sprints 4, 5 and 6 are the ones worth attention.** Sprints 1 to 3 delivered
-the planned system; they demonstrate that the process functions. Sprints 4, 5
-and 6 each exist because something was found wrong - by adversarial testing, by
-structured reading, and by external review respectively - and each therefore
-demonstrates something the first three cannot: that the process **detects and
-responds**, which is the property an incremental model is chosen for.
+the planned system. Sprints 4, 5 and 6 each arose from a defect found after
+acceptance - by adversarial testing, by structured code reading, and by audit
+against the specification respectively - and together they exercise the
+detection and response an incremental model is chosen for.
 
 ---
 
@@ -1948,7 +1867,7 @@ the system had a scoping defect in every aggregate it had just built.
 | C2 | Document the model-unavailable path in the interface | Delivered |
 | C3 | **Adversarially test the authorisation boundary** | Raised in Sprint 4 - *after* the defect was found, not before |
 
-**C3 is recorded honestly as an action that came too late.** It was written
+**C3 was an action taken too late.** It was written
 during this retrospective as a general improvement and not acted on until
 Sprint 4 forced it. Chapter 9 records what that cost.
 
@@ -1968,13 +1887,11 @@ Sprint 4 forced it. Chapter 9 records what that cost.
 
 At the end of Sprint 3 the system delivered every committed point, passed
 every test, and satisfied every stated acceptance criterion. Two further
-sprints were nonetheless necessary. **They are the most informative chapters
-in this report, because a process that only ever succeeds demonstrates
-nothing about its capacity to detect failure.**
+sprints were nonetheless necessary.
 
-The two sprints found their defects by different means, and that difference is
-the point: Sprint 4 found what *testing differently* finds, Sprint 5 found
-what *reading* finds.
+Each found its defects by a different means: Sprint 4 by testing the
+authorisation boundary adversarially, Sprint 5 by reading the code against its
+intent.
 
 ---
 
@@ -2122,18 +2039,17 @@ it. The suite was green throughout this sprint, before and after.
 ## 9.8 The Finding That Matters Most
 
 **H1 - stored text rendered as markup.** The conversation transcript inserted
-reply text into the page as markup. The reasoning that produced the defect is
-worth stating because it is so plausible: *the text comes from the model, not
-from the user, so it is not user input.*
+reply text into the page as markup, on the reasoning that the text originates
+with the model rather than with the user and is therefore not user input.
 
-But the model's reply contains whatever the retrieved records contain, and the
-records contain whatever an investigator typed into a case title. **Untrusted
-text does not become trusted by passing through a language model.**
+The model's reply, however, contains whatever the retrieved records contain,
+and those records contain whatever an investigator entered as an investigation
+title. Untrusted text does not become trusted by passing through a language
+model.
 
-The repair escapes the text before it is inserted. Its sequel is recorded in
-Chapter 10: the repair was made and **no test was written**, so the fix could
-have been deleted and the entire suite would still have passed. That omission
-was not found until Sprint 6.
+The repair escapes the text before insertion. No regression test accompanied
+it, leaving the repair removable without any failure in the suite; the
+omission was found in Sprint 6 (Section 10.7).
 
 ## 9.9 Why These Are Defects and Carry No Points
 
@@ -2163,9 +2079,8 @@ these defects was a case the tests did not know to ask about.
 | E1 | Periodic structured review adopted as complementary to testing, not as a substitute |
 | E2 | A repaired defect requires a regression test before it is closed |
 
-**Action E2 was adopted and then not applied to H1 in the same sprint.** That
-is recorded here rather than quietly corrected, because the gap between
-adopting a practice and applying it is exactly what Sprint 6 exists to close.
+Action E2 was adopted in this sprint and not applied to H1 within it. Sprint 6
+closes that gap (Section 10.7).
 
 ---
 
@@ -2182,14 +2097,11 @@ adopting a practice and applying it is exactly what Sprint 6 exists to close.
 
 ## 10.1 Why There Is a Sixth Sprint
 
-An external review of the project raised, among other things, that the
-non-functional requirements were *"mostly missing"* - not absent from the
-document, but unimplemented and untested.
+Sprint 6 began with an audit of the eighteen non-functional requirements,
+checking each against the code that enforced it and the test that would fail
+if that enforcement were removed.
 
-The review was correct, and the audit that followed was worse reading than
-expected.
-
-**Table 10.1 - The state of the eighteen quality requirements before this sprint**
+**Table 10.1 - State of the eighteen quality requirements before Sprint 6**
 
 | Verdict | Count |
 |-----------------------------------------------------------------|------|
@@ -2198,14 +2110,10 @@ expected.
 | Asserted analytically, never measured | 2 |
 | **Claim did not match the code** | 1 |
 
-Nine of eighteen named only "code review", "configuration inspection",
-"manual check" or an analytical argument as their verification method. The
-document was honest about this - the verification column said so plainly - but
-stating a weak verification method is still stating a weak verification
-method.
-
-**A verification method that does not re-run cannot fail, and a requirement
-that cannot fail is not a requirement.**
+Nine of eighteen named only code review, configuration inspection, a manual
+check or an analytical argument as their verification method. A verification
+method that does not re-run cannot fail, and a requirement that cannot fail is
+not a requirement.
 
 ## 10.2 Sprint Goal
 
@@ -2263,10 +2171,10 @@ evidence_items = (case.evidence_items
 
 An investigation with four hundred exhibits would render four hundred rows.
 
-**The repair changed the code, not the requirement.** Softening the
-requirement to match the implementation would have been the easier edit and
-the wrong one: an exhibit-heavy investigation is the realistic case for a
-forensic system, not an edge case.
+The repair changed the code rather than the requirement. Softening the
+requirement to match the implementation would have been the smaller edit, but
+an exhibit-heavy investigation is the realistic case for a forensic system
+rather than an edge case.
 
 ## 10.6 US-34: Complexity Measured Rather Than Argued
 
@@ -2282,27 +2190,27 @@ both, and assert the **growth ratio**:
 | Assessment linear in record count | 20 and 200 records, best of three | Tenfold records under thirtyfold time |
 | A 100-element chain verifies within tolerance | Single run | Under 5 seconds |
 
-The thresholds are deliberately loose. **They are set to catch a change in the
-shape of the cost, not to certify a particular machine's speed** - a quadratic
-implementation would need roughly a hundredfold increase and would fail.
+The thresholds are deliberately loose: they detect a change in the shape of
+the cost rather than certifying a particular machine's speed. A quadratic
+implementation would require roughly a hundredfold increase and would fail.
 
 ## 10.7 US-36: The Regression Test That Should Have Existed
 
 Finding H1 in Sprint 5 - text rendered as markup - was repaired and closed
 with no test, in a sprint whose own retrospective action E2 required one.
 
-The consequence: the escape function could have been deleted and **all 172
-tests would still have passed**. A defect found, understood, documented and
-repaired was protected by nothing.
+In consequence the escape function could have been deleted and all 172 tests
+would still have passed: a defect found, understood, documented and repaired
+was protected by nothing.
 
 Three tests now guard it: an investigation title containing markup renders
 escaped; stored conversation cannot close the element containing it; and the
 escape helper is asserted to run *before* insertion rather than merely to
 exist.
 
-**This is the sharpest lesson in the project.** The claim throughout the
-report had been that M2 taught the value of testing what you fix. Until this
-sprint, that claim was contradicted by the repository.
+Sprint 5's retrospective had recorded that a repaired defect requires a
+regression test before it is closed. The practice was adopted and, in the same
+sprint, not applied to the defect that prompted it.
 
 ## 10.8 US-31, US-32, US-35: Enforcement Made Visible
 
@@ -2312,11 +2220,11 @@ sprint, that claim was contradicted by the repository.
 | US-32 | Production refuses absent or weak secrets | 6 tests, against absent, weak and sound configurations |
 | US-35 | Four role-specific overviews | 7 tests, including that all four renderings differ |
 
-US-32 required a small refactor worth noting: the check ran as inline code at
-import time, so it executed once per process and could never be exercised
-against a hypothetical bad configuration. Extracting it into a function made
-the requirement testable. **A requirement that cannot be exercised is not
-testable, however correct the code is.**
+US-32 required a small refactor. The check ran as inline code at import time,
+executing once per process and never exercisable against a hypothetical bad
+configuration; extracting it into a function made the requirement testable.
+Correct code is not sufficient if the requirement governing it cannot be
+exercised.
 
 ## 10.9 A Defect Found During the Sprint
 
@@ -2325,8 +2233,8 @@ Reviewing the use-case model against the routes revealed that
 writes the verdict onto the exhibit and, on a Broken verdict, drives it to
 Flagged through a transition that deliberately bypasses the role check.
 
-**A Read-Only Viewer could therefore change an exhibit's lifecycle state** -
-contradicting SR-06 and making the role's name false.
+A Read-Only Viewer could therefore change an exhibit's lifecycle state,
+contradicting SR-06.
 
 **Table 10.4 - Root cause**
 
@@ -2369,15 +2277,14 @@ actually paginated, so a requirement had to be **met** before it could be
 
 ## 10.11 Retrospective
 
-**The lesson.** A requirement and its verification are one artefact, not two.
-Separating them lets a document describe a quality the system does not have,
-honestly and in good faith, for as long as nobody checks.
+**The lesson.** A requirement and its verification form one artefact. Treating
+them separately allows a specification to describe a quality the system does
+not possess, undetected until something checks.
 
-**What this sprint says about the process.** Sprints 4, 5 and 6 each exist
-because something was found wrong, by three different means - adversarial
-testing, structured reading, and external review. **No sprint found its own
-sprint's defects.** That is not a failure of the increments; it is the reason
-there is more than one.
+**Process observation.** Sprints 4, 5 and 6 each arose from a defect found by
+a different means: adversarial testing, structured code reading, and a review
+against the specification. In no case did a sprint find its own defects, which
+is the condition that makes successive increments necessary.
 
 **Table 10.7 - Actions**
 
@@ -2398,19 +2305,15 @@ there is more than one.
 
 ---
 
-This chapter exists because the project guidelines require the
-algorithmically complex features to be identified, justified as such, and
-described algorithmically. Each of the five is given its own numbered section
-below, and each is described by UML behavioural diagrams rather than by prose
-alone. They are gathered here, rather than left scattered through the sprint
-chapters, so that the Category C contribution of the project can be read in
-one place; Sprints 2 and 3 (Chapters 7 and 8) record *when* each was built and
-what it cost.
+Five algorithms constitute the project's Category C contribution. Each has its
+own section below, giving the problem it solves, the structure it builds, the
+algorithm itself in pseudocode and UML behavioural diagrams, its complexity,
+and the design decision that defines it. Sprints 2 and 3 (Chapters 7 and 8)
+record when each was built and what it cost.
 
 ## 11.1 What Makes a Feature Category C
 
-The three feature categories are easy to assign loosely and hard to assign
-honestly. A feature that calls a cryptographic library is not complex because
+A feature that calls a cryptographic library is not complex because
 cryptography is complex. The question is what the project itself contributes.
 
 **Table 11.1 - The test applied to every feature**
@@ -2422,18 +2325,17 @@ cryptography is complex. The question is what the project itself contributes.
 | Does the behaviour require a data structure, a multi-step control flow, or a search that the project designs and implements? | Then the complexity is the project's own | **C** |
 
 A feature may call Category B components from inside Category C logic without
-changing category, **provided the library calls play the part of primitive
-operations inside a larger algorithm the project designed**. The hash function
-inside the integrity verifier is used exactly as an arithmetic operator is
-used: it is not the algorithm, it is a step in it.
+changing category, provided the library calls act as primitive operations
+inside a larger algorithm the project designed. The hash function inside the
+integrity verifier is used as an arithmetic operator is used: it is a step in
+the algorithm, not the algorithm.
 
-The converse test is the stricter one, and this report applies it: *if the
-library were replaced by an equivalent, would anything the project designed
-have to change?* For the verifier, no - the traversal, the failure
-accumulation and the completeness score are untouched by which hash function
-is used. For the anomaly detector, yes - the whole behaviour would change,
-which is why anomaly detection is classified **B** and not C despite feeding
-the same dashboard.
+The stricter test is the converse one. If the library were replaced by an
+equivalent, would any of the project's design have to change? For the
+verifier it would not: the traversal, the failure accumulation and the
+completeness score are independent of which hash function is used. For the
+anomaly detector it would, which is why anomaly detection is classified B
+despite feeding the same dashboard.
 
 **Table 11.2 - The five Category C features**
 
@@ -2445,12 +2347,12 @@ the same dashboard.
 | 4 | Evidence lifecycle state machine | Transition table with guards and preconditions | A status column is data; a role-gated, precondition-constrained automaton is not | No library knows this domain's procedure |
 | 5 | Assistant orchestration | Six-stage pipeline around a model call | Retrieval is queries, but the pipeline is not | **The model is B; the pipeline around it is C** |
 
-Feature 5 is the one most at risk of being over-claimed, so it is stated
-plainly: **the language model is a third-party service and is categorised B in
-Chapter 10.** What is C is the intent classification, the access-scoped
-retrieval, the template selection, the fallback path and the reference
-validation - none of which the model provides and all of which would still be
-needed if the model were replaced.
+The boundary within Feature 5 requires precision. The language model is a
+third-party service, categorised B in Chapter 2. Category C comprises the
+intent classification, the access-scoped retrieval, the template selection,
+the fallback path and the reference validation - none of which the model
+provides, and all of which would still be required if the model were
+replaced.
 
 ---
 
@@ -2499,16 +2401,16 @@ After the checks, every child is pushed **regardless of the outcome**.
 The first implementation stopped at the first failure. It satisfied a naive
 reading of the user story and violated its second acceptance criterion.
 
-**Stopping at the first failure gives a user one defect at a time and
-guarantees as many verification runs as there are defects.** Worse, in a
-forensic setting it actively misleads: an investigator told "the chain failed
-at event 3" may reasonably conclude events 4 onward are sound.
+Stopping at the first failure yields one defect per run and therefore as many
+runs as there are defects. In a forensic setting it also misleads: an
+investigator told that the chain failed at event 3 may reasonably infer that
+events 4 onward are sound.
 
-Accumulating instead costs nothing asymptotically - the traversal visits every
-node either way - and converts the output from a single error into a complete
-picture. This is why **Figure 10** is worth attention: the failure collector
-sits between the checks and the scorer, and **no connector routes a failure
-back to the walker**. The absence of that connector is the property.
+Accumulation costs nothing asymptotically, since the traversal visits every
+node either way, and converts the output from a single error into a complete
+account. Figure 10 shows the structural consequence: the failure collector
+sits between the checks and the scorer, and no connector routes a failure back
+to the walker.
 
 ### 11.2.5 Pseudocode
 
@@ -2588,12 +2490,11 @@ sum of those three considered separately.
 | Lifecycle state | 0.10 | Ordinal mapping | Flagged 1.0 down to Archived 0.1 |
 | Dormancy | 0.08 | Sigmoid | Risk is flat, then rises sharply around a threshold, then flattens |
 
-**The normalisation choice per indicator is a substantive design decision, not
-a formality.** Applying one curve to all eight would misrepresent at least
-three of them: a linear curve on handover frequency would let a busy item
-dominate the ranking purely by being busy, and a logarithmic curve on function
-mismatches would make the second breach count for less than the first, which
-is the opposite of the truth.
+The normalisation curve is chosen per indicator rather than globally. A single
+curve applied to all eight would misrepresent at least three: a linear curve on
+handover frequency would let a busy exhibit dominate the ranking by activity
+alone, and a logarithmic curve on function mismatches would make the second
+breach count for less than the first.
 
 ### 11.3.3 Interaction rules and the cap
 
@@ -2608,11 +2509,9 @@ exceed their own thresholds, contributing a multiplier:
 | Distinct handlers + handover frequency | 0.6, 0.6 | 1.20 | Unstable chain |
 | Function mismatch + repeated records | 0.5, 0.5 | 1.15 | Administrative tampering |
 
-The total bonus is capped at **0.30**. The cap is the second decision worth
-defending: without it, an item firing four rules saturates at the maximum and
-becomes indistinguishable from an item firing all five. **A ranking in which
-everything alarming scores the same is not a ranking** - which is exactly the
-failure the feature exists to prevent.
+The total bonus is capped at **0.30**. Without the cap, an exhibit firing four
+rules saturates at the maximum and becomes indistinguishable from one firing
+all five, collapsing the discrimination the ranking exists to provide.
 
 ### 11.3.4 The algorithm
 
@@ -2647,10 +2546,10 @@ SCORE(item):
 ### 11.3.5 Explainability as a requirement, not a nicety
 
 The algorithm returns every indicator with its raw value, its normalised
-value, its weight and its contribution, plus the reason text of every rule
-that fired. SR-38 requires this. In a forensic setting a number an
-investigator cannot interrogate is a number they cannot defend in court, so
-the explanation is part of the output rather than a debugging aid.
+value, its weight and its contribution, together with the reason text of each
+rule that fired, as SR-38 requires. In a forensic setting a score an
+investigator cannot interrogate is one they cannot defend in court, so the
+explanation forms part of the output rather than a debugging aid.
 
 ### 11.3.6 Complexity and verification
 
@@ -2699,12 +2598,11 @@ would flatten exactly the discrimination the search depends on.
 If the best candidate scores below **0.40**, the gap is marked **Unresolved**
 and no inference is made.
 
-**Declining is a result, not a failure.** DR-02 forbids silently closing a gap,
-and DR-07 requires an inference to be visibly distinguishable from an
-observation. Every link in the output carries one of three labels -
-**Confirmed**, **Inferred**, **Unresolved** - and an inferred link carries its
-score and the reasoning that produced it. An algorithm that always produces a
-complete chain would be more satisfying and less honest.
+Declining constitutes a result. DR-02 forbids silently closing a gap, and
+DR-07 requires an inference to remain visibly distinguishable from an
+observation. Every link carries one of three labels - **Confirmed**,
+**Inferred**, **Unresolved** - and an inferred link carries its score and the
+reasoning that produced it.
 
 ### 11.4.4 Complexity and verification
 
@@ -2759,11 +2657,11 @@ administrator alone, and only after re-verification. The asymmetry is
 deliberate and realises DR-06: an item whose integrity has failed must not
 quietly resume normal handling.
 
-One subtlety is worth stating because it looks like an inconsistency. When
-verification finds a broken chain it drives the item to `Flagged` with the
-role check bypassed, so that an Analyst who runs a check still gets the item
-flagged. That bypass is why running a verification is **not** a read, and why
-it is refused to a Read-Only Viewer (Section 11.9).
+One case requires explanation. When verification finds a broken chain it
+drives the exhibit to `Flagged` with the function check bypassed, so that an
+Analyst running a check still causes the exhibit to be flagged. That bypass is
+why running a verification is not a read, and why it is refused to a Read-Only
+Viewer (Section 11.9).
 
 ### 11.5.5 Complexity and verification
 
@@ -2785,11 +2683,11 @@ US-29. Realises SR-40 to SR-43 and SR-53.*
 pipeline around it is this project's work, and the test in Section 11.1
 applies cleanly: replacing the model would change none of the six stages.
 
-The accepted project proposal named a particular commercial model API. That
-service proved unavailable on terms the project could meet, and a different
-hosted model was substituted. **The substitution required no change to the
-pipeline, to any requirement, or to any test** - which is the practical
-demonstration that the boundary is drawn where this section claims.
+The model originally selected proved unavailable on terms the project could
+meet, and a different hosted model was substituted. The substitution required
+no change to the pipeline, to any requirement, or to any test, which
+establishes in practice that the boundary falls where this section places
+it.
 
 ### 11.6.2 The six stages
 
@@ -2807,15 +2705,14 @@ diagram) and **Figure 20** (timing diagram).
 
 ### 11.6.3 Scoping before retrieval, not after
 
-Stage 2 precedes stage 3, which precedes stage 4. **Data the account may not
-see never enters the prompt.** The refusal is therefore structural rather than
-conversational: no phrasing of a question can extract what was never placed in
-front of the model.
+Stage 2 precedes stage 3, which precedes stage 4. Data the account may not see never enters the prompt, so the refusal is
+structural rather than conversational: no phrasing of a question can extract
+what was never placed before the model.
 
-This ordering was not present in the first implementation. The assistant
-retrieved globally and relied on the answer not mentioning inaccessible cases
-- a defect found by adversarial testing and repaired in Sprint 4 as US-29.
-Section 11.9 and Chapter 9 record it.
+The first implementation lacked this ordering. The assistant retrieved
+globally and relied on the answer not mentioning inaccessible investigations,
+a defect found by adversarial testing and repaired in Sprint 4 as US-29
+(Section 11.9, Chapter 9).
 
 ### 11.6.4 Hallucination detection, and what it does not do
 
@@ -2823,11 +2720,10 @@ Stage 6 extracts every case number, evidence identifier and personal name from
 the reply and checks each against the retrieved context. Anything absent is
 attached to the answer as an explicit warning.
 
-**The limitation must be stated as plainly as the capability: this verifies
-references, not reasoning.** A reply that cites only real identifiers but draws
-a wrong conclusion from them passes the check. The interface presents the
-answer accordingly - as a drafted reading of records the investigator can see,
-not as a finding.
+The check verifies references, not reasoning. A reply citing only real
+identifiers while drawing a wrong conclusion from them passes it. The
+interface therefore presents the answer as a drafted reading of records the
+investigator can inspect, not as a finding.
 
 ### 11.6.5 Bounded waiting
 
@@ -2849,9 +2745,7 @@ the slow service.
 
 ## 11.7 Third-Party Components Used Inside Category C Logic
 
-Stated explicitly so the boundary cannot be read as a claim.
-
-**Table 11.4 - What is borrowed, and what is ours**
+**Table 11.4 - Borrowed components and their role**
 
 | Algorithm | Third-party component used | Role it plays | Would replacing it change our design? |
 |-------------|-------------------|----------------|----------------------|
@@ -2862,16 +2756,14 @@ Stated explicitly so the boundary cannot be read as a claim.
 | 5. Assistant | Hosted language model | Produces the natural-language sentence at stage 5 | **No** - and this was demonstrated, not asserted (§11.6.1) |
 | (Anomaly detection) | Isolation Forest implementation | **Is the algorithm** | **Yes** - therefore classified **B**, not C |
 
-The last row is the control case. Anomaly detection feeds the same dashboard
-as Algorithm 2 and could have been presented as a sixth complex feature. It is
-not, because the library implements the behaviour and the project supplies
-only the feature vector. **A categorisation that never excludes anything is not
-a categorisation.**
+The final row is the control case. Anomaly detection feeds the same dashboard
+as Algorithm 2 but is classified B, because the library implements the
+behaviour and the project supplies only the feature vector.
 
 ## 11.8 Complexity, Measured Rather Than Argued
 
-The complexity claims above were originally supported by analysis alone. An
-analytical argument cannot regress, so each is now also measured.
+The complexity claims above were initially supported by analysis alone. An
+analytical argument cannot regress under change, so each is also measured.
 
 **Table 11.5 - Claims and how they are checked**
 
@@ -2881,15 +2773,14 @@ analytical argument cannot regress, so each is now also measured.
 | Risk assessment grows linearly in records | Same method | Tenfold records under thirtyfold time | `TestPerformanceScaling` |
 | A 100-element chain verifies within tolerance | Single run, 100 elements | Under 5 seconds | `TestPerformanceScaling` |
 
-A quadratic implementation would need roughly a hundredfold increase and would
-fail these tests, which is the point: the thresholds are set to catch a change
-in the *shape* of the cost, not to certify a particular machine's speed.
+A quadratic implementation would require roughly a hundredfold increase and
+would fail these tests. The thresholds are set to detect a change in the shape
+of the cost rather than to certify a particular machine's speed.
 
 ## 11.9 What the Algorithms Got Wrong
 
-Three defects in this chapter's subject matter were found after acceptance.
-Each is recorded here with its root cause, because the pattern across them is
-more instructive than any one of them.
+Three defects in the algorithms were found after acceptance. Each is given
+below with its root cause.
 
 **Table 11.6 - Defects in the complex logic**
 
@@ -2899,11 +2790,11 @@ more instructive than any one of them.
 | Sprint 5 (M2) | Verification computed a verdict but never wrote it back, so the risk assessment's highest-weighted indicator stayed at its default | Two algorithms sharing a value with no owner for writing it | Verdict persisted at the end of verification |
 | Sprint 6 (M3) | Running a verification was reachable by a Read-Only account, although it writes a verdict and can drive an item to Flagged | An operation classified by its *name* ("verify") rather than by its *effect* | Analysis guard added; refused at the route and hidden in the interface |
 
-The pattern: **each defect came from a correct algorithm placed in a context
-whose constraints it did not know about.** None was an error in the
-algorithmic logic itself. That is an argument for the architectural separation
-Chapter 5 describes - and simultaneously a warning that separation makes each
-piece easier to verify in isolation and easier to misplace in combination.
+The three share a pattern: each arose from a correct algorithm placed in a
+context whose constraints it did not encode. None was an error in the
+algorithmic logic itself. The architectural separation described in Chapter 5
+makes each component easier to verify in isolation and, correspondingly,
+easier to misplace in combination.
 
 ---
 
@@ -2919,9 +2810,9 @@ piece easier to verify in isolation and easier to misplace in combination.
 ## 12.1 Strategy
 
 Verification asks whether the system was built right; validation asks whether
-the right system was built. The two are separated here because this project
-answers them with different confidence: verification is strong, and validation
-is limited by the absence of a real customer (Section 12.8).
+the right system was built. The project answers the two with different
+confidence: verification is extensive, while validation is limited by the
+absence of a customer (Section 12.8).
 
 The test strategy follows the **V-model's pairing of construction phases with
 test levels** - adopted as a test strategy while its sequencing was rejected
@@ -2982,29 +2873,28 @@ Measured over the whole suite.
 | `ai_assistant.py` | 72% | Prompt-template branches per intent are numerous |
 | `chain_reconstruction.py` | **65%** | **The lowest in the project** |
 
-### 12.3.1 Why reconstruction is the least covered, stated plainly
+### 12.3.1 Why reconstruction is the least covered
 
-`chain_reconstruction.py` scores 65% because its plausibility function has
+`chain_reconstruction.py` reaches 65% because its plausibility function has
 four criteria, each of which may be present or absent depending on the data
 available, giving sixteen combinations of live criteria before the threshold
 decision is even reached. The tests cover the four that occur in realistic
 data and the two boundary cases either side of the threshold; the remainder
 are untested.
 
-**This is a real limitation, not a presentational one.** It is named here
-rather than left for a reader to compute, and it is the first entry in
-Section 13.4's future work.
+The gap is a genuine limitation and forms the first entry in Section 13.4's
+future work.
 
-### 12.3.2 Why route coverage is lower, and why that is the right trade
+### 12.3.2 Why route coverage is lower
 
 Routes sit at 71%, pulled down by `auth.py` (44%), `evidence.py` (56%),
 `admin.py` (59%) and `cases.py` (59%). The uncovered paths are predominantly
 form re-rendering after validation failure and template branches.
 
-The project chose to spend its testing effort on the algorithms rather than on
-rendering paths. **That is a defensible trade only if stated**: a rendering
-defect is visible to the first user who meets it, while an algorithmic defect
-in a custody verifier can be invisible and consequential at the same time.
+Testing effort was directed at the algorithms rather than at rendering paths.
+A rendering defect is visible to the first user who encounters it, whereas an
+algorithmic defect in a custody verifier may be both invisible and
+consequential.
 
 ## 12.4 Testing the Quality Requirements
 
@@ -3057,10 +2947,9 @@ tests** before any implementation (retrospective action B1).
 | 5 (M2) | 11 findings | 11 | Ten with regression tests; H1 without, until Sprint 6 |
 | 6 (M3) | 7 | 7 | - |
 
-**Sprint 3's row is the instructive one.** Every criterion was met and the
-system still had a defect in every aggregate it had just built, because no
-criterion asked about an unentitled user. Acceptance criteria verify what they
-describe, and nothing else.
+Sprint 3 met every criterion while leaving a defect in every aggregate it had
+built, because no criterion addressed an unentitled user. Acceptance criteria
+verify what they describe and nothing further.
 
 ## 12.7 What Is Not Tested
 
@@ -3080,25 +2969,24 @@ of the next section.
 
 ## 12.8 The Limit of Validation in This Project
 
-Verification is strong: 216 tests, every requirement traced to one, every
-quality requirement measured.
+Verification is extensive: 216 tests, every requirement traced to at least
+one, every quality requirement measured.
 
-**Validation is weak, and no amount of testing repairs it.** There was no
-customer. The requirements were derived from domain sources and from
-reasoning about what a forensic process demands, not from a stakeholder who
-could say "that is not what we meant". Every acceptance criterion was written
-by the same person who implemented the code and judged the result.
+Validation is correspondingly weak, and testing does not repair it. The
+project had no customer. Requirements were derived from domain sources and
+from reasoning about what a forensic process demands, rather than from a
+stakeholder able to say that a requirement had been misunderstood, and every
+acceptance criterion was written by the same person who implemented the code
+and judged the result.
 
-The practical consequence: **the system can be shown to do what the
-requirements say, and the requirements cannot be shown to be the right ones.**
-Section 3.10 records one case where they demonstrably were not - a negative
-requirement scoped to fewer surfaces than it governed - and that case was
-found by adversarial testing rather than by consultation, which is the
-substitute this project had available.
+The system can therefore be shown to satisfy its requirements, while the
+requirements cannot be shown to be the right ones. Section 3.10 gives one case
+in which they were not - a negative requirement scoped to fewer surfaces than
+it governed - found by adversarial testing, the substitute available to a
+project without a customer.
 
-This is stated as a limitation of the project rather than of the system,
-because it is a condition of the exercise and not a defect that effort could
-have removed.
+The limitation follows from the conditions of the exercise rather than from
+any deficiency in the system.
 
 ---
 
@@ -3217,33 +3105,27 @@ multi-language interface, model fine-tuning - is unchanged.
 
 ## 13.5 What the Project Demonstrates
 
-Three things, in ascending order of what they are worth.
-
 **A system.** Six entities, five algorithms implemented from first principles,
 eleven third-party integrations with the boundary stated, four roles with
 case-level membership, and a history that cannot be rewritten.
 
 **A process.** A development model chosen for stated reasons and judged
-against outcomes; a product backlog that was prioritised, refined and
-decomposed into tasks; requirements at two levels, each traced to a test; and
-twenty-six UML diagrams generated from versioned source, so that no figure in
-this report can contradict the code it describes.
+against outcomes; a product backlog prioritised, refined and decomposed into
+tasks; requirements at two levels, each traced to a test; and twenty-six UML
+diagrams generated from versioned source, so that no figure can drift from the
+code it describes.
 
-**An account that does not flatter itself.** Three of the six sprints exist
-because something was found wrong. The scoping leak, the verdict that was
-computed and never stored, the repair that went five sprints without a
-regression test, the requirement that claimed a pagination the code did not
-do, the role whose name its own route contradicted - each is described here at
-the length it deserves rather than minimised.
+**A record of defect detection.** Three of the six sprints arose from defects
+found after acceptance: the scoping leak across every aggregate, the integrity
+verdict computed and never stored, the repair that went five sprints without a
+regression test, the requirement claiming a pagination the code did not
+implement, and the role whose guard contradicted its name.
 
-That last quality is the one this report would most want to be judged by. The
-three maintenance sprints are not embarrassments that survived editing; they
-are the process working. A green suite met an adversarial tester, then a
-careful reader, then an external reviewer, and each found what the one before
-could not.
-
-**In a system built to be trustworthy, the trustworthiness of the account of
-how it was built is not a separate matter.**
+Each was found by a different means - adversarial testing, structured code
+reading, and audit against the specification - and in no case did a sprint
+detect its own defects. That is the condition under which successive
+increments earn their cost, and it is the strongest evidence the project
+offers for the process it chose.
 
 ---
 

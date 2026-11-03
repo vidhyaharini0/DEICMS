@@ -7,13 +7,11 @@
 
 At the end of Sprint 3 the system delivered every committed point, passed
 every test, and satisfied every stated acceptance criterion. Two further
-sprints were nonetheless necessary. **They are the most informative chapters
-in this report, because a process that only ever succeeds demonstrates
-nothing about its capacity to detect failure.**
+sprints were nonetheless necessary.
 
-The two sprints found their defects by different means, and that difference is
-the point: Sprint 4 found what *testing differently* finds, Sprint 5 found
-what *reading* finds.
+Each found its defects by a different means: Sprint 4 by testing the
+authorisation boundary adversarially, Sprint 5 by reading the code against its
+intent.
 
 ---
 
@@ -159,18 +157,17 @@ it. The suite was green throughout this sprint, before and after.
 ## 9.8 The Finding That Matters Most
 
 **H1 - stored text rendered as markup.** The conversation transcript inserted
-reply text into the page as markup. The reasoning that produced the defect is
-worth stating because it is so plausible: *the text comes from the model, not
-from the user, so it is not user input.*
+reply text into the page as markup, on the reasoning that the text originates
+with the model rather than with the user and is therefore not user input.
 
-But the model's reply contains whatever the retrieved records contain, and the
-records contain whatever an investigator typed into a case title. **Untrusted
-text does not become trusted by passing through a language model.**
+The model's reply, however, contains whatever the retrieved records contain,
+and those records contain whatever an investigator entered as an investigation
+title. Untrusted text does not become trusted by passing through a language
+model.
 
-The repair escapes the text before it is inserted. Its sequel is recorded in
-Chapter 10: the repair was made and **no test was written**, so the fix could
-have been deleted and the entire suite would still have passed. That omission
-was not found until Sprint 6.
+The repair escapes the text before insertion. No regression test accompanied
+it, leaving the repair removable without any failure in the suite; the
+omission was found in Sprint 6 (Section 10.7).
 
 ## 9.9 Why These Are Defects and Carry No Points
 
@@ -198,9 +195,8 @@ these defects was a case the tests did not know to ask about.
 | E1 | Periodic structured review adopted as complementary to testing, not as a substitute |
 | E2 | A repaired defect requires a regression test before it is closed |
 
-**Action E2 was adopted and then not applied to H1 in the same sprint.** That
-is recorded here rather than quietly corrected, because the gap between
-adopting a practice and applying it is exactly what Sprint 6 exists to close.
+Action E2 was adopted in this sprint and not applied to H1 within it. Sprint 6
+closes that gap (Section 10.7).
 
 ---
 

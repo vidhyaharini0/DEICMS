@@ -5,9 +5,9 @@
 ## 12.1 Strategy
 
 Verification asks whether the system was built right; validation asks whether
-the right system was built. The two are separated here because this project
-answers them with different confidence: verification is strong, and validation
-is limited by the absence of a real customer (Section 12.8).
+the right system was built. The project answers the two with different
+confidence: verification is extensive, while validation is limited by the
+absence of a customer (Section 12.8).
 
 The test strategy follows the **V-model's pairing of construction phases with
 test levels** - adopted as a test strategy while its sequencing was rejected
@@ -68,29 +68,28 @@ Measured over the whole suite.
 | `ai_assistant.py` | 72% | Prompt-template branches per intent are numerous |
 | `chain_reconstruction.py` | **65%** | **The lowest in the project** |
 
-### 12.3.1 Why reconstruction is the least covered, stated plainly
+### 12.3.1 Why reconstruction is the least covered
 
-`chain_reconstruction.py` scores 65% because its plausibility function has
+`chain_reconstruction.py` reaches 65% because its plausibility function has
 four criteria, each of which may be present or absent depending on the data
 available, giving sixteen combinations of live criteria before the threshold
 decision is even reached. The tests cover the four that occur in realistic
 data and the two boundary cases either side of the threshold; the remainder
 are untested.
 
-**This is a real limitation, not a presentational one.** It is named here
-rather than left for a reader to compute, and it is the first entry in
-Section 13.4's future work.
+The gap is a genuine limitation and forms the first entry in Section 13.4's
+future work.
 
-### 12.3.2 Why route coverage is lower, and why that is the right trade
+### 12.3.2 Why route coverage is lower
 
 Routes sit at 71%, pulled down by `auth.py` (44%), `evidence.py` (56%),
 `admin.py` (59%) and `cases.py` (59%). The uncovered paths are predominantly
 form re-rendering after validation failure and template branches.
 
-The project chose to spend its testing effort on the algorithms rather than on
-rendering paths. **That is a defensible trade only if stated**: a rendering
-defect is visible to the first user who meets it, while an algorithmic defect
-in a custody verifier can be invisible and consequential at the same time.
+Testing effort was directed at the algorithms rather than at rendering paths.
+A rendering defect is visible to the first user who encounters it, whereas an
+algorithmic defect in a custody verifier may be both invisible and
+consequential.
 
 ## 12.4 Testing the Quality Requirements
 
@@ -143,10 +142,9 @@ tests** before any implementation (retrospective action B1).
 | 5 (M2) | 11 findings | 11 | Ten with regression tests; H1 without, until Sprint 6 |
 | 6 (M3) | 7 | 7 | - |
 
-**Sprint 3's row is the instructive one.** Every criterion was met and the
-system still had a defect in every aggregate it had just built, because no
-criterion asked about an unentitled user. Acceptance criteria verify what they
-describe, and nothing else.
+Sprint 3 met every criterion while leaving a defect in every aggregate it had
+built, because no criterion addressed an unentitled user. Acceptance criteria
+verify what they describe and nothing further.
 
 ## 12.7 What Is Not Tested
 
@@ -166,25 +164,24 @@ of the next section.
 
 ## 12.8 The Limit of Validation in This Project
 
-Verification is strong: 216 tests, every requirement traced to one, every
-quality requirement measured.
+Verification is extensive: 216 tests, every requirement traced to at least
+one, every quality requirement measured.
 
-**Validation is weak, and no amount of testing repairs it.** There was no
-customer. The requirements were derived from domain sources and from
-reasoning about what a forensic process demands, not from a stakeholder who
-could say "that is not what we meant". Every acceptance criterion was written
-by the same person who implemented the code and judged the result.
+Validation is correspondingly weak, and testing does not repair it. The
+project had no customer. Requirements were derived from domain sources and
+from reasoning about what a forensic process demands, rather than from a
+stakeholder able to say that a requirement had been misunderstood, and every
+acceptance criterion was written by the same person who implemented the code
+and judged the result.
 
-The practical consequence: **the system can be shown to do what the
-requirements say, and the requirements cannot be shown to be the right ones.**
-Section 3.10 records one case where they demonstrably were not - a negative
-requirement scoped to fewer surfaces than it governed - and that case was
-found by adversarial testing rather than by consultation, which is the
-substitute this project had available.
+The system can therefore be shown to satisfy its requirements, while the
+requirements cannot be shown to be the right ones. Section 3.10 gives one case
+in which they were not - a negative requirement scoped to fewer surfaces than
+it governed - found by adversarial testing, the substitute available to a
+project without a customer.
 
-This is stated as a limitation of the project rather than of the system,
-because it is a condition of the exercise and not a defect that effort could
-have removed.
+The limitation follows from the conditions of the exercise rather than from
+any deficiency in the system.
 
 ---
 

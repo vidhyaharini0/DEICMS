@@ -2,19 +2,15 @@
 
 ---
 
-This chapter exists because the project guidelines require the
-algorithmically complex features to be identified, justified as such, and
-described algorithmically. Each of the five is given its own numbered section
-below, and each is described by UML behavioural diagrams rather than by prose
-alone. They are gathered here, rather than left scattered through the sprint
-chapters, so that the Category C contribution of the project can be read in
-one place; Sprints 2 and 3 (Chapters 7 and 8) record *when* each was built and
-what it cost.
+Five algorithms constitute the project's Category C contribution. Each has its
+own section below, giving the problem it solves, the structure it builds, the
+algorithm itself in pseudocode and UML behavioural diagrams, its complexity,
+and the design decision that defines it. Sprints 2 and 3 (Chapters 7 and 8)
+record when each was built and what it cost.
 
 ## 11.1 What Makes a Feature Category C
 
-The three feature categories are easy to assign loosely and hard to assign
-honestly. A feature that calls a cryptographic library is not complex because
+A feature that calls a cryptographic library is not complex because
 cryptography is complex. The question is what the project itself contributes.
 
 **Table 11.1 - The test applied to every feature**
@@ -26,18 +22,17 @@ cryptography is complex. The question is what the project itself contributes.
 | Does the behaviour require a data structure, a multi-step control flow, or a search that the project designs and implements? | Then the complexity is the project's own | **C** |
 
 A feature may call Category B components from inside Category C logic without
-changing category, **provided the library calls play the part of primitive
-operations inside a larger algorithm the project designed**. The hash function
-inside the integrity verifier is used exactly as an arithmetic operator is
-used: it is not the algorithm, it is a step in it.
+changing category, provided the library calls act as primitive operations
+inside a larger algorithm the project designed. The hash function inside the
+integrity verifier is used as an arithmetic operator is used: it is a step in
+the algorithm, not the algorithm.
 
-The converse test is the stricter one, and this report applies it: *if the
-library were replaced by an equivalent, would anything the project designed
-have to change?* For the verifier, no - the traversal, the failure
-accumulation and the completeness score are untouched by which hash function
-is used. For the anomaly detector, yes - the whole behaviour would change,
-which is why anomaly detection is classified **B** and not C despite feeding
-the same dashboard.
+The stricter test is the converse one. If the library were replaced by an
+equivalent, would any of the project's design have to change? For the
+verifier it would not: the traversal, the failure accumulation and the
+completeness score are independent of which hash function is used. For the
+anomaly detector it would, which is why anomaly detection is classified B
+despite feeding the same dashboard.
 
 **Table 11.2 - The five Category C features**
 
@@ -49,12 +44,12 @@ the same dashboard.
 | 4 | Evidence lifecycle state machine | Transition table with guards and preconditions | A status column is data; a role-gated, precondition-constrained automaton is not | No library knows this domain's procedure |
 | 5 | Assistant orchestration | Six-stage pipeline around a model call | Retrieval is queries, but the pipeline is not | **The model is B; the pipeline around it is C** |
 
-Feature 5 is the one most at risk of being over-claimed, so it is stated
-plainly: **the language model is a third-party service and is categorised B in
-Chapter 10.** What is C is the intent classification, the access-scoped
-retrieval, the template selection, the fallback path and the reference
-validation - none of which the model provides and all of which would still be
-needed if the model were replaced.
+The boundary within Feature 5 requires precision. The language model is a
+third-party service, categorised B in Chapter 2. Category C comprises the
+intent classification, the access-scoped retrieval, the template selection,
+the fallback path and the reference validation - none of which the model
+provides, and all of which would still be required if the model were
+replaced.
 
 ---
 
@@ -103,16 +98,16 @@ After the checks, every child is pushed **regardless of the outcome**.
 The first implementation stopped at the first failure. It satisfied a naive
 reading of the user story and violated its second acceptance criterion.
 
-**Stopping at the first failure gives a user one defect at a time and
-guarantees as many verification runs as there are defects.** Worse, in a
-forensic setting it actively misleads: an investigator told "the chain failed
-at event 3" may reasonably conclude events 4 onward are sound.
+Stopping at the first failure yields one defect per run and therefore as many
+runs as there are defects. In a forensic setting it also misleads: an
+investigator told that the chain failed at event 3 may reasonably infer that
+events 4 onward are sound.
 
-Accumulating instead costs nothing asymptotically - the traversal visits every
-node either way - and converts the output from a single error into a complete
-picture. This is why **Figure 10** is worth attention: the failure collector
-sits between the checks and the scorer, and **no connector routes a failure
-back to the walker**. The absence of that connector is the property.
+Accumulation costs nothing asymptotically, since the traversal visits every
+node either way, and converts the output from a single error into a complete
+account. Figure 10 shows the structural consequence: the failure collector
+sits between the checks and the scorer, and no connector routes a failure back
+to the walker.
 
 ### 11.2.5 Pseudocode
 
@@ -192,12 +187,11 @@ sum of those three considered separately.
 | Lifecycle state | 0.10 | Ordinal mapping | Flagged 1.0 down to Archived 0.1 |
 | Dormancy | 0.08 | Sigmoid | Risk is flat, then rises sharply around a threshold, then flattens |
 
-**The normalisation choice per indicator is a substantive design decision, not
-a formality.** Applying one curve to all eight would misrepresent at least
-three of them: a linear curve on handover frequency would let a busy item
-dominate the ranking purely by being busy, and a logarithmic curve on function
-mismatches would make the second breach count for less than the first, which
-is the opposite of the truth.
+The normalisation curve is chosen per indicator rather than globally. A single
+curve applied to all eight would misrepresent at least three: a linear curve on
+handover frequency would let a busy exhibit dominate the ranking by activity
+alone, and a logarithmic curve on function mismatches would make the second
+breach count for less than the first.
 
 ### 11.3.3 Interaction rules and the cap
 
@@ -212,11 +206,9 @@ exceed their own thresholds, contributing a multiplier:
 | Distinct handlers + handover frequency | 0.6, 0.6 | 1.20 | Unstable chain |
 | Function mismatch + repeated records | 0.5, 0.5 | 1.15 | Administrative tampering |
 
-The total bonus is capped at **0.30**. The cap is the second decision worth
-defending: without it, an item firing four rules saturates at the maximum and
-becomes indistinguishable from an item firing all five. **A ranking in which
-everything alarming scores the same is not a ranking** - which is exactly the
-failure the feature exists to prevent.
+The total bonus is capped at **0.30**. Without the cap, an exhibit firing four
+rules saturates at the maximum and becomes indistinguishable from one firing
+all five, collapsing the discrimination the ranking exists to provide.
 
 ### 11.3.4 The algorithm
 
@@ -251,10 +243,10 @@ SCORE(item):
 ### 11.3.5 Explainability as a requirement, not a nicety
 
 The algorithm returns every indicator with its raw value, its normalised
-value, its weight and its contribution, plus the reason text of every rule
-that fired. SR-38 requires this. In a forensic setting a number an
-investigator cannot interrogate is a number they cannot defend in court, so
-the explanation is part of the output rather than a debugging aid.
+value, its weight and its contribution, together with the reason text of each
+rule that fired, as SR-38 requires. In a forensic setting a score an
+investigator cannot interrogate is one they cannot defend in court, so the
+explanation forms part of the output rather than a debugging aid.
 
 ### 11.3.6 Complexity and verification
 
@@ -303,12 +295,11 @@ would flatten exactly the discrimination the search depends on.
 If the best candidate scores below **0.40**, the gap is marked **Unresolved**
 and no inference is made.
 
-**Declining is a result, not a failure.** DR-02 forbids silently closing a gap,
-and DR-07 requires an inference to be visibly distinguishable from an
-observation. Every link in the output carries one of three labels -
-**Confirmed**, **Inferred**, **Unresolved** - and an inferred link carries its
-score and the reasoning that produced it. An algorithm that always produces a
-complete chain would be more satisfying and less honest.
+Declining constitutes a result. DR-02 forbids silently closing a gap, and
+DR-07 requires an inference to remain visibly distinguishable from an
+observation. Every link carries one of three labels - **Confirmed**,
+**Inferred**, **Unresolved** - and an inferred link carries its score and the
+reasoning that produced it.
 
 ### 11.4.4 Complexity and verification
 
@@ -363,11 +354,11 @@ administrator alone, and only after re-verification. The asymmetry is
 deliberate and realises DR-06: an item whose integrity has failed must not
 quietly resume normal handling.
 
-One subtlety is worth stating because it looks like an inconsistency. When
-verification finds a broken chain it drives the item to `Flagged` with the
-role check bypassed, so that an Analyst who runs a check still gets the item
-flagged. That bypass is why running a verification is **not** a read, and why
-it is refused to a Read-Only Viewer (Section 11.9).
+One case requires explanation. When verification finds a broken chain it
+drives the exhibit to `Flagged` with the function check bypassed, so that an
+Analyst running a check still causes the exhibit to be flagged. That bypass is
+why running a verification is not a read, and why it is refused to a Read-Only
+Viewer (Section 11.9).
 
 ### 11.5.5 Complexity and verification
 
@@ -389,11 +380,11 @@ US-29. Realises SR-40 to SR-43 and SR-53.*
 pipeline around it is this project's work, and the test in Section 11.1
 applies cleanly: replacing the model would change none of the six stages.
 
-The accepted project proposal named a particular commercial model API. That
-service proved unavailable on terms the project could meet, and a different
-hosted model was substituted. **The substitution required no change to the
-pipeline, to any requirement, or to any test** - which is the practical
-demonstration that the boundary is drawn where this section claims.
+The model originally selected proved unavailable on terms the project could
+meet, and a different hosted model was substituted. The substitution required
+no change to the pipeline, to any requirement, or to any test, which
+establishes in practice that the boundary falls where this section places
+it.
 
 ### 11.6.2 The six stages
 
@@ -411,15 +402,14 @@ diagram) and **Figure 20** (timing diagram).
 
 ### 11.6.3 Scoping before retrieval, not after
 
-Stage 2 precedes stage 3, which precedes stage 4. **Data the account may not
-see never enters the prompt.** The refusal is therefore structural rather than
-conversational: no phrasing of a question can extract what was never placed in
-front of the model.
+Stage 2 precedes stage 3, which precedes stage 4. Data the account may not see never enters the prompt, so the refusal is
+structural rather than conversational: no phrasing of a question can extract
+what was never placed before the model.
 
-This ordering was not present in the first implementation. The assistant
-retrieved globally and relied on the answer not mentioning inaccessible cases
-- a defect found by adversarial testing and repaired in Sprint 4 as US-29.
-Section 11.9 and Chapter 9 record it.
+The first implementation lacked this ordering. The assistant retrieved
+globally and relied on the answer not mentioning inaccessible investigations,
+a defect found by adversarial testing and repaired in Sprint 4 as US-29
+(Section 11.9, Chapter 9).
 
 ### 11.6.4 Hallucination detection, and what it does not do
 
@@ -427,11 +417,10 @@ Stage 6 extracts every case number, evidence identifier and personal name from
 the reply and checks each against the retrieved context. Anything absent is
 attached to the answer as an explicit warning.
 
-**The limitation must be stated as plainly as the capability: this verifies
-references, not reasoning.** A reply that cites only real identifiers but draws
-a wrong conclusion from them passes the check. The interface presents the
-answer accordingly - as a drafted reading of records the investigator can see,
-not as a finding.
+The check verifies references, not reasoning. A reply citing only real
+identifiers while drawing a wrong conclusion from them passes it. The
+interface therefore presents the answer as a drafted reading of records the
+investigator can inspect, not as a finding.
 
 ### 11.6.5 Bounded waiting
 
@@ -453,9 +442,7 @@ the slow service.
 
 ## 11.7 Third-Party Components Used Inside Category C Logic
 
-Stated explicitly so the boundary cannot be read as a claim.
-
-**Table 11.4 - What is borrowed, and what is ours**
+**Table 11.4 - Borrowed components and their role**
 
 | Algorithm | Third-party component used | Role it plays | Would replacing it change our design? |
 |---|---|---|---|
@@ -466,16 +453,14 @@ Stated explicitly so the boundary cannot be read as a claim.
 | 5. Assistant | Hosted language model | Produces the natural-language sentence at stage 5 | **No** - and this was demonstrated, not asserted (§11.6.1) |
 | (Anomaly detection) | Isolation Forest implementation | **Is the algorithm** | **Yes** - therefore classified **B**, not C |
 
-The last row is the control case. Anomaly detection feeds the same dashboard
-as Algorithm 2 and could have been presented as a sixth complex feature. It is
-not, because the library implements the behaviour and the project supplies
-only the feature vector. **A categorisation that never excludes anything is not
-a categorisation.**
+The final row is the control case. Anomaly detection feeds the same dashboard
+as Algorithm 2 but is classified B, because the library implements the
+behaviour and the project supplies only the feature vector.
 
 ## 11.8 Complexity, Measured Rather Than Argued
 
-The complexity claims above were originally supported by analysis alone. An
-analytical argument cannot regress, so each is now also measured.
+The complexity claims above were initially supported by analysis alone. An
+analytical argument cannot regress under change, so each is also measured.
 
 **Table 11.5 - Claims and how they are checked**
 
@@ -485,15 +470,14 @@ analytical argument cannot regress, so each is now also measured.
 | Risk assessment grows linearly in records | Same method | Tenfold records under thirtyfold time | `TestPerformanceScaling` |
 | A 100-element chain verifies within tolerance | Single run, 100 elements | Under 5 seconds | `TestPerformanceScaling` |
 
-A quadratic implementation would need roughly a hundredfold increase and would
-fail these tests, which is the point: the thresholds are set to catch a change
-in the *shape* of the cost, not to certify a particular machine's speed.
+A quadratic implementation would require roughly a hundredfold increase and
+would fail these tests. The thresholds are set to detect a change in the shape
+of the cost rather than to certify a particular machine's speed.
 
 ## 11.9 What the Algorithms Got Wrong
 
-Three defects in this chapter's subject matter were found after acceptance.
-Each is recorded here with its root cause, because the pattern across them is
-more instructive than any one of them.
+Three defects in the algorithms were found after acceptance. Each is given
+below with its root cause.
 
 **Table 11.6 - Defects in the complex logic**
 
@@ -503,11 +487,11 @@ more instructive than any one of them.
 | Sprint 5 (M2) | Verification computed a verdict but never wrote it back, so the risk assessment's highest-weighted indicator stayed at its default | Two algorithms sharing a value with no owner for writing it | Verdict persisted at the end of verification |
 | Sprint 6 (M3) | Running a verification was reachable by a Read-Only account, although it writes a verdict and can drive an item to Flagged | An operation classified by its *name* ("verify") rather than by its *effect* | Analysis guard added; refused at the route and hidden in the interface |
 
-The pattern: **each defect came from a correct algorithm placed in a context
-whose constraints it did not know about.** None was an error in the
-algorithmic logic itself. That is an argument for the architectural separation
-Chapter 5 describes - and simultaneously a warning that separation makes each
-piece easier to verify in isolation and easier to misplace in combination.
+The three share a pattern: each arose from a correct algorithm placed in a
+context whose constraints it did not encode. None was an error in the
+algorithmic logic itself. The architectural separation described in Chapter 5
+makes each component easier to verify in isolation and, correspondingly,
+easier to misplace in combination.
 
 ---
 

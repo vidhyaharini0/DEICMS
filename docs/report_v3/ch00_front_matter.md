@@ -57,22 +57,21 @@ pipeline around a language model. By estimated effort these account for 43% of
 the project and by source size 42%; the whole of the third-party category is
 439 lines, less than any two of the five algorithm modules combined.
 
-The project followed **Scrum**, an agile incremental framework, across six
-sprints. Three delivered the planned system. The remaining three exist because
-something was found wrong - by adversarial testing, by structured code
-reading, and by external review respectively - and each is described here at
-the same length as the sprints that went to plan. This report is organised
-with **one chapter per sprint**, each carrying that sprint's backlog, tasks,
-UML models, tests, burndown, review and retrospective, and with a dedicated
-chapter describing each complex algorithm through UML behavioural diagrams.
+Development followed **Scrum**, an agile incremental framework, across six
+sprints. Three delivered the planned system; the remaining three each arose
+from a defect found after acceptance, by adversarial testing, by structured
+code reading, and by audit against the specification respectively. The report
+is organised with **one chapter per sprint**, each carrying that sprint's
+backlog, tasks, UML models, tests, burndown, review and retrospective, with a
+dedicated chapter describing each complex algorithm through UML behavioural
+diagrams.
 
 The delivered system comprises approximately 4,700 source lines across ten
 blueprints and six entities, verified by **216 automated tests** reaching 78%
 statement coverage overall and 80% across the five algorithms, with every one
 of the twenty-one system quality requirements carrying a measurement, an
-acceptance value and a named test. Twenty-six UML diagrams are generated from
-versioned source, so no figure in this report can contradict the code it
-describes.
+acceptance value and a named test. Twenty-six UML diagrams are generated from versioned
+source, so no figure can drift from the code it describes.
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>

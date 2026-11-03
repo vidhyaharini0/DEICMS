@@ -204,7 +204,7 @@ the system had a scoping defect in every aggregate it had just built.
 | C2 | Document the model-unavailable path in the interface | Delivered |
 | C3 | **Adversarially test the authorisation boundary** | Raised in Sprint 4 - *after* the defect was found, not before |
 
-**C3 is recorded honestly as an action that came too late.** It was written
+**C3 was an action taken too late.** It was written
 during this retrospective as a general improvement and not acted on until
 Sprint 4 forced it. Chapter 9 records what that cost.
 
