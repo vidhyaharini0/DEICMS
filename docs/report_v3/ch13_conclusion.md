@@ -115,8 +115,8 @@ case-level membership, and a history that cannot be rewritten.
 **A process.** A development model chosen for stated reasons and judged
 against outcomes; a product backlog prioritised, refined and decomposed into
 tasks; requirements at two levels, each traced to a test; and twenty-six UML
-diagrams generated from versioned source, so that no figure can drift from the
-code it describes.
+diagrams written as text descriptions held in the repository beside the code,
+which the Definition of Done requires to be updated in the same commit.
 
 **A record of defect detection.** Three of the six sprints arose from defects
 found after acceptance: the scoping leak across every aggregate, the integrity

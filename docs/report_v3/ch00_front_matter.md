@@ -70,8 +70,9 @@ The delivered system comprises approximately 4,700 source lines across ten
 blueprints and six entities, verified by **216 automated tests** reaching 78%
 statement coverage overall and 80% across the five algorithms, with every one
 of the twenty-one system quality requirements carrying a measurement, an
-acceptance value and a named test. Twenty-six UML diagrams are generated from versioned
-source, so no figure can drift from the code it describes.
+acceptance value and a named test. Twenty-six UML diagrams are produced from text
+descriptions stored in the repository beside the code they illustrate, and the
+Definition of Done requires both to change together.
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>

@@ -54,8 +54,8 @@ Measured over the whole suite.
 | **Category C algorithms** | 892 | **80%** | The project's own logic, deliberately the focus |
 | Category B wrappers | 193 | 94% | Small surfaces, easily exercised |
 | Domain models | 225 | 87% | Constraints and guards |
-| Routes and interface | 1,161 | 71% | Form handling and rendering paths |
-| Other | 194 | 81% | Application setup, formulae, validators |
+| Routes and interface | 1,161 | 72% | Form handling and rendering paths |
+| Other | 194 | 80% | Application setup, formulae, validators |
 | **Total** | **2,665** | **78%** | |
 
 **Table 12.4 - The five Category C modules individually**
@@ -82,9 +82,10 @@ future work.
 
 ### 12.3.2 Why route coverage is lower
 
-Routes sit at 71%, pulled down by `auth.py` (44%), `evidence.py` (56%),
-`admin.py` (59%) and `cases.py` (59%). The uncovered paths are predominantly
-form re-rendering after validation failure and template branches.
+Routes sit at 72%, pulled down by `auth.py` (44%), `admin.py` (59%),
+`cases.py` (59%) and `evidence.py` (64%). The uncovered paths are
+predominantly form re-rendering after validation failure and template
+branches.
 
 Testing effort was directed at the algorithms rather than at rendering paths.
 A rendering defect is visible to the first user who encounters it, whereas an

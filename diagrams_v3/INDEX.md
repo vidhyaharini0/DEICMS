@@ -4,8 +4,9 @@ Twenty-two diagrams, every one of them UML. The previous set contained an
 entity-relationship diagram and block-style architecture figures, neither of
 which is UML notation; both have been replaced by UML equivalents.
 
-All diagrams are generated from the `.puml` source in this folder, so a
-diagram cannot drift from its description. Rendering:
+Each diagram is a `.puml` text file in this folder, versioned alongside the
+application code. Definition of Done condition 7 requires a diagram and the
+code it illustrates to change in the same commit. Rendering:
 
 ```
 java -jar plantuml.jar -tpng -o . *.puml

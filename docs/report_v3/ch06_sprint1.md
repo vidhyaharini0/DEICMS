@@ -172,9 +172,10 @@ drawn, because nothing required them to move together.
 | A2 | Fix the canonical signature payload before any signing code is written | §7.5 |
 | A3 | **Add "diagrams updated in the same commit" to the Definition of Done** | Table 4.8, condition 7 |
 
-Action A3 is the one with the longest reach: it is why the diagrams in this
-report are generated from versioned source rather than redrawn, and therefore
-why no figure here can contradict the code it describes.
+Action A3 has the longest reach. Each diagram is written as a text
+description stored in the repository alongside the code, and a change to
+either must be accompanied by a change to the other in the same commit. The
+figures are regenerated from those descriptions rather than redrawn by hand.
 
 ---
 

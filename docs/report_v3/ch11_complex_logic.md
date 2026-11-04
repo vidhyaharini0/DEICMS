@@ -331,10 +331,10 @@ permitted transitions, each mapping an ordered pair of states to the functions
 entitled to make it and the preconditions that must hold.
 
 Expressing the policy as data rather than as branching code has three
-consequences that matter: the whole policy is auditable in one place; adding a
-transition is a data change rather than a code change; and the policy can be
-rendered directly as **Figure 15** (state machine diagram) without a human
-transcribing it, so the diagram cannot drift from the behaviour.
+consequences. The whole policy is auditable in one place; adding a transition
+is a data change rather than a code change; and the table can be read directly
+into **Figure 15** (state machine diagram) without a human transcribing the
+behaviour from scattered conditionals.
 
 ### 11.5.3 The validation pipeline
 

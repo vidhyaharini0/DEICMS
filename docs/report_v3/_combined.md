@@ -70,8 +70,9 @@ The delivered system comprises approximately 4,700 source lines across ten
 blueprints and six entities, verified by **216 automated tests** reaching 78%
 statement coverage overall and 80% across the five algorithms, with every one
 of the twenty-one system quality requirements carrying a measurement, an
-acceptance value and a named test. Twenty-six UML diagrams are generated from versioned
-source, so no figure can drift from the code it describes.
+acceptance value and a named test. Twenty-six UML diagrams are produced from text
+descriptions stored in the repository beside the code they illustrate, and the
+Definition of Done requires both to change together.
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
@@ -1455,9 +1456,10 @@ drawn, because nothing required them to move together.
 | A2 | Fix the canonical signature payload before any signing code is written | §7.5 |
 | A3 | **Add "diagrams updated in the same commit" to the Definition of Done** | Table 4.8, condition 7 |
 
-Action A3 is the one with the longest reach: it is why the diagrams in this
-report are generated from versioned source rather than redrawn, and therefore
-why no figure here can contradict the code it describes.
+Action A3 has the longest reach. Each diagram is written as a text
+description stored in the repository alongside the code, and a change to
+either must be accompanied by a change to the other in the same commit. The
+figures are regenerated from those descriptions rather than redrawn by hand.
 
 ---
 
@@ -2634,10 +2636,10 @@ permitted transitions, each mapping an ordered pair of states to the functions
 entitled to make it and the preconditions that must hold.
 
 Expressing the policy as data rather than as branching code has three
-consequences that matter: the whole policy is auditable in one place; adding a
-transition is a data change rather than a code change; and the policy can be
-rendered directly as **Figure 15** (state machine diagram) without a human
-transcribing it, so the diagram cannot drift from the behaviour.
+consequences. The whole policy is auditable in one place; adding a transition
+is a data change rather than a code change; and the table can be read directly
+into **Figure 15** (state machine diagram) without a human transcribing the
+behaviour from scattered conditionals.
 
 ### 11.5.3 The validation pipeline
 
@@ -2859,8 +2861,8 @@ Measured over the whole suite.
 | **Category C algorithms** | 892 | **80%** | The project's own logic, deliberately the focus |
 | Category B wrappers | 193 | 94% | Small surfaces, easily exercised |
 | Domain models | 225 | 87% | Constraints and guards |
-| Routes and interface | 1,161 | 71% | Form handling and rendering paths |
-| Other | 194 | 81% | Application setup, formulae, validators |
+| Routes and interface | 1,161 | 72% | Form handling and rendering paths |
+| Other | 194 | 80% | Application setup, formulae, validators |
 | **Total** | **2,665** | **78%** | |
 
 **Table 12.4 - The five Category C modules individually**
@@ -2887,9 +2889,10 @@ future work.
 
 ### 12.3.2 Why route coverage is lower
 
-Routes sit at 71%, pulled down by `auth.py` (44%), `evidence.py` (56%),
-`admin.py` (59%) and `cases.py` (59%). The uncovered paths are predominantly
-form re-rendering after validation failure and template branches.
+Routes sit at 72%, pulled down by `auth.py` (44%), `admin.py` (59%),
+`cases.py` (59%) and `evidence.py` (64%). The uncovered paths are
+predominantly form re-rendering after validation failure and template
+branches.
 
 Testing effort was directed at the algorithms rather than at rendering paths.
 A rendering defect is visible to the first user who encounters it, whereas an
@@ -3112,8 +3115,8 @@ case-level membership, and a history that cannot be rewritten.
 **A process.** A development model chosen for stated reasons and judged
 against outcomes; a product backlog prioritised, refined and decomposed into
 tasks; requirements at two levels, each traced to a test; and twenty-six UML
-diagrams generated from versioned source, so that no figure can drift from the
-code it describes.
+diagrams written as text descriptions held in the repository beside the code,
+which the Definition of Done requires to be updated in the same commit.
 
 **A record of defect detection.** Three of the six sprints arose from defects
 found after acceptance: the scoping leak across every aggregate, the integrity
