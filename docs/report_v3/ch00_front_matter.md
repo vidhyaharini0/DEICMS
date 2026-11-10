@@ -1,29 +1,36 @@
-::: {custom-style="TitlePage"}
-University of Messina
+**Software Engineering Project Report**
 
-Department of Mathematics, Computer Sciences,
-Physical Sciences and Earth Sciences (MIFT)
+![](../../extracted_images/00_university_logo.jpg){width=2.1in}
 
-Bachelor's Degree in Data Analysis
+**University of Messina**
+
+**Department of Mathematics, Computer Sciences, Physical Sciences and Earth Sciences (MIFT)**
+
+**Bachelor's Degree in Data Analysis**
+
+&nbsp;
 
 **DEICMS**
 
-Digital Evidence Integrity & Chain-of-Custody Management System
+**Digital Evidence Integrity & Chain-of-Custody Management System**
 
-Agile Incremental Model - Scrum
+**Agile Incremental Model - Scrum**
 
-Software Engineering Project Report
+&nbsp;
 
-Submitted to: Prof. Salvatore Distefano
+&nbsp;
 
-Prepared by: Vidhya Harini Vijayarajan Sangeetha
+Prof. Salvatore Distefano
 
-Student ID: 533994
+&nbsp;
 
-Academic Year: 2025 / 2026
+Vidhya Harini Vijayarajan Sangeetha
 
-Revised Submission - November 2026
-:::
+533994
+
+&nbsp;
+
+A.Y. 2025 / 2026
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
@@ -36,20 +43,20 @@ that tampering with an exhibit is either impossible or evident, every action
 is attributable to the person who performed it, and the system's own history
 cannot be rewritten.
 
-The system is organised around **five guarantees**: an exhibit's content can
+The system is organized around **five guarantees**: an exhibit's content can
 be shown unchanged since intake or shown precisely where it changed; a person
 sees only the investigations they are assigned to, in every view without
 exception; the record of what happened is complete and unalterable; an exhibit
-moves only as its procedure permits; and exhibits can be prioritised by the
+moves only as its procedure permits; and exhibits can be prioritized by the
 attention they need, with the reasoning exposed.
 
-Its functionality is categorised across the three required categories and
+Its functionality is categorized across the three required categories and
 **self-assessed for balance on four independent measures**. Thirty
-data-oriented functionalities realise the entity model and its formulae.
+data-oriented functionalities realize the entity model and its formulae.
 Eleven third-party integrations are consumed as they are, with the boundary
 stated in each case. **Five algorithms are designed and implemented in this
 project**: chain integrity verification over a directed acyclic graph of
-custody events, multi-factor risk assessment with per-indicator normalisation
+custody events, multi-factor risk assessment with per-indicator normalization
 and bounded interaction effects, heuristic custody-chain reconstruction that
 declines to infer below a plausibility threshold, a role-gated
 precondition-constrained lifecycle automaton, and a six-stage orchestration
@@ -61,9 +68,9 @@ Development followed **Scrum**, an agile incremental framework, across six
 sprints. Three delivered the planned system; the remaining three each arose
 from a defect found after acceptance, by adversarial testing, by structured
 code reading, and by audit against the specification respectively. The report
-is organised with **one chapter per sprint**, each carrying that sprint's
+is organized with **one chapter per sprint**, each carrying that sprint's
 backlog, tasks, UML models, tests, burndown, review and retrospective, with a
-dedicated chapter describing each complex algorithm through UML behavioural
+dedicated chapter describing each complex algorithm through UML behavioral
 diagrams.
 
 The delivered system comprises approximately 4,700 source lines across ten

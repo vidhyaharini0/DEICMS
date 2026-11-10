@@ -32,9 +32,9 @@ as a lifecycle (Section 4.1.2).
 | `test_increment3` | 93 | Risk assessment, assistant, second factor, encryption, export |
 | `test_increment2` | 17 | Signing, integrity verification, lifecycle, reconstruction |
 | `test_integration` | 16 | End-to-end flows across modules |
-| `test_scoping` | 14 | Adversarial authorisation across every aggregate |
-| `test_day2` | 12 | Early foundation behaviour |
-| `test_increment1` | 10 | Authentication, authorisation, registration, audit |
+| `test_scoping` | 14 | Adversarial authorization across every aggregate |
+| `test_day2` | 12 | Early foundation behavior |
+| `test_increment1` | 10 | Authentication, authorization, registration, audit |
 | `test_intent_classifier` | 10 | Seven intents, UNKNOWN, tie-breaking |
 | **`test_nfr`** | **44** | **All 21 system quality requirements** |
 | **Total** | **216** | |
@@ -73,7 +73,7 @@ Measured over the whole suite.
 `chain_reconstruction.py` reaches 65% because its plausibility function has
 four criteria, each of which may be present or absent depending on the data
 available, giving sixteen combinations of live criteria before the threshold
-decision is even reached. The tests cover the four that occur in realistic
+decision is even reached. The tests cover the four that occur in realiztic
 data and the two boundary cases either side of the threshold; the remainder
 are untested.
 
@@ -156,9 +156,9 @@ verify what they describe and nothing further.
 | Concurrency | Single-process development; no load harness | Sequential identifier allocation is unverified under concurrent registration |
 | Load and volume | No performance environment | Measured scaling is analytic-scale, not production-scale |
 | Penetration testing | Out of scope and beyond the author's competence to do credibly | Controls are tested individually, not probed as a whole |
-| Live model behaviour | The suite forbids network access | Only the pipeline is verified, never a real reply |
+| Live model behavior | The suite forbids network access | Only the pipeline is verified, never a real reply |
 | Real users | No external customer | Usability is argued, never observed |
-| Browser rendering | No browser automation | Interface behaviour verified server-side only |
+| Browser rendering | No browser automation | Interface behavior verified server-side only |
 
 The last two bear on validation rather than verification, which is the subject
 of the next section.

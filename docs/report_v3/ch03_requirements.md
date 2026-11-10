@@ -17,12 +17,12 @@ becomes unusable.
 | Reader | The investigating authority commissioning the system | The developer building it, and the tester verifying it |
 | Question answered | What must we be able to do, and what must be true of the system? | What exactly must the software do, and how will we know it does? |
 | Language | The reader's own vocabulary - exhibit, custody, investigation | Precise, bounded, countable |
-| Abstraction | One statement covers a whole capability | One statement covers one checkable behaviour |
+| Abstraction | One statement covers a whole capability | One statement covers one checkable behavior |
 | Count | 22 functional + 9 quality | 61 functional + 21 quality |
 | Testable directly? | No - too coarse | **Yes - each carries an acceptance criterion and a named test** |
 
 Every system requirement derives from exactly one user requirement, and every
-user requirement is realised by at least one system requirement. The
+user requirement is realized by at least one system requirement. The
 traceability runs forward from there: requirement to user story, user story to
 sprint, sprint to module, module to test. The full chain is given in
 Section 3.9 and carried in the right-hand columns of Tables 3.3 and 3.7.
@@ -44,7 +44,7 @@ difference between the two columns below carries the principle.
 | "compute a SHA-256 fingerprint at upload" | **UR-06 / SR-13:** the system shall be able to determine, at any later time, whether the stored content of an exhibit differs in any way from the content registered at intake | §5.3 - cryptographic hash function selection |
 | "sign every transfer with the outgoing investigator's Ed25519 private key" | **UR-09 / SR-23:** the system shall enable any holder of a custody record to establish which investigator created it and whether it has been altered since | §5.4 - signature scheme selection |
 | "flag outliers with an Isolation Forest" | **UR-13 / SR-44:** the system shall identify exhibits whose handling pattern differs markedly from the rest of the population | §11.7 - anomaly detection approach |
-| "encrypt stored files with AES-256-GCM" | **UR-18 / SR-48:** the system shall ensure that evidence content is unintelligible to anyone obtaining the storage medium without authorisation | §5.5 - encryption scheme selection |
+| "encrypt stored files with AES-256-GCM" | **UR-18 / SR-48:** the system shall ensure that evidence content is unintelligible to anyone obtaining the storage medium without authorization | §5.5 - encryption scheme selection |
 | "support TOTP two-factor authentication" | **UR-01 / SR-47:** the system shall allow an account to require a second, independently held factor before granting access | §5.6 - second-factor mechanism |
 | "fit the model via the NVIDIA NIM endpoint" | **UR-15 / SR-40:** the system shall answer questions posed in ordinary language using only the records the questioner is entitled to see | §11.6 - language model procurement |
 
@@ -82,7 +82,7 @@ a mechanism.
 
 **Table 3.4 - User requirements**
 
-| ID | Requirement | Realised by |
+| ID | Requirement | Realized by |
 |---|---|---|
 | UR-01 | Investigators must identify themselves before using the system, and the system must not help an outsider discover which accounts exist | SR-01 to SR-03, SR-47 |
 | UR-02 | A person's access must be confined to what their function requires | SR-04 to SR-06 |
@@ -100,8 +100,8 @@ a mechanism.
 | UR-14 | The authority must be able to change what it considers risky without the software being rebuilt | SR-39 |
 | UR-15 | Investigators must be able to ask about a case in ordinary language and receive answers drawn from the actual records | SR-40 to SR-42, SR-53 |
 | UR-16 | An answer must never assert anything not present in the records it was drawn from | SR-43 |
-| UR-17 | Accounts must be created only by a person authorised to create them | SR-21, SR-22 |
-| UR-18 | Evidence content must remain unintelligible to anyone who obtains the storage medium without authorisation | SR-48 |
+| UR-17 | Accounts must be created only by a person authorized to create them | SR-21, SR-22 |
+| UR-18 | Evidence content must remain unintelligible to anyone who obtains the storage medium without authorization | SR-48 |
 | UR-19 | An investigator must be able to hand a complete case to an outside party who can verify it without access to this system | SR-49, SR-50 |
 | UR-20 | The system must remain useful, in reduced form, when an external service it depends on is unavailable | SR-42 |
 | UR-21 | The system must remain usable as the number of cases and exhibits grows | SR-57, SR-58 |
@@ -130,9 +130,9 @@ tester. Section 3.7 converts each into statements that can pass or fail.
 
 ## 3.5 System Requirements - Functional
 
-Each row is a single checkable behaviour, traced back to its user requirement
+Each row is a single checkable behavior, traced back to its user requirement
 and forward to the sprint that delivered it, the user story that carried it,
-and the test that verifies it. Category is the feature categorisation of
+and the test that verifies it. Category is the feature categorization of
 Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 
 **Table 3.6 - System functional requirements**
@@ -145,7 +145,7 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-04 | The system shall assign each account exactly one of four functions: administration, investigation leadership, analysis, or review | UR-02 | A | Must | 1 | US-02 | `test_increment1` |
 | SR-05 | The system shall verify the required function on every operation, refusing with an explanation rather than failing silently | UR-02 | A | Must | 1 | US-02 | `test_increment1`, `test_scoping` |
 | SR-06 | The system shall prevent an account limited to review from causing any change of state | UR-02 | A | Must | 1 | US-02 | `test_scoping` |
-| SR-07 | The system shall allow an authorised account to create, search, amend and close an investigation | UR-04 | A | Must | 1 | US-03 | `test_increment1` |
+| SR-07 | The system shall allow an authorized account to create, search, amend and close an investigation | UR-04 | A | Must | 1 | US-03 | `test_increment1` |
 | SR-08 | The system shall treat closure as a reversible marking that destroys no data | UR-04 | A | Must | 1 | US-03 | `test_increment1` |
 | SR-09 | The system shall confine each account's view of investigations to those it is assigned to | UR-03 | A | Must | 1, M1 | US-02, US-28 | `test_scoping` |
 | SR-10 | The system shall accept for registration only content of permitted kinds, and refuse all others | UR-05 | A | Must | 1 | US-04 | `test_increment1` |
@@ -153,7 +153,7 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-12 | The system shall create the first custody record in the same indivisible operation as the exhibit, so that no exhibit can exist without a custody history | UR-05 | A | Must | 1 | US-04 | `test_increment1` |
 | SR-13 | The system shall derive from the content at registration a value that changes if the content changes, store it, and never alter it thereafter | UR-06 | B | Must | 1 | US-05 | `test_increment1` |
 | SR-14 | The system shall determine the actual kind of registered content from the content itself, and refuse it where this contradicts its declared kind | UR-05 | B | Must | 1, 3 | US-06, US-25 | `test_increment1`, `test_increment3` |
-| SR-15 | The system shall allow an authorised account to amend an exhibit's description and classification while leaving its content and derived values untouched | UR-05 | A | Must | 1 | US-07 | `test_increment1` |
+| SR-15 | The system shall allow an authorized account to amend an exhibit's description and classification while leaving its content and derived values untouched | UR-05 | A | Must | 1 | US-07 | `test_increment1` |
 | SR-16 | The system shall record each passage of an exhibit with the parties, the moment, the place and the reason | UR-07 | A | Must | 1 | US-08 | `test_increment1` |
 | SR-17 | The system shall permit only the present custodian or an administrator to pass an exhibit on | UR-07 | A | Must | 1 | US-08 | `test_increment2` |
 | SR-18 | The system shall record every access, attempt, amendment and administrative act with actor, origin, moment and outcome | UR-08 | A | Must | 1 | US-09 | `test_increment1` |
@@ -178,7 +178,7 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-37 | The system shall combine the indicators by weighted summation, amplified where stated combinations co-occur, with the amplification bounded | UR-13 | **C** | Must | 3 | US-18 | `test_increment3` |
 | SR-38 | The system shall place the combined value in a band and accompany it with the contribution of each indicator and the actions it suggests | UR-13 | **C** | Must | 3 | US-18 | `test_increment3` |
 | SR-39 | The system shall allow an administrator to alter the indicator weights and the band boundaries, restoring the weights to a unit total and requiring the boundaries to increase strictly | UR-14 | **C**/A | Should | 3 | US-19 | `test_increment3` |
-| SR-40 | The system shall determine the purpose of a question posed in ordinary language among a closed set of purposes, and shall recognise when it cannot | UR-15 | **C** | Must | 3 | US-20 | `test_intent_classifier` |
+| SR-40 | The system shall determine the purpose of a question posed in ordinary language among a closed set of purposes, and shall recognize when it cannot | UR-15 | **C** | Must | 3 | US-20 | `test_intent_classifier` |
 | SR-41 | The system shall gather the records relevant to the determined purpose, confined to the investigations the questioner is assigned to, before any answer is composed | UR-15, UR-03 | **C** | Must | 3, M1 | US-20, US-29 | `test_scoping` |
 | SR-42 | The system shall answer from the gathered records alone when no external service is available, stating that it has done so | UR-20 | **C** | Must | 3 | US-20 | `test_nfr`, `test_increment3` |
 | SR-43 | The system shall check every identifier and name appearing in an answer against the records gathered, and shall mark any that does not appear | UR-16 | **C** | Must | 3 | US-21 | `test_increment3` |
@@ -272,15 +272,19 @@ and 3.7. Its six links are: a **user requirement** is derived into one or more
 **system requirements**; each system requirement is carried by a **user
 story**; each user story is scheduled into a **sprint**; each sprint
 implements it in a **module**; and each module is verified by a named
-**test**. The relationships between these artefacts are modelled formally as a
-UML class diagram in Figure 3.1, so that the traceability structure is itself
-expressed in the notation the rest of the report uses.
+**test**. These relationships are modeled as a UML class diagram in
+Figure 3.1.
+
+![](../../diagrams_v3/22_class_traceability.png)
+
+**Figure 3.1 - Traceability metamodel.**
+
 
 **Table 3.9 - Coverage**
 
 | Check | Result |
 |---|---|
-| User requirements realised by at least one system requirement | 22 of 22 |
+| User requirements realized by at least one system requirement | 22 of 22 |
 | System functional requirements traced to a user requirement | 61 of 61 |
 | System functional requirements carried by a user story | 61 of 61 |
 | System quality requirements with a measurement and acceptance criterion | 21 of 21 |
@@ -293,7 +297,7 @@ Two failures in the requirements process are given below with their causes.
 
 **Negative requirements were scoped to the surfaces their author had in
 mind.** UR-03 and SNF-01 were stated correctly from the outset, but the system
-requirements realising them addressed record access alone. Aggregates -
+requirements realizing them addressed record access alone. Aggregates -
 counts, charts, rankings, exports, generated answers - were not enumerated, and
 so were not protected. The requirement was right; its scope of application was
 incomplete. SR-51 exists because of this, and the maintenance iteration M1 is

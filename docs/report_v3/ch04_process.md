@@ -22,12 +22,12 @@ against what was hoped.
 | Technical risk | Concentrated in five custom algorithms | Risk must be attacked early, not deferred |
 | Dependency structure | Strongly ordered: data → integrity → assessment | Later work genuinely needs earlier work running |
 | Delivery horizon | Fixed academic deadline | Scope must flex; the date cannot |
-| Required evidence | Planning and reflection artefacts | The process must produce documents as a by-product |
+| Required evidence | Planning and reflection artifacts | The process must produce documents as a by-product |
 
 The third and fourth rows dominate. The data layer could have been specified
 completely before a line was written: six entities, their relationships, their
 constraints. The five algorithms could not. The traversal semantics of the
-integrity verifier, the normalisation curve for each risk indicator, the
+integrity verifier, the normalization curve for each risk indicator, the
 plausibility criteria for reconstruction - none of these could be settled
 on paper, because settling them required running them against data.
 
@@ -39,10 +39,10 @@ on paper, because settling them required running them against data.
 |---|---|---|
 | **Waterfall** | Requires requirements frozen before design. Would have frozen the algorithms' design at the point of least knowledge, and the integrity verifier's semantics did in fact change under implementation | **Rejected** - the known-volatile part is the part it freezes hardest |
 | **V-model** | Waterfall's discipline with test levels paired to construction phases. The pairing is valuable and was retained (Chapter 9); the rigid sequencing was not | **Rejected as a lifecycle, adopted as a test strategy** |
-| **Incremental** | Builds in slices, each adding capability. Matches the dependency order well. But prescribes no artefacts for planning or reflection | **Necessary but not sufficient** |
+| **Incremental** | Builds in slices, each adding capability. Matches the dependency order well. But prescribes no artifacts for planning or reflection | **Necessary but not sufficient** |
 | **Spiral** | Risk-driven, with explicit risk analysis each cycle. Well matched to the algorithmic risk, but its ceremony is calibrated for large systems with real stakeholder negotiation | **Rejected as disproportionate** |
 | **Extreme Programming** | Test-first development, refactoring, small releases, simple design. All directly applicable and all adopted as practices | **Adopted as practices within the chosen framework** |
-| **Scrum** | An incremental framework with defined artefacts - product backlog, sprint backlog, increment - and defined events. Provides exactly the planning and reflection structure incremental development lacks | **Selected** |
+| **Scrum** | An incremental framework with defined artifacts - product backlog, sprint backlog, increment - and defined events. Provides exactly the planning and reflection structure incremental development lacks | **Selected** |
 
 ### 4.1.3 The decision, and its relation to the project proposal
 
@@ -52,13 +52,13 @@ carrying its own user stories, diagrams and retrospective.
 
 Scrum is an agile incremental framework. The proposal named the family; this
 chapter names the member of that family and, more importantly, commits to
-implementing its artefacts rather than borrowing its vocabulary. **That
+implementing its artifacts rather than borrowing its vocabulary. **That
 distinction is the substance of the revision.** An earlier version of this
 report used Scrum terms - sprint, backlog, retrospective - over a process that
-had no prioritised product backlog, no refinement between sprints, and no
+had no prioritized product backlog, no refinement between sprints, and no
 decomposition of stories into tasks. Using the vocabulary without the
-artefacts is worse than not using it, because it claims a discipline that was
-not practised.
+artifacts is worse than not using it, because it claims a discipline that was
+not practiced.
 
 **Table 4.3 - Four reasons Scrum was selected**
 
@@ -67,7 +67,7 @@ not practised.
 | R1 | Technical risk sits in work that cannot be specified in advance; Scrum commits only one sprint at a time | Waterfall and the V-model commit the whole design at the point of least knowledge |
 | R2 | The three capability tiers have a genuine dependency order that rewards building in slices | A single big-bang delivery would leave integration untested until the end |
 | R3 | Feedback between sprints should change the next sprint's plan, through a retrospective whose actions are binding | Incremental development alone prescribes no reflection step |
-| R4 | The process must leave behind backlogs, burndowns, reviews and retrospectives as evidence | Spiral produces risk analyses rather than these; plain incremental produces none |
+| R4 | The process must leave behind backlogs, burndowns, reviews and retrospectives as evidence | Spiral produces risk analyzes rather than these; plain incremental produces none |
 
 Chapter 13 returns to this table and assesses each reason against the outcome.
 
@@ -97,7 +97,7 @@ section states exactly what was done.
 | Backlog Refinement | **Yes** | Performed between sprints; the backlog's version history is in Table 4.9 |
 
 **The honest conclusion.** Four of Scrum's five events survive adaptation
-because they operate on *artefacts*, which exist regardless of team size. The
+because they operate on *artifacts*, which exist regardless of team size. The
 Daily Scrum does not, because it operates on *communication between people*.
 Claiming to have held it would be the clearest possible example of vocabulary
 without substance, which is the fault this revision exists to correct.
@@ -118,7 +118,7 @@ front.
 | User requirements (22) and user quality requirements (9) | Tables 3.4, 3.5 | The product backlog is derived from them |
 | System requirements (61) and system quality requirements (21) | Tables 3.6, 3.7 | Acceptance criteria come from here |
 | Domain requirements (7) | Table 3.8 | Non-negotiable; must constrain every sprint |
-| Conceptual data model | Figure 5.2 | Six entities stable from the outset; no benefit in discovering them incrementally |
+| Conceptual data model | Figure 5.7 | Six entities stable from the outset; no benefit in discovering them incrementally |
 | Architectural decision: layered, with business logic isolated | Chapter 5 | A structural decision expensive to reverse later |
 | Definition of Ready and Definition of Done | Tables 4.7, 4.8 | A sprint cannot start or finish without them |
 
@@ -152,7 +152,7 @@ distinction drawn in Section 4.1.1.
 | 3 | The whole suite passes, not only the new tests |
 | 4 | Business logic contains no interface-layer dependency (SNF-11) |
 | 5 | The action is recorded in the audit trail where it changes state |
-| 6 | Authorisation enforced at the route, not only hidden in the interface |
+| 6 | Authorization enforced at the route, not only hidden in the interface |
 | 7 | Diagrams affected by the change updated in the same commit |
 
 Condition 7 was added after Sprint 1, where diagrams drifted from the code
@@ -174,10 +174,10 @@ while US-11 is a 1-point Must and US-22 is a 5-point Could.
 
 | Rank | ID | User story | Traces to | Cat | MoSCoW | Pts |
 |---|---|---|---|---|---|---|
-| 1 | US-01 | As an investigator, I want to sign in securely, so that only authorised people reach case data | SR-01 to SR-03 | A | Must | 3 |
+| 1 | US-01 | As an investigator, I want to sign in securely, so that only authorized people reach case data | SR-01 to SR-03 | A | Must | 3 |
 | 2 | US-02 | As an administrator, I want access limited by function, so that nobody exceeds their remit | SR-04 to SR-06, SR-09 | A | Must | 5 |
 | 3 | US-11 | As an administrator, I want to be the only one who can create accounts, so that access is controlled at source | SR-21, SR-22 | A | Must | 1 |
-| 4 | US-03 | As a lead investigator, I want to open, find and close investigations, so that work is organised | SR-07, SR-08 | A | Must | 5 |
+| 4 | US-03 | As a lead investigator, I want to open, find and close investigations, so that work is organized | SR-07, SR-08 | A | Must | 5 |
 | 5 | US-04 | As an investigator, I want to register an exhibit, so that it enters the system under control | SR-10 to SR-12 | A | Must | 5 |
 | 6 | US-05 | As an auditor, I want each exhibit fingerprinted at intake, so that later change is detectable | SR-13 | B | Must | 2 |
 | 7 | US-08 | As an investigator, I want every handover recorded, so that the chain is unbroken | SR-16, SR-17 | A | Must | 5 |
@@ -195,7 +195,7 @@ while US-11 is a 1-point Must and US-22 is a 5-point Could.
 | 19 | US-20 | As an investigator, I want to ask questions in ordinary language, so that I need not learn the schema | SR-40 to SR-42 | **C** | Must | 8 |
 | 20 | US-21 | As an investigator, I want unsupported statements flagged, so that I do not act on invention | SR-43 | **C** | Must | 3 |
 | 21 | US-24 | As an administrator, I want a second authentication factor and lockout, so that stolen passwords are insufficient | SR-47 | B | Should | 5 |
-| 22 | US-25 | As a custodian, I want evidence unreadable without authorisation, so that losing the medium is not losing the case | SR-48 | B | Should | 3 |
+| 22 | US-25 | As a custodian, I want evidence unreadable without authorization, so that losing the medium is not losing the case | SR-48 | B | Should | 3 |
 | 23 | US-19 | As an administrator, I want to tune what counts as risky, so that the system matches our practice | SR-39 | **C**/A | Should | 3 |
 | 24 | US-23 | As a lead investigator, I want ranked and anomalous views, so that I can survey a caseload | SR-46 | A | Should | 3 |
 | 25 | US-26 | As an investigator, I want a verifiable export, so that a third party can check our work | SR-49 | B | Should | 2 |
@@ -266,7 +266,7 @@ Two entries in Table 4.10 deserve comment.
 
 **v2.0 records a change request, not a defect.** The aggregates leaked data
 across cases, but no requirement then in force said they must not - UR-03
-existed, but the system requirements realising it addressed record access
+existed, but the system requirements realizing it addressed record access
 only. Calling this a defect would blame the implementation for a gap in the
 specification. It was the requirement's scope that was incomplete, so it
 entered the backlog as new scope.
@@ -286,7 +286,7 @@ resolution.
 
 **Table 4.11 - From product backlog to task, with one worked example**
 
-| Level | Artefact | Example | Owned by |
+| Level | Artifact | Example | Owned by |
 |---|---|---|---|
 | 1 | Product backlog item | US-13: *verify the whole custody history* (13 pts) | Product Owner |
 | 2 | Acceptance criteria | Reports a verdict; locates **every** failure, not the first; gives a completeness proportion | Product Owner |
@@ -304,7 +304,7 @@ resolution.
 | T-13.5 | Implement the chronological examination | 3 | SR-26 |
 | T-13.6 | Accumulate failures without halting the walk | 4 | SR-26 |
 | T-13.7 | Compute the completeness proportion | 2 | SR-27 |
-| T-13.8 | Assemble the finding object and its serialised form | 3 | SR-27 |
+| T-13.8 | Assemble the finding object and its serialized form | 3 | SR-27 |
 | T-13.9 | Write failing tests for all three examination kinds first | 6 | DoD 2 |
 | T-13.10 | Update the sequence and activity diagrams | 2 | DoD 7 |
 | | **Total** | **39 h** | |

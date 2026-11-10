@@ -23,11 +23,11 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'docs', 'report_v3')
 DIAGRAMS = os.path.join(ROOT, 'diagrams_v3')
 CHARTS = os.path.join(DIAGRAMS, 'charts')
-OUT = os.path.join(ROOT, 'DEICMS_Project_Report_v3.docx')
+OUT = os.path.join(ROOT, 'DEICMS_Project_Report_v4.docx')
 REFERENCE = os.path.join(ROOT, 'reference_v2.docx')
 
 CHAPTERS = [
-    'ch00_front_matter.md', 'ch01_introduction.md', 'ch02_categorisation.md',
+    'ch00_front_matter.md', 'ch01_introduction.md', 'ch02_categorization.md',
     'ch03_requirements.md', 'ch04_process.md', 'ch05_architecture.md',
     'ch06_sprint1.md', 'ch07_sprint2.md', 'ch08_sprint3.md',
     'ch09_sprints45.md', 'ch10_sprint6.md', 'ch11_complex_logic.md',
@@ -44,37 +44,6 @@ FIGURE_PLACEHOLDERS = {
     '9.2':  os.path.join(CHARTS, 'burndown_sprint5.png'),
     '10.1': os.path.join(CHARTS, 'burndown_sprint6.png'),
 }
-
-# "Figure N" in the text refers to these diagrams, appended as a plate section
-DIAGRAM_ORDER = [
-    ('1',  '01_usecase_overview',        'Use Case Diagram - system overview'),
-    ('2',  '02_usecase_case_evidence',   'Use Case Diagram - cases and evidence'),
-    ('3',  '03_usecase_reading',         'Use Case Diagram - the Read-Only Viewer'),
-    ('4',  '04_usecase_analysis',        'Use Case Diagram - what each role adds'),
-    ('5',  '05_class_domain',            'Class Diagram - domain model with behaviour'),
-    ('6',  '06_class_persistent',        'Class Diagram - the schema as stereotyped classes'),
-    ('7',  '07_object_snapshot',         'Object Diagram - a flagged exhibit'),
-    ('8',  '08_package_layers',          'Package Diagram - layered architecture'),
-    ('9',  '09_component',               'Component Diagram - components and interfaces'),
-    ('10', '10_composite_verifier',      'Composite Structure - the integrity engine'),
-    ('11', '11_deployment',              'Deployment Diagram'),
-    ('12', '12_sequence_integrity',      'Sequence Diagram - integrity verification'),
-    ('13', '13_sequence_assistant',      'Sequence Diagram - assistant orchestration'),
-    ('14', '14_communication_risk',      'Communication Diagram - risk assessment'),
-    ('15', '15_state_evidence',          'State Machine - evidence lifecycle'),
-    ('16', '16_state_account',           'State Machine - account access'),
-    ('17', '17_activity_risk',           'Activity Diagram - risk assessment'),
-    ('18', '18_activity_reconstruction', 'Activity Diagram - chain reconstruction'),
-    ('19', '19_activity_upload',         'Activity Diagram - registration, with partitions'),
-    ('20', '20_timing_assistant',        'Timing Diagram - bounded waiting'),
-    ('21', '21_profile_stereotypes',     'Profile Diagram - stereotype declarations'),
-    ('22', '22_class_traceability',      'Class Diagram - traceability metamodel'),
-    ('23', '23_activity_integrity',      'Activity Diagram - integrity verification'),
-    ('24', '24_activity_state_machine',  'Activity Diagram - transition validation'),
-    ('25', '25_sequence_reconstruction', 'Sequence Diagram - chain reconstruction'),
-    ('26', '26_activity_assistant',      'Activity Diagram - assistant, six stages'),
-]
-
 
 def render_diagrams(jar):
     """Render every .puml to .png. Skips silently if the jar is absent."""
@@ -141,31 +110,16 @@ def substitute_figures(text):
     return re.sub(r'\*\*\[FIGURE ([\d.]+) - ([^\]]+)\]\*\*', repl, text)
 
 
-def diagram_plates():
-    """A plate section carrying the 26 UML figures, each with its caption."""
-    parts = ['# Appendix F - UML Diagram Plates\n',
-             '\nEvery diagram referenced as "Figure N" in the text. All are generated\n'
-             'from versioned PlantUML source in `diagrams_v3/`, so a diagram cannot\n'
-             'drift from the description it illustrates.\n\n']
-    missing = []
-    for num, stem, caption in DIAGRAM_ORDER:
-        png = os.path.join(DIAGRAMS, stem + '.png')
-        if not os.path.exists(png):
-            missing.append(stem)
-            continue
-        rel = os.path.relpath(png, SRC).replace('\\', '/')
-        parts.append(f'![]({rel})\n\n**Figure {num} - {caption}.**\n\n')
-    if missing:
-        print(f'  WARNING: {len(missing)} diagrams missing: {missing}')
-    return ''.join(parts)
-
-
 def set_table_column_widths(docx_path, usable_twips=9180):
     """
-    Write an explicit grid for every table.
+    Give every table an explicit grid, with column widths PROPORTIONAL to the
+    text each column actually carries.
 
-    pandoc emits an empty <w:tblGrid> when a table's longest content line is
-    under --columns, which Word renders as a single collapsed column.
+    Two problems are fixed here. pandoc emits an empty <w:tblGrid> when a
+    table's longest content line is under --columns, which Word renders as one
+    collapsed column. And dividing the width evenly makes a prose column wrap
+    into a thin ribbon beside seven short ones, which turns a one-line row
+    into half a page.
     """
     try:
         from docx import Document
@@ -177,7 +131,27 @@ def set_table_column_widths(docx_path, usable_twips=9180):
     doc = Document(docx_path)
     for table in doc.tables:
         ncol = len(table.columns) or 1
-        each = int(usable_twips / ncol)
+
+        # mean characters per column, with the header counted once
+        means = []
+        for c in range(ncol):
+            lengths = []
+            for r, row in enumerate(table.rows):
+                cells = row.cells
+                if c < len(cells):
+                    lengths.append(len(cells[c].text.strip()))
+            means.append(max(4.0, sum(lengths) / max(1, len(lengths))))
+
+        # damp the spread so one huge column cannot starve the rest
+        weights = [m ** 0.6 for m in means]
+        total_w = sum(weights)
+        min_tw = int(usable_twips * 0.075)          # ~7.5% floor per column
+        widths = [max(min_tw, int(usable_twips * w / total_w)) for w in weights]
+        # rescale so the row still sums to the usable width
+        scale = usable_twips / sum(widths)
+        widths = [int(w * scale) for w in widths]
+        widths[-1] += usable_twips - sum(widths)
+
         tblPr = table._tbl.tblPr
         for tag in ('tblW', 'tblLayout'):
             for el in tblPr.findall(qn('w:' + tag)):
@@ -186,22 +160,116 @@ def set_table_column_widths(docx_path, usable_twips=9180):
         tblPr.append(w)
         lay = OxmlElement('w:tblLayout'); lay.set(qn('w:type'), 'fixed')
         tblPr.append(lay)
+
         for g in table._tbl.findall(qn('w:tblGrid')):
             table._tbl.remove(g)
         grid = OxmlElement('w:tblGrid')
-        for _ in range(ncol):
-            gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), str(each)); grid.append(gc)
+        for tw in widths:
+            gc = OxmlElement('w:gridCol'); gc.set(qn('w:w'), str(tw)); grid.append(gc)
         table._tbl.insert(1, grid)
+
         for row in table.rows:
-            for cell in row.cells:
+            for i, cell in enumerate(row.cells):
+                if i >= ncol:
+                    continue
                 tcPr = cell._tc.get_or_add_tcPr()
                 for el in tcPr.findall(qn('w:tcW')):
                     tcPr.remove(el)
                 tcW = OxmlElement('w:tcW')
-                tcW.set(qn('w:w'), str(each)); tcW.set(qn('w:type'), 'dxa')
+                tcW.set(qn('w:w'), str(widths[i])); tcW.set(qn('w:type'), 'dxa')
                 tcPr.append(tcW)
     doc.save(docx_path)
-    print(f'  set explicit widths on {len(doc.tables)} tables')
+    print(f'  proportional widths on {len(doc.tables)} tables')
+
+
+def format_title_page(docx_path, logo=None):
+    """
+    Centre everything before the first page break and strip heading styles
+    so the title page does not list itself in the table of contents.
+    """
+    from docx import Document
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    doc = Document(docx_path)
+    for p in doc.paragraphs:
+        if p._p.findall('.//' + qn('w:br')):
+            if any(b.get(qn('w:type')) == 'page' for b in p._p.findall('.//' + qn('w:br'))):
+                break
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        if p.style.name.startswith('Heading') or p.style.name == 'Title':
+            p.style = doc.styles['Normal']
+    doc.save(docx_path)
+    print('  title page centred')
+
+
+def justify_body(docx_path):
+    """
+    Justify body paragraphs. Headings, captions, figures and code keep their
+    own alignment - justifying a one-line caption stretches it across the page.
+    """
+    from docx import Document
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    doc = Document(docx_path)
+    seen_break = False
+    n = 0
+    for p in doc.paragraphs:
+        if not seen_break:
+            if any(b.get(qn('w:type')) == 'page'
+                   for b in p._p.findall('.//' + qn('w:br'))):
+                seen_break = True
+            continue
+        style = p.style.name
+        text = p.text.strip()
+        if style.startswith('Heading') or style in ('Title', 'Subtitle'):
+            continue
+        if style in ('Source Code', 'Verbatim Char', 'Code', 'HTML Preformatted'):
+            continue
+        if p._p.findall('.//' + qn('w:drawing')):          # a figure
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            continue
+        if text.startswith('Figure ') or text.startswith('Table ') \
+           or text.startswith('Listing '):                 # captions
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            continue
+        if len(text) < 60:
+            continue
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        n += 1
+    doc.save(docx_path)
+    print(f'  justified {n} body paragraphs')
+
+
+def add_table_borders(docx_path):
+    """Single hairline borders on every cell of every table."""
+    from docx import Document
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    doc = Document(docx_path)
+    for table in doc.tables:
+        tblPr = table._tbl.tblPr
+        for el in tblPr.findall(qn('w:tblBorders')):
+            tblPr.remove(el)
+        borders = OxmlElement('w:tblBorders')
+        for edge in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            e = OxmlElement('w:' + edge)
+            e.set(qn('w:val'), 'single')
+            e.set(qn('w:sz'), '4')          # 0.5pt
+            e.set(qn('w:space'), '0')
+            e.set(qn('w:color'), '000000')
+            borders.append(e)
+        tblPr.append(borders)
+        # header row repeats across pages, and no row splits across a page
+        for i, row in enumerate(table.rows):
+            trPr = row._tr.get_or_add_trPr()
+            for tag in ('cantSplit', 'tblHeader'):
+                for el in trPr.findall(qn('w:' + tag)):
+                    trPr.remove(el)
+            cant = OxmlElement('w:cantSplit'); trPr.append(cant)
+            if i == 0:
+                hdr = OxmlElement('w:tblHeader'); trPr.append(hdr)
+    doc.save(docx_path)
+    print(f'  bordered {len(doc.tables)} tables')
 
 
 def main():
@@ -229,7 +297,6 @@ def main():
             '```{=openxml}\n<w:p><w:r><w:br w:type="page"/></w:r></w:p>\n```')
         merged.append(text)
         print(f'  {name:28s} {len(text.split()):6,} words')
-    merged.append(diagram_plates())
 
     combined = os.path.join(SRC, '_combined.md')
     open(combined, 'w', encoding='utf-8').write('\n\n'.join(merged))
@@ -248,6 +315,9 @@ def main():
 
     print('Post-processing...')
     set_table_column_widths(OUT)
+    add_table_borders(OUT)
+    justify_body(OUT)
+    format_title_page(OUT)
     size = os.path.getsize(OUT) / 1024 / 1024
     print(f'\nWrote {OUT}  ({size:.1f} MB)')
     print('\nIn Word: select all (Ctrl+A), press F9, choose "Update entire table"')

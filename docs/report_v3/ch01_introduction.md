@@ -34,7 +34,7 @@ verifying a chain of custody, ranking exhibits by the attention they need,
 reconstructing a history with gaps in it (Category C).
 
 The domain was chosen because its hardest problems are algorithmic rather
-than merely procedural. Chapter 2 gives the categorisation across the three
+than merely procedural. Chapter 2 gives the categorization across the three
 feature categories and assesses its balance.
 
 ## 1.3 The Five Guarantees
@@ -49,7 +49,7 @@ Everything the system does serves one of five guarantees. The chapters that foll
 | **G2** | A person sees only the investigations they are assigned to, in every view without exception | Any surface - detail, aggregate, export, generated answer - returning data from an unassigned investigation |
 | **G3** | The system's record of its own history is complete and cannot be amended | An action that leaves no record, or a record that can be altered |
 | **G4** | An exhibit moves only as its procedure permits, at the hands of someone entitled | A transition that succeeds when the procedure forbids it |
-| **G5** | Exhibits can be prioritised by the attention they need, with the reasoning exposed | A ranking its user cannot interrogate |
+| **G5** | Exhibits can be prioritized by the attention they need, with the reasoning exposed | A ranking its user cannot interrogate |
 
 G2 was breached twice during development and repaired in Sprints 4 and 6;
 Chapters 9 and 10 give both cases.
@@ -65,7 +65,7 @@ Chapters 9 and 10 give both cases.
 | O3 | A cryptographically verifiable chain of custody with an append-only history | §11.2 |
 | O4 | At least three non-trivial algorithms designed and implemented in this project | **Ch. 11 - five delivered** |
 | O5 | Third-party services consumed correctly, with the boundary stated | Ch. 2, §11.7 |
-| O6 | A genuine agile incremental project with per-iteration artefacts | Ch. 4, 6-10 |
+| O6 | A genuine agile incremental project with per-iteration artifacts | Ch. 4, 6-10 |
 | O7 | An automated test suite of meaningful coverage | Ch. 12 |
 | O8 | Quality attributes implemented **and demonstrably enforced** | Ch. 10, §3.7 |
 

@@ -37,7 +37,7 @@ the mean of Sprints 1 to 3 (40), reduced for a short fixed window.
 
 **Table 10.2 - Sprint 6 backlog**
 
-| ID | Story | Pts | Realises |
+| ID | Story | Pts | Realizes |
 |---|---|---|---|
 | US-30 | Quality requirements carry a measurement and a pass value | 5 | Table 3.7 |
 | US-34 | Algorithmic cost measured rather than argued | 5 | SNF-07 to SNF-09 |
@@ -82,7 +82,7 @@ An investigation with four hundred exhibits would render four hundred rows.
 
 The repair changed the code rather than the requirement. Softening the
 requirement to match the implementation would have been the smaller edit, but
-an exhibit-heavy investigation is the realistic case for a forensic system
+an exhibit-heavy investigation is the realiztic case for a forensic system
 rather than an edge case.
 
 ## 10.6 US-34: Complexity Measured Rather Than Argued
@@ -184,7 +184,7 @@ actually paginated, so a requirement had to be **met** before it could be
 
 ## 10.11 Retrospective
 
-**The lesson.** A requirement and its verification form one artefact. Treating
+**The lesson.** A requirement and its verification form one artifact. Treating
 them separately allows a specification to describe a quality the system does
 not possess, undetected until something checks.
 
@@ -199,7 +199,7 @@ is the condition that makes successive increments necessary.
 |---|---|
 | F1 | A quality requirement is not accepted without a measurement, a pass value and a test |
 | F2 | An operation is classified by its effect, never by its name |
-| F3 | Before any release, re-derive the authorisation matrix from the routes rather than from the design |
+| F3 | Before any release, re-derive the authorization matrix from the routes rather than from the design |
 
 ---
 

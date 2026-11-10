@@ -27,14 +27,14 @@ protecting them.
 
 **Table 8.1 - Sprint 3 backlog**
 
-| ID | Story | Pts | Realises | Category |
+| ID | Story | Pts | Realizes | Category |
 |---|---|---|---|---|
 | US-18 | Exhibits ranked by attention needed | 8 | SR-36 to SR-38 | **C** |
 | US-20 | Ask questions in ordinary language | 8 | SR-40 to SR-42 | **C** |
 | US-21 | Unsupported statements flagged | 3 | SR-43 | **C** |
 | US-24 | Second factor and lockout | 5 | SR-47 | B |
 | US-19 | Tune what counts as risky | 3 | SR-39 | **C**/A |
-| US-25 | Evidence unreadable without authorisation | 3 | SR-48 | B |
+| US-25 | Evidence unreadable without authorization | 3 | SR-48 | B |
 | US-23 | Ranked and anomalous views | 3 | SR-46 | A |
 | US-22 | Statistical outliers surfaced | 5 | SR-44, SR-45 | B |
 | US-26 | Verifiable export | 2 | SR-49 | B |
@@ -52,7 +52,7 @@ therefore written as six tests on day one, before any scoring code:
 | Criterion | Test written first | Why it would have been missed |
 |---|---|---|
 | The eight weights sum to exactly 1.0 | Assert the sum | A later weight edit silently breaks the scale |
-| Administrator overrides are re-normalised | Set weights summing to 1.4, assert 1.0 | The interface would accept an unusable configuration |
+| Administrator overrides are re-normalized | Set weights summing to 1.4, assert 1.0 | The interface would accept an unusable configuration |
 | Each indicator contributes independently | One test per indicator | A copy-paste error between indicators is invisible in the total |
 | Each interaction rule fires on its own pair | One test per rule | Five rules, five chances for a wrong pair |
 | **The total bonus is capped at 0.30** | Construct an item firing four rules | Without the cap the ranking collapses, and the total still looks plausible |
@@ -66,11 +66,11 @@ can tell a correct high score from a saturated one.**
 
 **Table 8.3 - US-18 (risk assessment) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-18.1 | Write the six acceptance tests (Table 8.2) | 6 | B1 |
 | T-18.2 | Extract the eight indicators | 8 | SR-36 |
-| T-18.3 | Choose and implement a normalisation curve per indicator | 6 | SR-36 |
+| T-18.3 | Choose and implement a normalization curve per indicator | 6 | SR-36 |
 | T-18.4 | Weighted combination | 2 | SR-37 |
 | T-18.5 | The five interaction rules | 5 | SR-37 |
 | T-18.6 | The bonus cap | 1 | SR-37 |
@@ -81,7 +81,7 @@ can tell a correct high score from a saturated one.**
 
 **Table 8.4 - US-20 and US-21 (assistant) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-20.1 | Intent classification over seven intents, with tie-breaking | 6 | SR-40 |
 | T-20.2 | Retrieval sequence per intent | 8 | SR-41 |
@@ -114,7 +114,7 @@ suite runs without reaching any external service") is satisfiable at all.
 
 The algorithms are described in **Chapter 11**, sections 11.3 and 11.6.
 
-Figure 11 is drawn in this sprint rather than earlier because this is the
+Figure 5.5 is drawn in this sprint rather than earlier because this is the
 sprint that puts something **outside** the trust boundary. Until the model
 service existed, every component ran on one host.
 
@@ -128,7 +128,7 @@ later proved to be the site of a defect: the verdict was computed but never
 persisted, so the indicator sat at its default. Chapter 9, finding D2.
 
 **The anomaly detector was kept visibly separate from the assessment.** Its
-output is labelled "suggested for review" and never merged into the
+output is labeled "suggested for review" and never merged into the
 deterministic score. SR-45 requires this, and it is also the honest treatment
 of an uninterpretable signal sitting beside an explainable one.
 
@@ -168,11 +168,11 @@ which would normally be the least predictable.
 
 | Story | Criterion | Outcome |
 |---|---|---|
-| US-18 | Eight indicators, each normalised appropriately | Met |
+| US-18 | Eight indicators, each normalized appropriately | Met |
 | US-18 | Interaction bonus bounded | Met |
 | US-18 | Output explains its own score | Met |
-| US-19 | Weights re-normalised; bands strictly increasing | Met |
-| US-20 | Seven intents classified, UNKNOWN recognised | Met |
+| US-19 | Weights re-normalized; bands strictly increasing | Met |
+| US-20 | Seven intents classified, UNKNOWN recognized | Met |
 | US-20 | Answers drawn from retrieved records | Met |
 | US-20 | A usable answer with the service unavailable | Met |
 | US-21 | References absent from context are flagged | Met |
@@ -202,7 +202,7 @@ the system had a scoping defect in every aggregate it had just built.
 |---|---|---|
 | C1 | Add the per-item risk detail to the evidence view | Delivered |
 | C2 | Document the model-unavailable path in the interface | Delivered |
-| C3 | **Adversarially test the authorisation boundary** | Raised in Sprint 4 - *after* the defect was found, not before |
+| C3 | **Adversarially test the authorization boundary** | Raised in Sprint 4 - *after* the defect was found, not before |
 
 **C3 was an action taken too late.** It was written
 during this retrospective as a general improvement and not acted on until

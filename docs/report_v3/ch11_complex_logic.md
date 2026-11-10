@@ -4,7 +4,7 @@
 
 Five algorithms constitute the project's Category C contribution. Each has its
 own section below, giving the problem it solves, the structure it builds, the
-algorithm itself in pseudocode and UML behavioural diagrams, its complexity,
+algorithm itself in pseudocode and UML behavioral diagrams, its complexity,
 and the design decision that defines it. Sprints 2 and 3 (Chapters 7 and 8)
 record when each was built and what it cost.
 
@@ -17,9 +17,9 @@ cryptography is complex. The question is what the project itself contributes.
 
 | Question | If yes | Category |
 |---|---|---|
-| Is the behaviour obtained by storing, retrieving or arithmetically combining records? | Then the complexity is in the data model | **A** |
-| Is the behaviour obtained by calling a library or service that implements it? | Then the complexity belongs to that library | **B** |
-| Does the behaviour require a data structure, a multi-step control flow, or a search that the project designs and implements? | Then the complexity is the project's own | **C** |
+| Is the behavior obtained by storing, retrieving or arithmetically combining records? | Then the complexity is in the data model | **A** |
+| Is the behavior obtained by calling a library or service that implements it? | Then the complexity belongs to that library | **B** |
+| Does the behavior require a data structure, a multi-step control flow, or a search that the project designs and implements? | Then the complexity is the project's own | **C** |
 
 A feature may call Category B components from inside Category C logic without
 changing category, provided the library calls act as primitive operations
@@ -39,13 +39,13 @@ despite feeding the same dashboard.
 | # | Algorithm | Structure it builds | Why not A | Why not B |
 |---|---|---|---|---|
 | 1 | Chain integrity verification | Directed acyclic graph of custody events | No query returns "where and how is this chain unsound" | No library verifies a custody chain |
-| 2 | Multi-factor risk assessment | Weighted, normalised, interaction-amplified score | A weighted sum is arithmetic; the normalisation choice, the interaction model and the cap are not | No library models this domain |
+| 2 | Multi-factor risk assessment | Weighted, normalized, interaction-amplified score | A weighted sum is arithmetic; the normalization choice, the interaction model and the cap are not | No library models this domain |
 | 3 | Custody chain reconstruction | Heuristic best-first search over candidate records | There is no correct answer to query for | No library infers missing custody |
 | 4 | Evidence lifecycle state machine | Transition table with guards and preconditions | A status column is data; a role-gated, precondition-constrained automaton is not | No library knows this domain's procedure |
 | 5 | Assistant orchestration | Six-stage pipeline around a model call | Retrieval is queries, but the pipeline is not | **The model is B; the pipeline around it is C** |
 
 The boundary within Feature 5 requires precision. The language model is a
-third-party service, categorised B in Chapter 2. Category C comprises the
+third-party service, categorized B in Chapter 2. Category C comprises the
 intent classification, the access-scoped retrieval, the template selection,
 the fallback path and the reference validation - none of which the model
 provides, and all of which would still be required if the model were
@@ -56,7 +56,7 @@ replaced.
 ## 11.2 Algorithm 1 - Chain Integrity Verification
 
 *Delivered in Sprint 2 as US-13 (13 points, the largest item in the backlog).
-Realises SR-25, SR-26, SR-27.*
+Realizes SR-25, SR-26, SR-27.*
 
 ### 11.2.1 The problem
 
@@ -79,8 +79,8 @@ order check needs, nor the branching that concurrent access events produce.
 
 ### 11.2.3 The algorithm
 
-Described by **Figure 23** (activity diagram), **Figure 12** (sequence
-diagram) and **Figure 10** (composite structure of the engine).
+Described by **Figure 11.1** (activity diagram), **Figure 11.2** (sequence
+diagram) and **Figure 5.4** (composite structure of the engine).
 
 The traversal is depth-first from the root. At each unvisited node three
 **independent** checks are applied:
@@ -92,6 +92,15 @@ The traversal is depth-first from the root. At each unvisited node three
 | Order | Is this event strictly later than its predecessor? | The sequence has been manipulated |
 
 After the checks, every child is pushed **regardless of the outcome**.
+
+
+![](../../diagrams_v3/23_activity_integrity.png)
+
+**Figure 11.1 - Chain integrity verification: the traversal and its three checks (activity diagram).**
+
+![](../../diagrams_v3/12_sequence_integrity.png)
+
+**Figure 11.2 - Chain integrity verification: the request path (sequence diagram).**
 
 ### 11.2.4 The design decision that defines the algorithm
 
@@ -105,7 +114,7 @@ events 4 onward are sound.
 
 Accumulation costs nothing asymptotically, since the traversal visits every
 node either way, and converts the output from a single error into a complete
-account. Figure 10 shows the structural consequence: the failure collector
+account. Figure 5.4 shows the structural consequence: the failure collector
 sits between the checks and the scorer, and no connector routes a failure back
 to the walker.
 
@@ -162,7 +171,7 @@ with **three** separate failures, asserting that all three appear in one run.
 
 ## 11.3 Algorithm 2 - Multi-Factor Risk Assessment
 
-*Delivered in Sprint 3 as US-18 (8 points). Realises SR-36, SR-37, SR-38.*
+*Delivered in Sprint 3 as US-18 (8 points). Realizes SR-36, SR-37, SR-38.*
 
 ### 11.3.1 The problem
 
@@ -172,11 +181,11 @@ transfers") misses that signals interact: an item with many transfers **and** a
 failed integrity check **and** role mismatches is far more alarming than the
 sum of those three considered separately.
 
-### 11.3.2 Eight indicators, and why each is normalised differently
+### 11.3.2 Eight indicators, and why each is normalized differently
 
 **Table 11.3 - Indicators and weights (summing to 1.0)**
 
-| Indicator | Weight | Normalisation | Why that curve |
+| Indicator | Weight | Normalization | Why that curve |
 |---|---|---|---|
 | Integrity outcome | **0.25** | Direct mapping | A verified failure is the strongest single signal available |
 | Handover frequency | 0.13 | Logarithmic | The step from 1 to 3 transfers means far more than 21 to 23 |
@@ -187,7 +196,7 @@ sum of those three considered separately.
 | Lifecycle state | 0.10 | Ordinal mapping | Flagged 1.0 down to Archived 0.1 |
 | Dormancy | 0.08 | Sigmoid | Risk is flat, then rises sharply around a threshold, then flattens |
 
-The normalisation curve is chosen per indicator rather than globally. A single
+The normalization curve is chosen per indicator rather than globally. A single
 curve applied to all eight would misrepresent at least three: a linear curve on
 handover frequency would let a busy exhibit dominate the ranking by activity
 alone, and a logarithmic curve on function mismatches would make the second
@@ -212,10 +221,10 @@ all five, collapsing the discrimination the ranking exists to provide.
 
 ### 11.3.4 The algorithm
 
-Described by **Figure 17** (activity diagram) and **Figure 14**
+Described by **Figure 11.3** (activity diagram) and **Figure 11.4**
 (communication diagram). The communication view is included deliberately: it
 shows *which objects collaborate*, which is the aspect a sequence diagram
-de-emphasises.
+de-emphasizes.
 
 ```
 SCORE(item):
@@ -240,9 +249,18 @@ SCORE(item):
     return (final, level, per-indicator contributions, rules fired, recommendations)
 ```
 
+
+![](../../diagrams_v3/17_activity_risk.png)
+
+**Figure 11.3 - Multi-factor risk assessment: extraction to classification (activity diagram).**
+
+![](../../diagrams_v3/14_communication_risk.png)
+
+**Figure 11.4 - Risk assessment collaboration.**
+
 ### 11.3.5 Explainability as a requirement, not a nicety
 
-The algorithm returns every indicator with its raw value, its normalised
+The algorithm returns every indicator with its raw value, its normalized
 value, its weight and its contribution, together with the reason text of each
 rule that fired, as SR-38 requires. In a forensic setting a score an
 investigator cannot interrogate is one they cannot defend in court, so the
@@ -253,14 +271,14 @@ explanation forms part of the output rather than a debugging aid.
 Extraction is **O(n)** in the custody records; the weighted sum is O(8) and
 the rules O(5), both constant. The whole assessment is therefore **O(n)**.
 `test_increment3` covers each indicator independently, the weight
-re-normalisation, each interaction rule, and specifically the cap.
+re-normalization, each interaction rule, and specifically the cap.
 `test_nfr::TestPerformanceScaling` measures the linear claim.
 
 ---
 
 ## 11.4 Algorithm 3 - Custody Chain Reconstruction
 
-*Delivered in Sprint 2 as US-15 (8 points). Realises SR-31, SR-32, SR-33.*
+*Delivered in Sprint 2 as US-15 (8 points). Realizes SR-31, SR-32, SR-33.*
 
 ### 11.4.1 The problem
 
@@ -271,7 +289,7 @@ evaluate.
 
 ### 11.4.2 The algorithm
 
-Described by **Figure 18** (activity diagram) and **Figure 25** (sequence
+Described by **Figure 11.5** (activity diagram) and **Figure 11.6** (sequence
 diagram).
 
 Discontinuities are detected where a holder changes with no handover between.
@@ -283,12 +301,21 @@ time window, and each candidate is scored on four criteria:
 | Temporal proximity | How near the middle of the gap does it fall? |
 | Function consistency | Was this account entitled to hold this kind of exhibit? |
 | Place consistency | Is the location plausible given the surrounding records? |
-| Behavioural consistency | Did this account interact with the investigation around that time? |
+| Behavioral consistency | Did this account interact with the investigation around that time? |
 
 The criteria are averaged with **equal weight over the criteria that have data**.
 A criterion with nothing to judge is omitted from the average rather than
 scored at a neutral 0.5, because diluting every candidate toward the middle
 would flatten exactly the discrimination the search depends on.
+
+
+![](../../diagrams_v3/18_activity_reconstruction.png)
+
+**Figure 11.5 - Custody chain reconstruction: the gap-resolution loop (activity diagram).**
+
+![](../../diagrams_v3/25_sequence_reconstruction.png)
+
+**Figure 11.6 - Custody chain reconstruction: the objects that collaborate (sequence diagram).**
 
 ### 11.4.3 The threshold, and declining to answer
 
@@ -316,7 +343,7 @@ presented as complete.
 
 ## 11.5 Algorithm 4 - Evidence Lifecycle State Machine
 
-*Delivered in Sprint 2 as US-14 (8 points). Realises SR-28, SR-29, SR-30.*
+*Delivered in Sprint 2 as US-14 (8 points). Realizes SR-28, SR-29, SR-30.*
 
 ### 11.5.1 The problem
 
@@ -333,12 +360,12 @@ entitled to make it and the preconditions that must hold.
 Expressing the policy as data rather than as branching code has three
 consequences. The whole policy is auditable in one place; adding a transition
 is a data change rather than a code change; and the table can be read directly
-into **Figure 15** (state machine diagram) without a human transcribing the
-behaviour from scattered conditionals.
+into **Figure 11.7** (state machine diagram) without a human transcribing the
+behavior from scattered conditionals.
 
 ### 11.5.3 The validation pipeline
 
-Described by **Figure 24** (activity diagram). Four gates in order: the pair
+Described by **Figure 11.8** (activity diagram). Four gates in order: the pair
 must exist in the table; the requesting account's function must be among those
 permitted; every precondition must hold; a justification must be supplied.
 
@@ -347,11 +374,20 @@ is written to the audit trail. SR-29 requires this because a rejected attempt
 is forensically interesting: someone tried to archive an item whose integrity
 was never verified, and that attempt is part of the record.
 
+
+![](../../diagrams_v3/15_state_evidence.png)
+
+**Figure 11.7 - Evidence lifecycle: six states, fourteen transitions.**
+
+![](../../diagrams_v3/24_activity_state_machine.png)
+
+**Figure 11.8 - Transition validation pipeline.**
+
 ### 11.5.4 Flagged, and the asymmetry that matters
 
 `Flagged` is reachable from **every** state and escapable from **one**, by an
 administrator alone, and only after re-verification. The asymmetry is
-deliberate and realises DR-06: an item whose integrity has failed must not
+deliberate and realizes DR-06: an item whose integrity has failed must not
 quietly resume normal handling.
 
 One case requires explanation. When verification finds a broken chain it
@@ -372,7 +408,7 @@ asserts that each rejection is audited.
 ## 11.6 Algorithm 5 - Assistant Orchestration
 
 *Delivered in Sprint 3 as US-20 and US-21 (11 points), extended in Sprint 4 as
-US-29. Realises SR-40 to SR-43 and SR-53.*
+US-29. Realizes SR-40 to SR-43 and SR-53.*
 
 ### 11.6.1 Where the third-party boundary falls
 
@@ -388,17 +424,30 @@ it.
 
 ### 11.6.2 The six stages
 
-Described by **Figure 26** (activity diagram), **Figure 13** (sequence
-diagram) and **Figure 20** (timing diagram).
+Described by **Figure 11.9** (activity diagram), **Figure 11.10** (sequence
+diagram) and **Figure 11.11** (timing diagram).
 
 | Stage | What it does | Whose work |
 |---|---|---|
 | 1. Intent classification | Matches the question against keyword sets for seven intents, breaking ties by fixed priority; parses any identifier; falls back to UNKNOWN | **C** |
 | 2. Access scoping | Determines which investigations this account may see | **C** |
 | 3. Context retrieval | Runs the query sequence for the intent, restricted to those investigations; an integrity question triggers a **fresh run of Algorithm 1** | **C** |
-| 4. Prompt construction | Selects the template for the intent and assembles role, question and serialised context | **C** |
+| 4. Prompt construction | Selects the template for the intent and assembles role, question and serialized context | **C** |
 | 5. Model invocation | Calls the model within a per-call budget, falling through candidates, then to a context-only answer | B inside, **C** around |
 | 6. Reference validation | Extracts every identifier and name from the reply and checks each against the retrieved context | **C** |
+
+
+![](../../diagrams_v3/26_activity_assistant.png)
+
+**Figure 11.9 - Assistant orchestration: the six stages (activity diagram).**
+
+![](../../diagrams_v3/13_sequence_assistant.png)
+
+**Figure 11.10 - Assistant orchestration: scoping before retrieval (sequence diagram).**
+
+![](../../diagrams_v3/20_timing_assistant.png)
+
+**Figure 11.11 - Bounded waiting on the model service.**
 
 ### 11.6.3 Scoping before retrieval, not after
 
@@ -424,9 +473,9 @@ investigator can inspect, not as a finding.
 
 ### 11.6.5 Bounded waiting
 
-**Figure 20** shows the timing. A per-call budget bounds any single attempt; a
+**Figure 11.11** shows the timing. A per-call budget bounds any single attempt; a
 total budget bounds the whole stage and sits below the browser's abort, so a
-slow service produces a clear message rather than a cancelled request. When the
+slow service produces a clear message rather than a canceled request. When the
 budget is exhausted the pipeline composes an answer from the retrieved records
 alone and says that it has done so - a degraded answer, visibly degraded.
 
@@ -455,7 +504,7 @@ the slow service.
 
 The final row is the control case. Anomaly detection feeds the same dashboard
 as Algorithm 2 but is classified B, because the library implements the
-behaviour and the project supplies only the feature vector.
+behavior and the project supplies only the feature vector.
 
 ## 11.8 Complexity, Measured Rather Than Argued
 

@@ -101,11 +101,11 @@ the intact and the failed verdict - the comparison is stated in the caption.
 
 ![](../../extracted_images/fig_18.16_risk_report.png)
 
-**Figure 16.16 - Per-exhibit risk report.** Each of the eight indicators with its normalised value and weighted contribution, the interaction rules that fired with their reasons, and the resulting recommendations. The output is an account the investigator can read and challenge, not an opaque number (SR-38).
+**Figure 16.16 - Per-exhibit risk report.** Each of the eight indicators with its normalized value and weighted contribution, the interaction rules that fired with their reasons, and the resulting recommendations. The output is an account the investigator can read and challenge, not an opaque number (SR-38).
 
 ![](../../extracted_images/fig_18.17_risk_settings.png)
 
-**Figure 16.17 - Administrator risk settings.** The eight indicator weights and the three band boundaries are editable. Weights are re-normalised to a unit total on save and boundaries validated as strictly increasing, so the configuration cannot be left in a state the algorithm could not use (SR-39).
+**Figure 16.17 - Administrator risk settings.** The eight indicator weights and the three band boundaries are editable. Weights are re-normalized to a unit total on save and boundaries validated as strictly increasing, so the configuration cannot be left in a state the algorithm could not use (SR-39).
 
 ![](../../extracted_images/fig_18.18_assistant_refusal.png)
 
@@ -140,7 +140,7 @@ specific construct the text argues about, not the module in full.
 
 ![](../../extracted_images/lst_18.2_risk_scoring.png)
 
-**Listing 16.2 - `risk_scoring.py` - weights, interaction rules and the cap.** The eight weights sum to 1.0 and are re-normalised whenever an administrator overrides them. Each of the five interaction rules names a pair of indicators with their thresholds, and the total bonus is capped at 0.30 - without that cap several rules firing together would saturate every moderately risky exhibit and destroy the ranking (Section 11.3.3).
+**Listing 16.2 - `risk_scoring.py` - weights, interaction rules and the cap.** The eight weights sum to 1.0 and are re-normalized whenever an administrator overrides them. Each of the five interaction rules names a pair of indicators with their thresholds, and the total bonus is capped at 0.30 - without that cap several rules firing together would saturate every moderately risky exhibit and destroy the ranking (Section 11.3.3).
 
 ![](../../extracted_images/lst_18.3_state_machine_a.png)
 
@@ -150,7 +150,7 @@ specific construct the text argues about, not the module in full.
 
 ![](../../extracted_images/lst_18.4_signature_payload.png)
 
-**Listing 16.4 - The canonical signature payload.** Six fields serialised with deterministic key ordering. The ordering is the point: it makes the byte sequence reproducible, so the bytes signed when a custody record is created are identical to those reconstructed when it is verified (Section 5.4).
+**Listing 16.4 - The canonical signature payload.** Six fields serialized with deterministic key ordering. The ordering is the point: it makes the byte sequence reproducible, so the bytes signed when a custody record is created are identical to those reconstructed when it is verified (Section 5.4).
 
 ![](../../extracted_images/lst_18.5_accessible_case_ids.png)
 

@@ -4,9 +4,9 @@
 
 ## Software Engineering Process and Practice
 
-1. Sommerville, I. *Software Engineering.* Pearson. - Process models, requirements engineering at two levels, system modelling, architectural design, testing, evolution.
+1. Sommerville, I. *Software Engineering.* Pearson. - Process models, requirements engineering at two levels, system modeling, architectural design, testing, evolution.
 2. Ghezzi, C., Jazayeri, M., and Mandrioli, D. *Fundamentals of Software Engineering.* Prentice Hall.
-3. Schwaber, K., and Sutherland, J. *The Scrum Guide.* scrumguides.org. - Roles, events and artefacts, adapted in Section 4.2.
+3. Schwaber, K., and Sutherland, J. *The Scrum Guide.* scrumguides.org. - Roles, events and artifacts, adapted in Section 4.2.
 4. Beck, K., et al. (2001). *Manifesto for Agile Software Development.* agilemanifesto.org.
 5. Beck, K. *Extreme Programming Explained: Embrace Change.* Addison-Wesley. - Test-first development, adopted as retrospective action B1.
 6. Boehm, B. (1988). *A Spiral Model of Software Development and Enhancement.* IEEE Computer. - Surveyed and rejected in Table 4.2.
@@ -16,7 +16,7 @@
 10. Kruchten, P. (1995). *Architectural Blueprints - The 4+1 View Model.* IEEE Software.
 11. Lehman, M. M., and Belady, L. A. *Program Evolution: Processes of Software Change.* Academic Press.
 
-## Modelling and Notation
+## Modeling and Notation
 
 12. Object Management Group. *Unified Modeling Language (UML) Specification.* omg.org. - Including the profile and stereotype mechanism used in Figures 6 and 21.
 13. Rumbaugh, J., Jacobson, I., and Booch, G. *The Unified Modeling Language Reference Manual.* Addison-Wesley.

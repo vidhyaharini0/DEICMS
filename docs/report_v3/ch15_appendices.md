@@ -2,7 +2,7 @@
 
 ---
 
-## Appendix A - Complete User Story Catalogue
+## Appendix A - Complete User Story Cataloge
 
 Thirty-six stories, 153 points. Ranking within a sprint follows the four rules
 of Section 4.4.1. Acceptance criteria are given in the sprint chapters.
@@ -33,7 +33,7 @@ of Section 4.4.1. Acceptance criteria are given in the sprint chapters.
 | US-22 | Statistical outliers surfaced | B | Could | 5 | 3 |
 | US-23 | Ranked and anomalous views | A | Should | 3 | 3 |
 | US-24 | Second factor and lockout | B | Should | 5 | 3 |
-| US-25 | Evidence unreadable without authorisation | B | Should | 3 | 3 |
+| US-25 | Evidence unreadable without authorization | B | Should | 3 | 3 |
 | US-26 | Verifiable export | B | Should | 2 | 3 |
 | US-27 | Printable custody report | B | Could | 2 | 3 |
 | US-28 | Scoped aggregates | A | Must | 5 | 4 |
@@ -47,14 +47,14 @@ of Section 4.4.1. Acceptance criteria are given in the sprint chapters.
 | US-36 | Injection repair guarded by a test | A | Must | 2 | 6 |
 | | **Total** | | | **153** | |
 
-The eleven M2 findings (D1-D6, H1-H3, R1-R2) are catalogued in Table 9.6 as
+The eleven M2 findings (D1-D6, H1-H3, R1-R2) are cataloged in Table 9.6 as
 defects rather than stories, and carry no points for the reason in Section
 4.5.
 
 ## Appendix B - Route Reference
 
-Forty-one routes across ten blueprints - one per use case. Authorisation is
-given in full in Chapter 2's categorisation and the use-case diagrams
+Forty-one routes across ten blueprints - one per use case. Authorization is
+given in full in Chapter 2's categorization and the use-case diagrams
 (Figures 1 to 4); only paths are listed here.
 
 | Blueprint | Routes |
@@ -72,33 +72,34 @@ given in full in Chapter 2's categorisation and the use-case diagrams
 
 All require authentication except `/login` and `/verify-otp`.
 
-**Authorisation summary, derived from the route guards rather than from the
+**Authorization summary, derived from the route guards rather than from the
 design:** Read-Only Viewer 20, Forensic Analyst 25, Lead Investigator 32,
 Administrator 41.
 
 ## Appendix C - UML Diagram Index
 
-Twenty-six diagrams, thirteen UML kinds, all generated from versioned
-PlantUML source in `diagrams_v3/`.
+Twenty-six diagrams in thirteen UML kinds, each placed beside the text it
+illustrates. All are rendered from PlantUML source in `diagrams_v3/`.
 
 | Kind | Figures |
 |---|---|
-| Use case | 1 overview, 2 cases and evidence, 3 reading, 4 analysis |
-| Class | 5 domain, 6 persistent (`«table»`), 22 traceability metamodel |
-| Object | 7 flagged exhibit snapshot |
-| Package | 8 layered architecture |
-| Component | 9 components and interfaces |
-| Composite structure | 10 integrity engine internals |
-| Deployment | 11 nodes, artifacts, trust boundary |
-| Sequence | 12 integrity, 13 assistant, 25 reconstruction |
-| Communication | 14 risk assessment collaboration |
-| State machine | 15 evidence lifecycle, 16 account access |
-| Activity | 17 risk, 18 reconstruction, 19 registration (partitions), 23 integrity, 24 transition pipeline, 26 assistant |
-| Timing | 20 bounded waiting |
-| Profile | 21 stereotype declarations |
+| Use case | 6.1 overview, 6.2 cases and evidence, 6.3 the Read-Only Viewer, 6.4 what each role adds |
+| Class | 5.6 domain, 5.7 persistent (`«table»`), 3.1 traceability metamodel |
+| Object | 5.8 a flagged exhibit |
+| Package | 5.1 layered architecture |
+| Component | 5.3 components and interfaces |
+| Composite structure | 5.4 integrity engine internals |
+| Deployment | 5.5 nodes, artifacts, trust boundary |
+| Sequence | 11.2 integrity, 11.10 assistant, 11.6 reconstruction |
+| Communication | 11.4 risk assessment collaboration |
+| State machine | 11.7 evidence lifecycle, 5.2 account access |
+| Activity | 11.3 risk, 11.5 reconstruction, 6.5 registration (partitions), 11.1 integrity, 11.8 transition pipeline, 11.9 assistant |
+| Timing | 11.11 bounded waiting |
+| Profile | 5.9 stereotype declarations |
 
-**Non-UML figures** are the six burndown charts, which are Scrum artefacts
-rather than models, and the screenshots of Chapter 16.
+**Non-UML figures** are the six burndown charts (6.6, 7.1, 8.1, 9.1, 9.2,
+10.1), which are Scrum artifacts rather than models, and the screenshots of
+Chapter 16.
 
 ## Appendix D - Traceability Summary
 
@@ -106,7 +107,7 @@ Carried inline in Tables 3.4, 3.6 and 3.7 rather than duplicated here.
 
 | Check | Result |
 |---|---|
-| User requirements realised by at least one system requirement | 22 of 22 |
+| User requirements realized by at least one system requirement | 22 of 22 |
 | System functional requirements traced to a user requirement | 61 of 61 |
 | System functional requirements carried by a user story | 61 of 61 |
 | System quality requirements with a measurement and acceptance value | 21 of 21 |
@@ -146,7 +147,7 @@ by the development team. Tables 4.12, 6.2, 7.2, 8.3.
 priority and of duration.
 
 **Stereotype** - UML's own extension mechanism, used here so the relational
-schema can be modelled without a second notation. Figure 21.
+schema can be modeled without a second notation. Figure 5.9.
 
 **Velocity** - points delivered in one sprint; an observed property, not a
 target. Section 13.2 explains why it is weak evidence in a single-developer

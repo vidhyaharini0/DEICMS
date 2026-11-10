@@ -39,8 +39,8 @@ and the unverified quality requirements after delivery, if at all.
 | **Total** | **153** | **153 + 11** | Mean velocity across the three full sprints: 40.0 |
 
 **Every committed point was delivered, and that should be read sceptically
-rather than as success.** It is partly realistic estimation and stable scope,
-and partly an artefact of a single developer in whom estimator and implementer
+rather than as success.** It is partly realiztic estimation and stable scope,
+and partly an artifact of a single developer in whom estimator and implementer
 are the same person - so estimates could be, and unconsciously were, adjusted
 to the implementer's known pace. This is risk R-10, rated high-probability and
 **accepted rather than mitigated**, because no mitigation exists for one
@@ -63,7 +63,7 @@ sprint that had two sprints of retrospective actions behind it.
 | O3 - verifiable custody with append-only history | Signed custody events; append-only enforced at the data layer |
 | O4 - at least three non-trivial algorithms | **Five**, each with pseudocode and UML (Ch. 11) |
 | O5 - third-party services with the boundary stated | Eleven integrations; boundary demonstrated, not asserted (§11.6.1) |
-| O6 - a genuine incremental project with artefacts | Six sprints, six backlogs, six burndowns, six retrospectives |
+| O6 - a genuine incremental project with artifacts | Six sprints, six backlogs, six burndowns, six retrospectives |
 | O7 - a test suite of meaningful coverage | 216 tests; 78% overall, 80% across the Category C algorithms |
 | O8 - quality attributes **demonstrably** enforced | 21 of 21 system quality requirements measured and tested |
 
@@ -72,7 +72,7 @@ sprint that had two sprints of retrospective actions behind it.
 | Area | Limitation | Where discussed |
 |---|---|---|
 | Validation | No customer; requirements never contested by a stakeholder | §12.8 |
-| Testing | No concurrency, load, penetration or browser testing; live model behaviour untested | §12.7 |
+| Testing | No concurrency, load, penetration or browser testing; live model behavior untested | §12.7 |
 | Coverage | Chain reconstruction at 65%; route paths at 71% | §12.3.1, §12.3.2 |
 | Process | Estimator and implementer are the same person | §13.2 |
 | Algorithms | Hallucination detection verifies references, not reasoning; the anomaly detector is uninterpretable | §11.6.4 |
@@ -100,7 +100,7 @@ would remove it, which is what the next section is.
    harness that can actually exercise it.
 5. **Continuous integration.** The suite is fast, deterministic and needs no
    network - the three properties that usually block adoption. The project is
-   CI-ready and not CI-practising, and closing that gap is a small step.
+   CI-ready and not CI-practicing, and closing that gap is a small step.
 
 Deferred scope recorded in the backlog's *won't have* list - production
 deployment, notifications, full-text search over content, a mobile client, a
@@ -113,7 +113,7 @@ eleven third-party integrations with the boundary stated, four roles with
 case-level membership, and a history that cannot be rewritten.
 
 **A process.** A development model chosen for stated reasons and judged
-against outcomes; a product backlog prioritised, refined and decomposed into
+against outcomes; a product backlog prioritized, refined and decomposed into
 tasks; requirements at two levels, each traced to a test; and twenty-six UML
 diagrams written as text descriptions held in the repository beside the code,
 which the Definition of Done requires to be updated in the same commit.

@@ -1,11 +1,11 @@
-# Chapter 2 - Feature Categorisation and Balance
+# Chapter 2 - Feature Categorization and Balance
 
 ---
 
 DEICMS delivers forty-six functionalities across three categories: data and
 repository operations, third-party services, and complex application logic
 designed and implemented within the project. The sections below list them,
-motivate each categorisation, and assess the resulting balance.
+motivate each categorization, and assess the resulting balance.
 
 ## 2.1 The Three Categories
 
@@ -13,9 +13,9 @@ motivate each categorisation, and assess the resulting balance.
 
 | | Category | Definition | Test applied |
 |---|---|---|---|
-| **A** | Data / repository / DB-oriented | CRUD operations, formulae | Is the behaviour obtained by storing, retrieving or arithmetically combining records? |
-| **B** | Third-party services | Libraries, APIs, tools, pre-trained models | Is the behaviour obtained by calling something that implements it? |
-| **C** | Complex application logic | Algorithm and workflow mostly implemented by the author; may exploit third-party services inside an elaborated logic | Does the behaviour require a data structure, control flow or search that this project designed? |
+| **A** | Data / repository / DB-oriented | CRUD operations, formulae | Is the behavior obtained by storing, retrieving or arithmetically combining records? |
+| **B** | Third-party services | Libraries, APIs, tools, pre-trained models | Is the behavior obtained by calling something that implements it? |
+| **C** | Complex application logic | Algorithm and workflow mostly implemented by the author; may exploit third-party services inside an elaborated logic | Does the behavior require a data structure, control flow or search that this project designed? |
 
 A pre-trained model is a third-party service unless the project builds a
 substantial workflow around the information it produces. That rule governs two
@@ -39,7 +39,7 @@ constraints, not in any algorithm.
 
 **Table 2.2 - Category A functionalities**
 
-| # | Functionality | Entity | Realises |
+| # | Functionality | Entity | Realizes |
 |---|---|---|---|
 | A1 | Create an investigation | Case | SR-07 |
 | A2 | Search and list investigations | Case | SR-07 |
@@ -93,12 +93,12 @@ Eleven integrations, consumed as they are.
 | B5 | Object-relational mapping | ORM | Mapping and query generation | The schema and its constraints |
 | B6 | Natural-language generation | Hosted language model | The sentence | Everything around it (Section 11.6) |
 | B7 | Statistical outlier detection | Isolation Forest | **The algorithm itself** | The feature vector only |
-| B8 | Printable report generation | PDF library | Layout and serialisation | The report's content and structure |
+| B8 | Printable report generation | PDF library | Layout and serialization | The report's content and structure |
 | B9 | Content encryption at rest | Cryptography library | The cipher | What to encrypt, and key handling |
 | B10 | Second-factor codes | TOTP library | Code generation and validation | Enrolment and the lockout policy |
 | B11 | Request rate limiting | Limiter | Counting and refusal | Which endpoints, and at what rates |
 
-**Motivation.** In every row the behaviour named in column three is
+**Motivation.** In every row the behavior named in column three is
 implemented elsewhere. B7 warrants particular note: anomaly detection appears
 in the interface beside a Category C algorithm, but the library implements the
 detection and the project supplies only the feature vector, so it is
@@ -107,16 +107,16 @@ classified B.
 ## 2.4 Category C - Complex Application Logic
 
 Five algorithms, each designed and implemented within the project. Chapter 11
-gives each a full section with pseudocode, UML behavioural diagrams,
+gives each a full section with pseudocode, UML behavioral diagrams,
 complexity analysis and the design decision that defines it; the motivation
-for each categorisation is summarised below.
+for each categorization is summarized below.
 
 **Table 2.4 - Category C functionalities, with motivation**
 
 | # | Algorithm | What makes it complex | Why not A | Why not B |
 |---|---|---|---|---|
 | **C1** | **Chain integrity verification** (§11.2) | Builds a directed acyclic graph of custody events and traverses it depth-first, applying three independent checks at every node and **accumulating all failures in one pass** rather than halting at the first | No query answers "where and in what way is this chain unsound"; the predecessor relation and the branching are structure, not rows | Hash and signature libraries are used as primitive operations inside the traversal; replacing either changes nothing in the design |
-| **C2** | **Multi-factor risk assessment** (§11.3) | Eight indicators, each normalised by a curve chosen for its own distribution, combined by weighted sum, amplified by five interaction rules, with the total amplification capped | A weighted sum is arithmetic; the per-indicator normalisation choice, the interaction model and the cap are design | No library models this domain's notion of risk |
+| **C2** | **Multi-factor risk assessment** (§11.3) | Eight indicators, each normalized by a curve chosen for its own distribution, combined by weighted sum, amplified by five interaction rules, with the total amplification capped | A weighted sum is arithmetic; the per-indicator normalization choice, the interaction model and the cap are design | No library models this domain's notion of risk |
 | **C3** | **Custody chain reconstruction** (§11.4) | Heuristic best-first search: detects discontinuities, generates candidates, scores each on four criteria, selects above a threshold and **declines below it** | There is no correct answer to retrieve; the algorithm evaluates possibilities and reports confidence | No library infers missing custody |
 | **C4** | **Evidence lifecycle state machine** (§11.5) | A formal automaton declared as data: six states, fourteen transitions, each gated by permitted function and preconditions, with a four-gate validation pipeline and audited refusals | A status column is data; a role-gated, precondition-constrained automaton with explained refusals is control | No library knows this domain's procedure |
 | **C5** | **Assistant orchestration** (§11.6) | Six stages: intent classification over seven intents, **access-scoped** retrieval, template selection, budgeted invocation with fallback, context-only degradation, and reference validation against the retrieved records | Retrieval is queries; the pipeline that decides what to retrieve and what to do with the answer is not | **The model is B.** The pipeline is C, and the substitution of one model for another changed no stage, no requirement and no test |
@@ -173,7 +173,7 @@ Functionality was added to a thin category on two occasions.
 
 The first is the more substantial. An earlier draft of the proposal classified
 a set of threshold checks over stored fields as complex logic. On review they
-were re-categorised as Category A formulae, where they remain as A25 to A27,
+were re-categorized as Category A formulae, where they remain as A25 to A27,
 and three algorithms were designed to occupy Category C in their place.
 
 ## 2.7 Mapping to the Delivery Sequence

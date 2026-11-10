@@ -10,7 +10,7 @@ every test, and satisfied every stated acceptance criterion. Two further
 sprints were nonetheless necessary.
 
 Each found its defects by a different means: Sprint 4 by testing the
-authorisation boundary adversarially, Sprint 5 by reading the code against its
+authorization boundary adversarially, Sprint 5 by reading the code against its
 intent.
 
 ---
@@ -19,7 +19,7 @@ intent.
 
 ## 9.1 How the Defect Was Found
 
-Retrospective action C3 - adversarially test the authorisation boundary - was
+Retrospective action C3 - adversarially test the authorization boundary - was
 carried out. A second account was created with no shared investigations, and
 every aggregate view was requested as that account.
 
@@ -43,7 +43,7 @@ ranking, its count in a dashboard total, and could ask the assistant about it.
 
 No requirement then in force had been broken. UR-03 existed - *"a person must
 see only the investigations they have been assigned to"* - but the system
-requirements realising it addressed **record access** and never enumerated
+requirements realizing it addressed **record access** and never enumerated
 aggregates.
 
 **The implementation satisfied its specification. The specification was
@@ -59,7 +59,7 @@ v2.0, 10 points.
 
 **Table 9.2 - US-28 (scoped aggregates) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-28.1 | **One function answering "which investigations may this account see"** | 3 | SR-51 |
 | T-28.2 | Route every aggregate through it: dashboard, risk, anomaly, export | 6 | SR-51 |
@@ -70,7 +70,7 @@ v2.0, 10 points.
 
 **Table 9.3 - US-29 (scoped assistant) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-29.1 | **Move scoping before retrieval, not after generation** | 5 | SR-41 |
 | T-29.2 | Answer identity questions from the authenticated session | 3 | SR-53 |
@@ -82,7 +82,7 @@ v2.0, 10 points.
 T-28.1 and T-29.1 are the repair; the rest is consequence. **A rule expressed
 once can be applied everywhere; a rule expressed inline in each route will be
 omitted by the next route.** The single function is the abstraction the
-original design lacked, and Figure 9 shows it: every component that reads
+original design lacked, and Figure 5.3 shows it: every component that reads
 case-scoped data depends on one provider.
 
 ## 9.4 The Empty State
@@ -115,10 +115,10 @@ discovery work.
 ## 9.6 Retrospective
 
 **The lesson.** Positive functional tests, however thorough, do not exercise
-authorisation boundaries. Ninety-three tests were written in Sprint 3 and not
+authorization boundaries. Ninety-three tests were written in Sprint 3 and not
 one asked what an unentitled user receives.
 
-**The second lesson, which generalises further.** A rule applied inline will
+**The second lesson, which generalizes further.** A rule applied inline will
 be applied inconsistently. The defect was not six mistakes; it was one missing
 abstraction, six times.
 
@@ -126,7 +126,7 @@ abstraction, six times.
 
 | # | Action |
 |---|---|
-| D1 | Adversarial authorisation testing becomes standing practice, not a one-off |
+| D1 | Adversarial authorization testing becomes standing practice, not a one-off |
 | D2 | Any rule governing more than one surface must have exactly one implementation |
 
 ---

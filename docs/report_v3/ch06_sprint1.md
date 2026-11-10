@@ -23,7 +23,7 @@ records US-08 creates.
 
 **Table 6.1 - Sprint 1 backlog**
 
-| ID | Story | Pts | Realises |
+| ID | Story | Pts | Realizes |
 |---|---|---|---|
 | US-01 | Sign in securely | 3 | SR-01 to SR-03 |
 | US-02 | Access limited by function | 5 | SR-04 to SR-06, SR-09 |
@@ -45,7 +45,7 @@ full; the remaining nine followed the same pattern.
 
 **Table 6.2 - US-09 (unalterable history) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-09.1 | Design the audit record: actor, origin, moment, outcome | 3 | SR-18 |
 | T-09.2 | Write the failing test: an audit record cannot be updated | 2 | DoD 2 |
@@ -63,7 +63,7 @@ cannot rewrite history.
 
 **Table 6.3 - US-04 (register an exhibit) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-04.1 | Accept an upload and reject disallowed kinds | 4 | SR-10 |
 | T-04.2 | Allocate a system-unique identifier | 2 | SR-11 |
@@ -73,7 +73,7 @@ cannot rewrite history.
 | T-04.6 | Test that a failure leaves neither record behind | 3 | DR-01 |
 | | **Total** | **21 h** | |
 
-T-04.5 and T-04.6 together realise DR-01. If the exhibit could be written and
+T-04.5 and T-04.6 together realize DR-01. If the exhibit could be written and
 the custody record fail, an exhibit would exist with no established origin -
 inadmissible, and silently so.
 
@@ -83,20 +83,41 @@ inadmissible, and silently so.
 
 | Figure | Kind | What it settled |
 |---|---|---|
-| 1 | Use case, overview | Four actors, the specialisation hierarchy, 41 operations |
+| 1 | Use case, overview | Four actors, the specialization hierarchy, 41 operations |
 | 3 | Use case, reading | The base actor's 20 use cases |
 | 4 | Use case, analysis | What each role adds |
-| 5 | Class, domain | Six entities with behaviour |
+| 5 | Class, domain | Six entities with behavior |
 | 6 | Class, persistent | The schema as stereotyped classes |
 | 8 | Package | Five layers, dependencies downward only |
 | 19 | Activity, partitions | Registration across the layers, including both refusal paths |
 | 21 | Profile | The stereotypes the model uses |
 
-**Figure 19** is the one to read for this sprint. It shows registration
+**Figure 6.5** is the one to read for this sprint. It shows registration
 crossing four partitions and, crucially, the two paths that end in refusal -
 function not entitled, content not matching its declared kind - each of which
 writes to the audit trail before stopping. A refusal that is not recorded is
 indistinguishable from an attempt that never happened.
+
+
+![](../../diagrams_v3/01_usecase_overview.png)
+
+**Figure 6.1 - Use cases: system overview and actor specialization.**
+
+![](../../diagrams_v3/02_usecase_case_evidence.png)
+
+**Figure 6.2 - Use cases: cases and evidence.**
+
+![](../../diagrams_v3/03_usecase_reading.png)
+
+**Figure 6.3 - Use cases: the Read-Only Viewer, the base actor.**
+
+![](../../diagrams_v3/04_usecase_analysis.png)
+
+**Figure 6.4 - Use cases added by each role.**
+
+![](../../diagrams_v3/19_activity_upload.png)
+
+**Figure 6.5 - Registering evidence, across the layers.**
 
 ## 6.5 Implementation
 
@@ -104,11 +125,11 @@ Ten blueprints and six model modules. Two decisions made here constrained
 everything after.
 
 **Business logic was separated from the interface from the first commit**, not
-retrofitted. The layering in Figure 8 was a Sprint 0 decision and this sprint
-honoured it; by Sprint 6 that separation had become a tested requirement
+retrofitted. The layering in Figure 5.1 was a Sprint 0 decision and this sprint
+honored it; by Sprint 6 that separation had become a tested requirement
 (SNF-11, SNF-12) rather than a convention.
 
-**Authorisation was placed at the route, never only in the template.** Hiding
+**Authorization was placed at the route, never only in the template.** Hiding
 a button does not protect an operation. This was the right instinct and it
 was still applied incompletely - the gap it left is the subject of Chapter 9.
 
@@ -119,7 +140,7 @@ was still applied incompletely - the gap it left is the subject of Chapter 9.
 | Area | Cases | Notable |
 |---|---|---|
 | Authentication | 6 | Identical failure message for unknown account and wrong secret |
-| Authorisation by function | 7 | One per role per protected operation |
+| Authorization by function | 7 | One per role per protected operation |
 | Investigation lifecycle | 5 | Closure destroys nothing |
 | Registration | 8 | Includes a disguised executable, and the atomicity case |
 | Custody | 5 | First record created with the exhibit |
@@ -128,7 +149,7 @@ was still applied incompletely - the gap it left is the subject of Chapter 9.
 
 ## 6.7 Burndown
 
-**[FIGURE 6.1 - Sprint 1 burndown]**
+**[FIGURE 6.6 - Sprint 1 burndown]**
 
 The line is flat through day two and only meets the ideal from day nine. The
 cause is not estimation error in the stories themselves but **work the
@@ -158,7 +179,7 @@ All forty points accepted.
 ## 6.9 Retrospective
 
 **What worked.** Writing the audit listeners before the routes that would
-depend on them. Treating authorisation as a route concern.
+depend on them. Treating authorization as a route concern.
 
 **What did not.** The estimate contained the features and not the foundation
 they stand on. And the models drifted from the code within days of being

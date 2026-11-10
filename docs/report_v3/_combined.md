@@ -1,29 +1,36 @@
-::: {custom-style="TitlePage"}
-University of Messina
+**Software Engineering Project Report**
 
-Department of Mathematics, Computer Sciences,
-Physical Sciences and Earth Sciences (MIFT)
+![](../../extracted_images/00_university_logo.jpg){width=2.1in}
 
-Bachelor's Degree in Data Analysis
+**University of Messina**
+
+**Department of Mathematics, Computer Sciences, Physical Sciences and Earth Sciences (MIFT)**
+
+**Bachelor's Degree in Data Analysis**
+
+&nbsp;
 
 **DEICMS**
 
-Digital Evidence Integrity & Chain-of-Custody Management System
+**Digital Evidence Integrity & Chain-of-Custody Management System**
 
-Agile Incremental Model - Scrum
+**Agile Incremental Model - Scrum**
 
-Software Engineering Project Report
+&nbsp;
 
-Submitted to: Prof. Salvatore Distefano
+&nbsp;
 
-Prepared by: Vidhya Harini Vijayarajan Sangeetha
+Prof. Salvatore Distefano
 
-Student ID: 533994
+&nbsp;
 
-Academic Year: 2025 / 2026
+Vidhya Harini Vijayarajan Sangeetha
 
-Revised Submission - November 2026
-:::
+533994
+
+&nbsp;
+
+A.Y. 2025 / 2026
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
@@ -36,20 +43,20 @@ that tampering with an exhibit is either impossible or evident, every action
 is attributable to the person who performed it, and the system's own history
 cannot be rewritten.
 
-The system is organised around **five guarantees**: an exhibit's content can
+The system is organized around **five guarantees**: an exhibit's content can
 be shown unchanged since intake or shown precisely where it changed; a person
 sees only the investigations they are assigned to, in every view without
 exception; the record of what happened is complete and unalterable; an exhibit
-moves only as its procedure permits; and exhibits can be prioritised by the
+moves only as its procedure permits; and exhibits can be prioritized by the
 attention they need, with the reasoning exposed.
 
-Its functionality is categorised across the three required categories and
+Its functionality is categorized across the three required categories and
 **self-assessed for balance on four independent measures**. Thirty
-data-oriented functionalities realise the entity model and its formulae.
+data-oriented functionalities realize the entity model and its formulae.
 Eleven third-party integrations are consumed as they are, with the boundary
 stated in each case. **Five algorithms are designed and implemented in this
 project**: chain integrity verification over a directed acyclic graph of
-custody events, multi-factor risk assessment with per-indicator normalisation
+custody events, multi-factor risk assessment with per-indicator normalization
 and bounded interaction effects, heuristic custody-chain reconstruction that
 declines to infer below a plausibility threshold, a role-gated
 precondition-constrained lifecycle automaton, and a six-stage orchestration
@@ -61,9 +68,9 @@ Development followed **Scrum**, an agile incremental framework, across six
 sprints. Three delivered the planned system; the remaining three each arose
 from a defect found after acceptance, by adversarial testing, by structured
 code reading, and by audit against the specification respectively. The report
-is organised with **one chapter per sprint**, each carrying that sprint's
+is organized with **one chapter per sprint**, each carrying that sprint's
 backlog, tasks, UML models, tests, burndown, review and retrospective, with a
-dedicated chapter describing each complex algorithm through UML behavioural
+dedicated chapter describing each complex algorithm through UML behavioral
 diagrams.
 
 The delivered system comprises approximately 4,700 source lines across ten
@@ -125,7 +132,7 @@ verifying a chain of custody, ranking exhibits by the attention they need,
 reconstructing a history with gaps in it (Category C).
 
 The domain was chosen because its hardest problems are algorithmic rather
-than merely procedural. Chapter 2 gives the categorisation across the three
+than merely procedural. Chapter 2 gives the categorization across the three
 feature categories and assesses its balance.
 
 ## 1.3 The Five Guarantees
@@ -140,7 +147,7 @@ Everything the system does serves one of five guarantees. The chapters that foll
 | **G2** | A person sees only the investigations they are assigned to, in every view without exception | Any surface - detail, aggregate, export, generated answer - returning data from an unassigned investigation |
 | **G3** | The system's record of its own history is complete and cannot be amended | An action that leaves no record, or a record that can be altered |
 | **G4** | An exhibit moves only as its procedure permits, at the hands of someone entitled | A transition that succeeds when the procedure forbids it |
-| **G5** | Exhibits can be prioritised by the attention they need, with the reasoning exposed | A ranking its user cannot interrogate |
+| **G5** | Exhibits can be prioritized by the attention they need, with the reasoning exposed | A ranking its user cannot interrogate |
 
 G2 was breached twice during development and repaired in Sprints 4 and 6;
 Chapters 9 and 10 give both cases.
@@ -156,7 +163,7 @@ Chapters 9 and 10 give both cases.
 | O3 | A cryptographically verifiable chain of custody with an append-only history | §11.2 |
 | O4 | At least three non-trivial algorithms designed and implemented in this project | **Ch. 11 - five delivered** |
 | O5 | Third-party services consumed correctly, with the boundary stated | Ch. 2, §11.7 |
-| O6 | A genuine agile incremental project with per-iteration artefacts | Ch. 4, 6-10 |
+| O6 | A genuine agile incremental project with per-iteration artifacts | Ch. 4, 6-10 |
 | O7 | An automated test suite of meaningful coverage | Ch. 12 |
 | O8 | Quality attributes implemented **and demonstrably enforced** | Ch. 10, §3.7 |
 
@@ -186,14 +193,14 @@ The exclusions are held in the product backlog's *won't have* list
 ```
 
 
-# Chapter 2 - Feature Categorisation and Balance
+# Chapter 2 - Feature Categorization and Balance
 
 ---
 
 DEICMS delivers forty-six functionalities across three categories: data and
 repository operations, third-party services, and complex application logic
 designed and implemented within the project. The sections below list them,
-motivate each categorisation, and assess the resulting balance.
+motivate each categorization, and assess the resulting balance.
 
 ## 2.1 The Three Categories
 
@@ -201,9 +208,9 @@ motivate each categorisation, and assess the resulting balance.
 
 | | Category | Definition | Test applied |
 |---|-----------|-------------------------|---------------------------------|
-| **A** | Data / repository / DB-oriented | CRUD operations, formulae | Is the behaviour obtained by storing, retrieving or arithmetically combining records? |
-| **B** | Third-party services | Libraries, APIs, tools, pre-trained models | Is the behaviour obtained by calling something that implements it? |
-| **C** | Complex application logic | Algorithm and workflow mostly implemented by the author; may exploit third-party services inside an elaborated logic | Does the behaviour require a data structure, control flow or search that this project designed? |
+| **A** | Data / repository / DB-oriented | CRUD operations, formulae | Is the behavior obtained by storing, retrieving or arithmetically combining records? |
+| **B** | Third-party services | Libraries, APIs, tools, pre-trained models | Is the behavior obtained by calling something that implements it? |
+| **C** | Complex application logic | Algorithm and workflow mostly implemented by the author; may exploit third-party services inside an elaborated logic | Does the behavior require a data structure, control flow or search that this project designed? |
 
 A pre-trained model is a third-party service unless the project builds a
 substantial workflow around the information it produces. That rule governs two
@@ -227,7 +234,7 @@ constraints, not in any algorithm.
 
 **Table 2.2 - Category A functionalities**
 
-| # | Functionality | Entity | Realises |
+| # | Functionality | Entity | Realizes |
 |----|-----------------------------------------------|-------------|------|
 | A1 | Create an investigation | Case | SR-07 |
 | A2 | Search and list investigations | Case | SR-07 |
@@ -281,12 +288,12 @@ Eleven integrations, consumed as they are.
 | B5 | Object-relational mapping | ORM | Mapping and query generation | The schema and its constraints |
 | B6 | Natural-language generation | Hosted language model | The sentence | Everything around it (Section 11.6) |
 | B7 | Statistical outlier detection | Isolation Forest | **The algorithm itself** | The feature vector only |
-| B8 | Printable report generation | PDF library | Layout and serialisation | The report's content and structure |
+| B8 | Printable report generation | PDF library | Layout and serialization | The report's content and structure |
 | B9 | Content encryption at rest | Cryptography library | The cipher | What to encrypt, and key handling |
 | B10 | Second-factor codes | TOTP library | Code generation and validation | Enrolment and the lockout policy |
 | B11 | Request rate limiting | Limiter | Counting and refusal | Which endpoints, and at what rates |
 
-**Motivation.** In every row the behaviour named in column three is
+**Motivation.** In every row the behavior named in column three is
 implemented elsewhere. B7 warrants particular note: anomaly detection appears
 in the interface beside a Category C algorithm, but the library implements the
 detection and the project supplies only the feature vector, so it is
@@ -295,16 +302,16 @@ classified B.
 ## 2.4 Category C - Complex Application Logic
 
 Five algorithms, each designed and implemented within the project. Chapter 11
-gives each a full section with pseudocode, UML behavioural diagrams,
+gives each a full section with pseudocode, UML behavioral diagrams,
 complexity analysis and the design decision that defines it; the motivation
-for each categorisation is summarised below.
+for each categorization is summarized below.
 
 **Table 2.4 - Category C functionalities, with motivation**
 
 | # | Algorithm | What makes it complex | Why not A | Why not B |
 |---|------|--------------------------------|------------------|------------|
 | **C1** | **Chain integrity verification** (§11.2) | Builds a directed acyclic graph of custody events and traverses it depth-first, applying three independent checks at every node and **accumulating all failures in one pass** rather than halting at the first | No query answers "where and in what way is this chain unsound"; the predecessor relation and the branching are structure, not rows | Hash and signature libraries are used as primitive operations inside the traversal; replacing either changes nothing in the design |
-| **C2** | **Multi-factor risk assessment** (§11.3) | Eight indicators, each normalised by a curve chosen for its own distribution, combined by weighted sum, amplified by five interaction rules, with the total amplification capped | A weighted sum is arithmetic; the per-indicator normalisation choice, the interaction model and the cap are design | No library models this domain's notion of risk |
+| **C2** | **Multi-factor risk assessment** (§11.3) | Eight indicators, each normalized by a curve chosen for its own distribution, combined by weighted sum, amplified by five interaction rules, with the total amplification capped | A weighted sum is arithmetic; the per-indicator normalization choice, the interaction model and the cap are design | No library models this domain's notion of risk |
 | **C3** | **Custody chain reconstruction** (§11.4) | Heuristic best-first search: detects discontinuities, generates candidates, scores each on four criteria, selects above a threshold and **declines below it** | There is no correct answer to retrieve; the algorithm evaluates possibilities and reports confidence | No library infers missing custody |
 | **C4** | **Evidence lifecycle state machine** (§11.5) | A formal automaton declared as data: six states, fourteen transitions, each gated by permitted function and preconditions, with a four-gate validation pipeline and audited refusals | A status column is data; a role-gated, precondition-constrained automaton with explained refusals is control | No library knows this domain's procedure |
 | **C5** | **Assistant orchestration** (§11.6) | Six stages: intent classification over seven intents, **access-scoped** retrieval, template selection, budgeted invocation with fallback, context-only degradation, and reference validation against the retrieved records | Retrieval is queries; the pipeline that decides what to retrieve and what to do with the answer is not | **The model is B.** The pipeline is C, and the substitution of one model for another changed no stage, no requirement and no test |
@@ -361,7 +368,7 @@ Functionality was added to a thin category on two occasions.
 
 The first is the more substantial. An earlier draft of the proposal classified
 a set of threshold checks over stored fields as complex logic. On review they
-were re-categorised as Category A formulae, where they remain as A25 to A27,
+were re-categorized as Category A formulae, where they remain as A25 to A27,
 and three algorithms were designed to occupy Category C in their place.
 
 ## 2.7 Mapping to the Delivery Sequence
@@ -408,12 +415,12 @@ becomes unusable.
 | Reader | The investigating authority commissioning the system | The developer building it, and the tester verifying it |
 | Question answered | What must we be able to do, and what must be true of the system? | What exactly must the software do, and how will we know it does? |
 | Language | The reader's own vocabulary - exhibit, custody, investigation | Precise, bounded, countable |
-| Abstraction | One statement covers a whole capability | One statement covers one checkable behaviour |
+| Abstraction | One statement covers a whole capability | One statement covers one checkable behavior |
 | Count | 22 functional + 9 quality | 61 functional + 21 quality |
 | Testable directly? | No - too coarse | **Yes - each carries an acceptance criterion and a named test** |
 
 Every system requirement derives from exactly one user requirement, and every
-user requirement is realised by at least one system requirement. The
+user requirement is realized by at least one system requirement. The
 traceability runs forward from there: requirement to user story, user story to
 sprint, sprint to module, module to test. The full chain is given in
 Section 3.9 and carried in the right-hand columns of Tables 3.3 and 3.7.
@@ -435,7 +442,7 @@ difference between the two columns below carries the principle.
 | "compute a SHA-256 fingerprint at upload" | **UR-06 / SR-13:** the system shall be able to determine, at any later time, whether the stored content of an exhibit differs in any way from the content registered at intake | §5.3 - cryptographic hash function selection |
 | "sign every transfer with the outgoing investigator's Ed25519 private key" | **UR-09 / SR-23:** the system shall enable any holder of a custody record to establish which investigator created it and whether it has been altered since | §5.4 - signature scheme selection |
 | "flag outliers with an Isolation Forest" | **UR-13 / SR-44:** the system shall identify exhibits whose handling pattern differs markedly from the rest of the population | §11.7 - anomaly detection approach |
-| "encrypt stored files with AES-256-GCM" | **UR-18 / SR-48:** the system shall ensure that evidence content is unintelligible to anyone obtaining the storage medium without authorisation | §5.5 - encryption scheme selection |
+| "encrypt stored files with AES-256-GCM" | **UR-18 / SR-48:** the system shall ensure that evidence content is unintelligible to anyone obtaining the storage medium without authorization | §5.5 - encryption scheme selection |
 | "support TOTP two-factor authentication" | **UR-01 / SR-47:** the system shall allow an account to require a second, independently held factor before granting access | §5.6 - second-factor mechanism |
 | "fit the model via the NVIDIA NIM endpoint" | **UR-15 / SR-40:** the system shall answer questions posed in ordinary language using only the records the questioner is entitled to see | §11.6 - language model procurement |
 
@@ -473,7 +480,7 @@ a mechanism.
 
 **Table 3.4 - User requirements**
 
-| ID | Requirement | Realised by |
+| ID | Requirement | Realized by |
 |---|------------------------------------------------------------|--------|
 | UR-01 | Investigators must identify themselves before using the system, and the system must not help an outsider discover which accounts exist | SR-01 to SR-03, SR-47 |
 | UR-02 | A person's access must be confined to what their function requires | SR-04 to SR-06 |
@@ -491,8 +498,8 @@ a mechanism.
 | UR-14 | The authority must be able to change what it considers risky without the software being rebuilt | SR-39 |
 | UR-15 | Investigators must be able to ask about a case in ordinary language and receive answers drawn from the actual records | SR-40 to SR-42, SR-53 |
 | UR-16 | An answer must never assert anything not present in the records it was drawn from | SR-43 |
-| UR-17 | Accounts must be created only by a person authorised to create them | SR-21, SR-22 |
-| UR-18 | Evidence content must remain unintelligible to anyone who obtains the storage medium without authorisation | SR-48 |
+| UR-17 | Accounts must be created only by a person authorized to create them | SR-21, SR-22 |
+| UR-18 | Evidence content must remain unintelligible to anyone who obtains the storage medium without authorization | SR-48 |
 | UR-19 | An investigator must be able to hand a complete case to an outside party who can verify it without access to this system | SR-49, SR-50 |
 | UR-20 | The system must remain useful, in reduced form, when an external service it depends on is unavailable | SR-42 |
 | UR-21 | The system must remain usable as the number of cases and exhibits grows | SR-57, SR-58 |
@@ -521,9 +528,9 @@ tester. Section 3.7 converts each into statements that can pass or fail.
 
 ## 3.5 System Requirements - Functional
 
-Each row is a single checkable behaviour, traced back to its user requirement
+Each row is a single checkable behavior, traced back to its user requirement
 and forward to the sprint that delivered it, the user story that carried it,
-and the test that verifies it. Category is the feature categorisation of
+and the test that verifies it. Category is the feature categorization of
 Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 
 **Table 3.6 - System functional requirements**
@@ -536,7 +543,7 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-04 | The system shall assign each account exactly one of four functions: administration, investigation leadership, analysis, or review | UR-02 | A | Must | 1 | US-02 | `test_increment1` |
 | SR-05 | The system shall verify the required function on every operation, refusing with an explanation rather than failing silently | UR-02 | A | Must | 1 | US-02 | `test_increment1`, `test_scoping` |
 | SR-06 | The system shall prevent an account limited to review from causing any change of state | UR-02 | A | Must | 1 | US-02 | `test_scoping` |
-| SR-07 | The system shall allow an authorised account to create, search, amend and close an investigation | UR-04 | A | Must | 1 | US-03 | `test_increment1` |
+| SR-07 | The system shall allow an authorized account to create, search, amend and close an investigation | UR-04 | A | Must | 1 | US-03 | `test_increment1` |
 | SR-08 | The system shall treat closure as a reversible marking that destroys no data | UR-04 | A | Must | 1 | US-03 | `test_increment1` |
 | SR-09 | The system shall confine each account's view of investigations to those it is assigned to | UR-03 | A | Must | 1, M1 | US-02, US-28 | `test_scoping` |
 | SR-10 | The system shall accept for registration only content of permitted kinds, and refuse all others | UR-05 | A | Must | 1 | US-04 | `test_increment1` |
@@ -544,7 +551,7 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-12 | The system shall create the first custody record in the same indivisible operation as the exhibit, so that no exhibit can exist without a custody history | UR-05 | A | Must | 1 | US-04 | `test_increment1` |
 | SR-13 | The system shall derive from the content at registration a value that changes if the content changes, store it, and never alter it thereafter | UR-06 | B | Must | 1 | US-05 | `test_increment1` |
 | SR-14 | The system shall determine the actual kind of registered content from the content itself, and refuse it where this contradicts its declared kind | UR-05 | B | Must | 1, 3 | US-06, US-25 | `test_increment1`, `test_increment3` |
-| SR-15 | The system shall allow an authorised account to amend an exhibit's description and classification while leaving its content and derived values untouched | UR-05 | A | Must | 1 | US-07 | `test_increment1` |
+| SR-15 | The system shall allow an authorized account to amend an exhibit's description and classification while leaving its content and derived values untouched | UR-05 | A | Must | 1 | US-07 | `test_increment1` |
 | SR-16 | The system shall record each passage of an exhibit with the parties, the moment, the place and the reason | UR-07 | A | Must | 1 | US-08 | `test_increment1` |
 | SR-17 | The system shall permit only the present custodian or an administrator to pass an exhibit on | UR-07 | A | Must | 1 | US-08 | `test_increment2` |
 | SR-18 | The system shall record every access, attempt, amendment and administrative act with actor, origin, moment and outcome | UR-08 | A | Must | 1 | US-09 | `test_increment1` |
@@ -569,7 +576,7 @@ Chapter 2: **A** data/repository, **B** third-party, **C** complex custom logic.
 | SR-37 | The system shall combine the indicators by weighted summation, amplified where stated combinations co-occur, with the amplification bounded | UR-13 | **C** | Must | 3 | US-18 | `test_increment3` |
 | SR-38 | The system shall place the combined value in a band and accompany it with the contribution of each indicator and the actions it suggests | UR-13 | **C** | Must | 3 | US-18 | `test_increment3` |
 | SR-39 | The system shall allow an administrator to alter the indicator weights and the band boundaries, restoring the weights to a unit total and requiring the boundaries to increase strictly | UR-14 | **C**/A | Should | 3 | US-19 | `test_increment3` |
-| SR-40 | The system shall determine the purpose of a question posed in ordinary language among a closed set of purposes, and shall recognise when it cannot | UR-15 | **C** | Must | 3 | US-20 | `test_intent_classifier` |
+| SR-40 | The system shall determine the purpose of a question posed in ordinary language among a closed set of purposes, and shall recognize when it cannot | UR-15 | **C** | Must | 3 | US-20 | `test_intent_classifier` |
 | SR-41 | The system shall gather the records relevant to the determined purpose, confined to the investigations the questioner is assigned to, before any answer is composed | UR-15, UR-03 | **C** | Must | 3, M1 | US-20, US-29 | `test_scoping` |
 | SR-42 | The system shall answer from the gathered records alone when no external service is available, stating that it has done so | UR-20 | **C** | Must | 3 | US-20 | `test_nfr`, `test_increment3` |
 | SR-43 | The system shall check every identifier and name appearing in an answer against the records gathered, and shall mark any that does not appear | UR-16 | **C** | Must | 3 | US-21 | `test_increment3` |
@@ -663,15 +670,19 @@ and 3.7. Its six links are: a **user requirement** is derived into one or more
 **system requirements**; each system requirement is carried by a **user
 story**; each user story is scheduled into a **sprint**; each sprint
 implements it in a **module**; and each module is verified by a named
-**test**. The relationships between these artefacts are modelled formally as a
-UML class diagram in Figure 3.1, so that the traceability structure is itself
-expressed in the notation the rest of the report uses.
+**test**. These relationships are modeled as a UML class diagram in
+Figure 3.1.
+
+![](../../diagrams_v3/22_class_traceability.png)
+
+**Figure 3.1 - Traceability metamodel.**
+
 
 **Table 3.9 - Coverage**
 
 | Check | Result |
 |----------------------------------------------------------------|-------|
-| User requirements realised by at least one system requirement | 22 of 22 |
+| User requirements realized by at least one system requirement | 22 of 22 |
 | System functional requirements traced to a user requirement | 61 of 61 |
 | System functional requirements carried by a user story | 61 of 61 |
 | System quality requirements with a measurement and acceptance criterion | 21 of 21 |
@@ -684,7 +695,7 @@ Two failures in the requirements process are given below with their causes.
 
 **Negative requirements were scoped to the surfaces their author had in
 mind.** UR-03 and SNF-01 were stated correctly from the outset, but the system
-requirements realising them addressed record access alone. Aggregates -
+requirements realizing them addressed record access alone. Aggregates -
 counts, charts, rankings, exports, generated answers - were not enumerated, and
 so were not protected. The requirement was right; its scope of application was
 incomplete. SR-51 exists because of this, and the maintenance iteration M1 is
@@ -736,12 +747,12 @@ against what was hoped.
 | Technical risk | Concentrated in five custom algorithms | Risk must be attacked early, not deferred |
 | Dependency structure | Strongly ordered: data → integrity → assessment | Later work genuinely needs earlier work running |
 | Delivery horizon | Fixed academic deadline | Scope must flex; the date cannot |
-| Required evidence | Planning and reflection artefacts | The process must produce documents as a by-product |
+| Required evidence | Planning and reflection artifacts | The process must produce documents as a by-product |
 
 The third and fourth rows dominate. The data layer could have been specified
 completely before a line was written: six entities, their relationships, their
 constraints. The five algorithms could not. The traversal semantics of the
-integrity verifier, the normalisation curve for each risk indicator, the
+integrity verifier, the normalization curve for each risk indicator, the
 plausibility criteria for reconstruction - none of these could be settled
 on paper, because settling them required running them against data.
 
@@ -753,10 +764,10 @@ on paper, because settling them required running them against data.
 |----|-----------------------------------------------------|--------------|
 | **Waterfall** | Requires requirements frozen before design. Would have frozen the algorithms' design at the point of least knowledge, and the integrity verifier's semantics did in fact change under implementation | **Rejected** - the known-volatile part is the part it freezes hardest |
 | **V-model** | Waterfall's discipline with test levels paired to construction phases. The pairing is valuable and was retained (Chapter 9); the rigid sequencing was not | **Rejected as a lifecycle, adopted as a test strategy** |
-| **Incremental** | Builds in slices, each adding capability. Matches the dependency order well. But prescribes no artefacts for planning or reflection | **Necessary but not sufficient** |
+| **Incremental** | Builds in slices, each adding capability. Matches the dependency order well. But prescribes no artifacts for planning or reflection | **Necessary but not sufficient** |
 | **Spiral** | Risk-driven, with explicit risk analysis each cycle. Well matched to the algorithmic risk, but its ceremony is calibrated for large systems with real stakeholder negotiation | **Rejected as disproportionate** |
 | **Extreme Programming** | Test-first development, refactoring, small releases, simple design. All directly applicable and all adopted as practices | **Adopted as practices within the chosen framework** |
-| **Scrum** | An incremental framework with defined artefacts - product backlog, sprint backlog, increment - and defined events. Provides exactly the planning and reflection structure incremental development lacks | **Selected** |
+| **Scrum** | An incremental framework with defined artifacts - product backlog, sprint backlog, increment - and defined events. Provides exactly the planning and reflection structure incremental development lacks | **Selected** |
 
 ### 4.1.3 The decision, and its relation to the project proposal
 
@@ -766,13 +777,13 @@ carrying its own user stories, diagrams and retrospective.
 
 Scrum is an agile incremental framework. The proposal named the family; this
 chapter names the member of that family and, more importantly, commits to
-implementing its artefacts rather than borrowing its vocabulary. **That
+implementing its artifacts rather than borrowing its vocabulary. **That
 distinction is the substance of the revision.** An earlier version of this
 report used Scrum terms - sprint, backlog, retrospective - over a process that
-had no prioritised product backlog, no refinement between sprints, and no
+had no prioritized product backlog, no refinement between sprints, and no
 decomposition of stories into tasks. Using the vocabulary without the
-artefacts is worse than not using it, because it claims a discipline that was
-not practised.
+artifacts is worse than not using it, because it claims a discipline that was
+not practiced.
 
 **Table 4.3 - Four reasons Scrum was selected**
 
@@ -781,7 +792,7 @@ not practised.
 | R1 | Technical risk sits in work that cannot be specified in advance; Scrum commits only one sprint at a time | Waterfall and the V-model commit the whole design at the point of least knowledge |
 | R2 | The three capability tiers have a genuine dependency order that rewards building in slices | A single big-bang delivery would leave integration untested until the end |
 | R3 | Feedback between sprints should change the next sprint's plan, through a retrospective whose actions are binding | Incremental development alone prescribes no reflection step |
-| R4 | The process must leave behind backlogs, burndowns, reviews and retrospectives as evidence | Spiral produces risk analyses rather than these; plain incremental produces none |
+| R4 | The process must leave behind backlogs, burndowns, reviews and retrospectives as evidence | Spiral produces risk analyzes rather than these; plain incremental produces none |
 
 Chapter 13 returns to this table and assesses each reason against the outcome.
 
@@ -811,7 +822,7 @@ section states exactly what was done.
 | Backlog Refinement | **Yes** | Performed between sprints; the backlog's version history is in Table 4.9 |
 
 **The honest conclusion.** Four of Scrum's five events survive adaptation
-because they operate on *artefacts*, which exist regardless of team size. The
+because they operate on *artifacts*, which exist regardless of team size. The
 Daily Scrum does not, because it operates on *communication between people*.
 Claiming to have held it would be the clearest possible example of vocabulary
 without substance, which is the fault this revision exists to correct.
@@ -832,7 +843,7 @@ front.
 | User requirements (22) and user quality requirements (9) | Tables 3.4, 3.5 | The product backlog is derived from them |
 | System requirements (61) and system quality requirements (21) | Tables 3.6, 3.7 | Acceptance criteria come from here |
 | Domain requirements (7) | Table 3.8 | Non-negotiable; must constrain every sprint |
-| Conceptual data model | Figure 5.2 | Six entities stable from the outset; no benefit in discovering them incrementally |
+| Conceptual data model | Figure 5.7 | Six entities stable from the outset; no benefit in discovering them incrementally |
 | Architectural decision: layered, with business logic isolated | Chapter 5 | A structural decision expensive to reverse later |
 | Definition of Ready and Definition of Done | Tables 4.7, 4.8 | A sprint cannot start or finish without them |
 
@@ -866,7 +877,7 @@ distinction drawn in Section 4.1.1.
 | 3 | The whole suite passes, not only the new tests |
 | 4 | Business logic contains no interface-layer dependency (SNF-11) |
 | 5 | The action is recorded in the audit trail where it changes state |
-| 6 | Authorisation enforced at the route, not only hidden in the interface |
+| 6 | Authorization enforced at the route, not only hidden in the interface |
 | 7 | Diagrams affected by the change updated in the same commit |
 
 Condition 7 was added after Sprint 1, where diagrams drifted from the code
@@ -888,10 +899,10 @@ while US-11 is a 1-point Must and US-22 is a 5-point Could.
 
 | Rank | ID | User story | Traces to | Cat | MoSCoW | Pts |
 |---|---|-------------------------------------------------------|-----|---|---|---|
-| 1 | US-01 | As an investigator, I want to sign in securely, so that only authorised people reach case data | SR-01 to SR-03 | A | Must | 3 |
+| 1 | US-01 | As an investigator, I want to sign in securely, so that only authorized people reach case data | SR-01 to SR-03 | A | Must | 3 |
 | 2 | US-02 | As an administrator, I want access limited by function, so that nobody exceeds their remit | SR-04 to SR-06, SR-09 | A | Must | 5 |
 | 3 | US-11 | As an administrator, I want to be the only one who can create accounts, so that access is controlled at source | SR-21, SR-22 | A | Must | 1 |
-| 4 | US-03 | As a lead investigator, I want to open, find and close investigations, so that work is organised | SR-07, SR-08 | A | Must | 5 |
+| 4 | US-03 | As a lead investigator, I want to open, find and close investigations, so that work is organized | SR-07, SR-08 | A | Must | 5 |
 | 5 | US-04 | As an investigator, I want to register an exhibit, so that it enters the system under control | SR-10 to SR-12 | A | Must | 5 |
 | 6 | US-05 | As an auditor, I want each exhibit fingerprinted at intake, so that later change is detectable | SR-13 | B | Must | 2 |
 | 7 | US-08 | As an investigator, I want every handover recorded, so that the chain is unbroken | SR-16, SR-17 | A | Must | 5 |
@@ -909,7 +920,7 @@ while US-11 is a 1-point Must and US-22 is a 5-point Could.
 | 19 | US-20 | As an investigator, I want to ask questions in ordinary language, so that I need not learn the schema | SR-40 to SR-42 | **C** | Must | 8 |
 | 20 | US-21 | As an investigator, I want unsupported statements flagged, so that I do not act on invention | SR-43 | **C** | Must | 3 |
 | 21 | US-24 | As an administrator, I want a second authentication factor and lockout, so that stolen passwords are insufficient | SR-47 | B | Should | 5 |
-| 22 | US-25 | As a custodian, I want evidence unreadable without authorisation, so that losing the medium is not losing the case | SR-48 | B | Should | 3 |
+| 22 | US-25 | As a custodian, I want evidence unreadable without authorization, so that losing the medium is not losing the case | SR-48 | B | Should | 3 |
 | 23 | US-19 | As an administrator, I want to tune what counts as risky, so that the system matches our practice | SR-39 | **C**/A | Should | 3 |
 | 24 | US-23 | As a lead investigator, I want ranked and anomalous views, so that I can survey a caseload | SR-46 | A | Should | 3 |
 | 25 | US-26 | As an investigator, I want a verifiable export, so that a third party can check our work | SR-49 | B | Should | 2 |
@@ -980,7 +991,7 @@ Two entries in Table 4.10 deserve comment.
 
 **v2.0 records a change request, not a defect.** The aggregates leaked data
 across cases, but no requirement then in force said they must not - UR-03
-existed, but the system requirements realising it addressed record access
+existed, but the system requirements realizing it addressed record access
 only. Calling this a defect would blame the implementation for a gap in the
 specification. It was the requirement's scope that was incomplete, so it
 entered the backlog as new scope.
@@ -1000,7 +1011,7 @@ resolution.
 
 **Table 4.11 - From product backlog to task, with one worked example**
 
-| Level | Artefact | Example | Owned by |
+| Level | Artifact | Example | Owned by |
 |---|---------------|---------------------------------------|-------------|
 | 1 | Product backlog item | US-13: *verify the whole custody history* (13 pts) | Product Owner |
 | 2 | Acceptance criteria | Reports a verdict; locates **every** failure, not the first; gives a completeness proportion | Product Owner |
@@ -1018,7 +1029,7 @@ resolution.
 | T-13.5 | Implement the chronological examination | 3 | SR-26 |
 | T-13.6 | Accumulate failures without halting the walk | 4 | SR-26 |
 | T-13.7 | Compute the completeness proportion | 2 | SR-27 |
-| T-13.8 | Assemble the finding object and its serialised form | 3 | SR-27 |
+| T-13.8 | Assemble the finding object and its serialized form | 3 | SR-27 |
 | T-13.9 | Write failing tests for all three examination kinds first | 6 | DoD 2 |
 | T-13.10 | Update the sequence and activity diagrams | 2 | DoD 7 |
 | | **Total** | **39 h** | |
@@ -1110,7 +1121,7 @@ SNF-12 - rather than a habit.
 
 ## 5.2 Layers
 
-**Figure 8** (package diagram) gives the structure: five layers, dependencies
+**Figure 5.1** (package diagram) gives the structure: five layers, dependencies
 downward only, no cycle.
 
 **Table 5.1 - The layers**
@@ -1127,6 +1138,11 @@ The one prohibition that is enforced rather than merely stated is the third
 row's: a static test asserts that no logic module imports `request`,
 `session`, `redirect`, `url_for`, `render_template`, `flash` or `abort`.
 
+![](../../diagrams_v3/08_package_layers.png)
+
+**Figure 5.1 - Layered architecture - dependencies run downward only.**
+
+
 ### 5.2.1 An honest correction to this rule
 
 The first version of this requirement claimed business logic contained **no**
@@ -1136,12 +1152,12 @@ application-context object to read configuration.
 The requirement was corrected in Sprint 6 to the boundary that is both true
 and meaningful - logic never touches the **request cycle** - rather than
 leaving a stricter claim that the code contradicted. **A requirement the code
-violates is worse than a weaker requirement the code honours**, because the
+violates is worse than a weaker requirement the code honors**, because the
 first teaches a reader to distrust the document.
 
 ## 5.3 Cryptographic Hash Function
 
-*Design decision realising SR-13 and UR-06.*
+*Design decision realizing SR-13 and UR-06.*
 
 The requirement asks that a later difference in content be detectable. It
 names no mechanism.
@@ -1150,7 +1166,7 @@ names no mechanism.
 |-----------|-------------------------------------------------------------|
 | Checksum (CRC32) | Fast, but collisions are constructible; useless against deliberate alteration |
 | MD5 / SHA-1 | Collision attacks are practical; unacceptable in a forensic context |
-| **SHA-256** | **Chosen.** Standardised, no practical collision attack, available in the standard library |
+| **SHA-256** | **Chosen.** Standardized, no practical collision attack, available in the standard library |
 
 The fingerprint taken at intake is stored once and **never updated**; the
 current fingerprint is a separate column. Verification is the comparison of
@@ -1159,7 +1175,7 @@ rather than optimise it.
 
 ## 5.4 Signature Scheme
 
-*Design decision realising SR-23, SR-24 and UR-09.*
+*Design decision realizing SR-23, SR-24 and UR-09.*
 
 The requirement asks that a custody record's author be establishable and
 alteration detectable.
@@ -1171,7 +1187,7 @@ alteration detectable.
 | **Ed25519** | **Chosen.** Small keys and signatures, strong margin, misuse-resistant |
 
 The design decision that mattered more than the scheme is the **canonical
-payload**: six fields serialised with deterministic ordering, fixed before any
+payload**: six fields serialized with deterministic ordering, fixed before any
 signing code was written (retrospective action A2, task T-12.1). The bytes
 signed at creation must be byte-identical to those reconstructed at
 verification. Settling this first eliminated an entire defect class.
@@ -1181,7 +1197,7 @@ be represented - a constraint rather than a convention.
 
 ## 5.5 Encryption at Rest
 
-*Design decision realising SR-48 and UR-18.*
+*Design decision realizing SR-48 and UR-18.*
 
 Evidence content is encrypted with an authenticated scheme (AES-256-GCM), so
 that modification of the stored ciphertext is detected on decryption rather
@@ -1195,7 +1211,7 @@ content unrecoverable. This is in Section 13.3 and in the deployment notes.
 
 ## 5.6 Second Factor
 
-*Design decision realising SR-47 and UR-01.*
+*Design decision realizing SR-47 and UR-01.*
 
 Time-based one-time codes were chosen over the alternatives: SMS is
 interceptable and requires a telephone number; hardware tokens cannot be
@@ -1203,12 +1219,17 @@ assumed; email as a second factor usually shares a compromise with the first.
 The secret is stored encrypted under the same derived key as private keys.
 
 Account lockout is **time-bounded as well as administratively releasable**
-(Figure 16), so an attacker cannot make a denial of service permanent by
+(Figure 5.2), so an attacker cannot make a denial of service permanent by
 deliberately failing an account's logins.
+
+![](../../diagrams_v3/16_state_account.png)
+
+**Figure 5.2 - Account access, with a composite state and time-bounded lockout.**
+
 
 ## 5.7 Components and Interfaces
 
-**Figure 9** (component diagram) shows nine components and the interfaces
+**Figure 5.3** (component diagram) shows nine components and the interfaces
 between them. One is worth drawing attention to.
 
 **Every component that reads case-scoped data depends on a single provider of
@@ -1217,9 +1238,21 @@ the rule "which investigations may this account see" was expressed inline in
 each route, and so was omitted by six of them. One provider, one rule, one
 place to change it.
 
-**Figure 10** (composite structure) opens the integrity engine, and **Figure
-11** (deployment) places the components on hosts, with the model service as
+**Figure 5.4** (composite structure) opens the integrity engine, and **Figure 5.5** (deployment) places the components on hosts, with the model service as
 the only element outside the trust boundary.
+
+
+![](../../diagrams_v3/09_component.png)
+
+**Figure 5.3 - Components and their provided and required interfaces.**
+
+![](../../diagrams_v3/10_composite_verifier.png)
+
+**Figure 5.4 - Internal structure of the integrity engine.**
+
+![](../../diagrams_v3/11_deployment.png)
+
+**Figure 5.5 - Deployment: nodes, artifacts and the trust boundary.**
 
 ## 5.8 Design Patterns Used
 
@@ -1230,11 +1263,11 @@ the only element outside the trust boundary.
 | Application factory | Application setup | Lets a test build an isolated application with its own database |
 | Repository (via ORM) | Models | Keeps queries out of the algorithms |
 | **State machine** | Lifecycle | Policy as data rather than branching code (§11.5) |
-| **Strategy** | Risk normalisation | Each indicator's curve chosen independently (§11.3) |
+| **Strategy** | Risk normalization | Each indicator's curve chosen independently (§11.3) |
 | Template method | Prompt construction | A common shape with per-intent variation |
 | Observer | Audit listeners | History recorded without each route remembering to |
 | Facade | Logic modules | One entry point per algorithm |
-| Guard clause | Routes | Authorisation refused early and uniformly |
+| Guard clause | Routes | Authorization refused early and uniformly |
 
 The Observer row is the one that carries a guarantee. Audit records are
 written by listeners at the data-access layer, so **the append-only history
@@ -1243,8 +1276,8 @@ auditing by forgetting to.
 
 ## 5.9 Data Model
 
-**Figure 6** gives the persistent model as a UML class diagram with `«table»`
-stereotypes; **Figure 5** gives the design model with behaviour; **Figure 7**
+**Figure 5.7** gives the persistent model as a UML class diagram with `«table»`
+stereotypes; **Figure 5.6** gives the design model with behavior; **Figure 5.8**
 gives one instance snapshot.
 
 **Table 5.3 - Constraints that carry domain meaning**
@@ -1259,6 +1292,23 @@ gives one instance snapshot.
 | `audit_records` | Insert-only, enforced by listeners | Not expressible in DDL; history cannot be rewritten (G3) |
 | `case_access` | UNIQUE (case, investigator) | The associative entity resolving the many-to-many |
 | `cases` | `is_archived` with no DELETE path | Closure destroys nothing (DR-04) |
+
+
+![](../../diagrams_v3/05_class_domain.png)
+
+**Figure 5.6 - Domain model, with operations and visibility.**
+
+![](../../diagrams_v3/06_class_persistent.png)
+
+**Figure 5.7 - Persistent model as stereotyped classes.**
+
+![](../../diagrams_v3/07_object_snapshot.png)
+
+**Figure 5.8 - One flagged exhibit at a single instant.**
+
+![](../../diagrams_v3/21_profile_stereotypes.png)
+
+**Figure 5.9 - Stereotypes used throughout the model.**
 
 ### 5.9.1 A portability caveat found by testing
 
@@ -1305,7 +1355,7 @@ records US-08 creates.
 
 **Table 6.1 - Sprint 1 backlog**
 
-| ID | Story | Pts | Realises |
+| ID | Story | Pts | Realizes |
 |-------|------------------------------------------|-----|----------------|
 | US-01 | Sign in securely | 3 | SR-01 to SR-03 |
 | US-02 | Access limited by function | 5 | SR-04 to SR-06, SR-09 |
@@ -1327,7 +1377,7 @@ full; the remaining nine followed the same pattern.
 
 **Table 6.2 - US-09 (unalterable history) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |------|--------------------------------------------------------|----|-----|
 | T-09.1 | Design the audit record: actor, origin, moment, outcome | 3 | SR-18 |
 | T-09.2 | Write the failing test: an audit record cannot be updated | 2 | DoD 2 |
@@ -1345,7 +1395,7 @@ cannot rewrite history.
 
 **Table 6.3 - US-04 (register an exhibit) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |--------|----------------------------------------------------|----|------|
 | T-04.1 | Accept an upload and reject disallowed kinds | 4 | SR-10 |
 | T-04.2 | Allocate a system-unique identifier | 2 | SR-11 |
@@ -1355,7 +1405,7 @@ cannot rewrite history.
 | T-04.6 | Test that a failure leaves neither record behind | 3 | DR-01 |
 | | **Total** | **21 h** | |
 
-T-04.5 and T-04.6 together realise DR-01. If the exhibit could be written and
+T-04.5 and T-04.6 together realize DR-01. If the exhibit could be written and
 the custody record fail, an exhibit would exist with no established origin -
 inadmissible, and silently so.
 
@@ -1365,20 +1415,41 @@ inadmissible, and silently so.
 
 | Figure | Kind | What it settled |
 |----|------------------|------------------------------------------------|
-| 1 | Use case, overview | Four actors, the specialisation hierarchy, 41 operations |
+| 1 | Use case, overview | Four actors, the specialization hierarchy, 41 operations |
 | 3 | Use case, reading | The base actor's 20 use cases |
 | 4 | Use case, analysis | What each role adds |
-| 5 | Class, domain | Six entities with behaviour |
+| 5 | Class, domain | Six entities with behavior |
 | 6 | Class, persistent | The schema as stereotyped classes |
 | 8 | Package | Five layers, dependencies downward only |
 | 19 | Activity, partitions | Registration across the layers, including both refusal paths |
 | 21 | Profile | The stereotypes the model uses |
 
-**Figure 19** is the one to read for this sprint. It shows registration
+**Figure 6.5** is the one to read for this sprint. It shows registration
 crossing four partitions and, crucially, the two paths that end in refusal -
 function not entitled, content not matching its declared kind - each of which
 writes to the audit trail before stopping. A refusal that is not recorded is
 indistinguishable from an attempt that never happened.
+
+
+![](../../diagrams_v3/01_usecase_overview.png)
+
+**Figure 6.1 - Use cases: system overview and actor specialization.**
+
+![](../../diagrams_v3/02_usecase_case_evidence.png)
+
+**Figure 6.2 - Use cases: cases and evidence.**
+
+![](../../diagrams_v3/03_usecase_reading.png)
+
+**Figure 6.3 - Use cases: the Read-Only Viewer, the base actor.**
+
+![](../../diagrams_v3/04_usecase_analysis.png)
+
+**Figure 6.4 - Use cases added by each role.**
+
+![](../../diagrams_v3/19_activity_upload.png)
+
+**Figure 6.5 - Registering evidence, across the layers.**
 
 ## 6.5 Implementation
 
@@ -1386,11 +1457,11 @@ Ten blueprints and six model modules. Two decisions made here constrained
 everything after.
 
 **Business logic was separated from the interface from the first commit**, not
-retrofitted. The layering in Figure 8 was a Sprint 0 decision and this sprint
-honoured it; by Sprint 6 that separation had become a tested requirement
+retrofitted. The layering in Figure 5.1 was a Sprint 0 decision and this sprint
+honored it; by Sprint 6 that separation had become a tested requirement
 (SNF-11, SNF-12) rather than a convention.
 
-**Authorisation was placed at the route, never only in the template.** Hiding
+**Authorization was placed at the route, never only in the template.** Hiding
 a button does not protect an operation. This was the right instinct and it
 was still applied incompletely - the gap it left is the subject of Chapter 9.
 
@@ -1401,7 +1472,7 @@ was still applied incompletely - the gap it left is the subject of Chapter 9.
 | Area | Cases | Notable |
 |-----------------|----|--------------------------------------------------|
 | Authentication | 6 | Identical failure message for unknown account and wrong secret |
-| Authorisation by function | 7 | One per role per protected operation |
+| Authorization by function | 7 | One per role per protected operation |
 | Investigation lifecycle | 5 | Closure destroys nothing |
 | Registration | 8 | Includes a disguised executable, and the atomicity case |
 | Custody | 5 | First record created with the exhibit |
@@ -1410,9 +1481,7 @@ was still applied incompletely - the gap it left is the subject of Chapter 9.
 
 ## 6.7 Burndown
 
-![](../../diagrams_v3/charts/burndown_sprint1.png)
-
-**Figure 6.1 - Sprint 1 burndown.**
+*[Figure 6.6 - Sprint 1 burndown: image not found]*
 
 The line is flat through day two and only meets the ideal from day nine. The
 cause is not estimation error in the stories themselves but **work the
@@ -1442,7 +1511,7 @@ All forty points accepted.
 ## 6.9 Retrospective
 
 **What worked.** Writing the audit listeners before the routes that would
-depend on them. Treating authorisation as a route concern.
+depend on them. Treating authorization as a route concern.
 
 **What did not.** The estimate contained the features and not the foundation
 they stand on. And the models drifted from the code within days of being
@@ -1498,7 +1567,7 @@ underestimate before it became a plateau.
 
 **Table 7.1 - Sprint 2 backlog**
 
-| ID | Story | Pts | Realises | Category |
+| ID | Story | Pts | Realizes | Category |
 |------|-----------------------------------------|----|--------------|----|
 | US-12 | Custody records attributable to their author | 5 | SR-23, SR-24 | B |
 | US-13 | Verify the whole custody history | **13** | SR-25 to SR-27 | **C** |
@@ -1515,7 +1584,7 @@ of the product-backlog-to-task chain. Two further decompositions matter here.
 
 **Table 7.2 - US-12 (attributable custody records) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |------|-------------------------------------------------------|----|------|
 | T-12.1 | **Fix the canonical payload: six fields, deterministic ordering** | 3 | A2 |
 | T-12.2 | Sign at creation using the creator's private means | 4 | SR-23 |
@@ -1526,13 +1595,13 @@ of the product-backlog-to-task chain. Two further decompositions matter here.
 
 T-12.1 is retrospective action A2 discharged. **The bytes signed at creation
 must be identical to the bytes reconstructed at verification**, so the
-serialisation is fixed with deterministic key ordering before any signing code
+serialization is fixed with deterministic key ordering before any signing code
 exists. Settling this first avoided the class of defect where signatures
 verify in tests and fail in production because a field order changed.
 
 **Table 7.3 - US-14 (lifecycle enforcement) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |-------|-------------------------------------------------------|----|-----|
 | T-14.1 | Express the policy as a transition table, not as branching code | 5 | SR-28 |
 | T-14.2 | Gate 1: the pair must exist | 2 | SR-28 |
@@ -1647,7 +1716,7 @@ than passing for five days.
 
 | # | Action | Where it shows |
 |---|--------------------------------------------------|------------------|
-| B1 | **Write acceptance criteria for Category C stories as failing tests before implementation** | §8.3; the normalisation and cap tests |
+| B1 | **Write acceptance criteria for Category C stories as failing tests before implementation** | §8.3; the normalization and cap tests |
 | B2 | Keep the external model behind a testable seam from the start | §8.5 |
 | B3 | Estimate presentation work separately from the algorithm that produces it | Backlog v1.1, already applied |
 
@@ -1690,14 +1759,14 @@ protecting them.
 
 **Table 8.1 - Sprint 3 backlog**
 
-| ID | Story | Pts | Realises | Category |
+| ID | Story | Pts | Realizes | Category |
 |-------|-------------------------------------------|-----|----------|-----|
 | US-18 | Exhibits ranked by attention needed | 8 | SR-36 to SR-38 | **C** |
 | US-20 | Ask questions in ordinary language | 8 | SR-40 to SR-42 | **C** |
 | US-21 | Unsupported statements flagged | 3 | SR-43 | **C** |
 | US-24 | Second factor and lockout | 5 | SR-47 | B |
 | US-19 | Tune what counts as risky | 3 | SR-39 | **C**/A |
-| US-25 | Evidence unreadable without authorisation | 3 | SR-48 | B |
+| US-25 | Evidence unreadable without authorization | 3 | SR-48 | B |
 | US-23 | Ranked and anomalous views | 3 | SR-46 | A |
 | US-22 | Statistical outliers surfaced | 5 | SR-44, SR-45 | B |
 | US-26 | Verifiable export | 2 | SR-49 | B |
@@ -1715,7 +1784,7 @@ therefore written as six tests on day one, before any scoring code:
 | Criterion | Test written first | Why it would have been missed |
 |----------------------|-----------------|--------------------------------|
 | The eight weights sum to exactly 1.0 | Assert the sum | A later weight edit silently breaks the scale |
-| Administrator overrides are re-normalised | Set weights summing to 1.4, assert 1.0 | The interface would accept an unusable configuration |
+| Administrator overrides are re-normalized | Set weights summing to 1.4, assert 1.0 | The interface would accept an unusable configuration |
 | Each indicator contributes independently | One test per indicator | A copy-paste error between indicators is invisible in the total |
 | Each interaction rule fires on its own pair | One test per rule | Five rules, five chances for a wrong pair |
 | **The total bonus is capped at 0.30** | Construct an item firing four rules | Without the cap the ranking collapses, and the total still looks plausible |
@@ -1729,11 +1798,11 @@ can tell a correct high score from a saturated one.**
 
 **Table 8.3 - US-18 (risk assessment) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---------|--------------------------------------------------|-----|-------|
 | T-18.1 | Write the six acceptance tests (Table 8.2) | 6 | B1 |
 | T-18.2 | Extract the eight indicators | 8 | SR-36 |
-| T-18.3 | Choose and implement a normalisation curve per indicator | 6 | SR-36 |
+| T-18.3 | Choose and implement a normalization curve per indicator | 6 | SR-36 |
 | T-18.4 | Weighted combination | 2 | SR-37 |
 | T-18.5 | The five interaction rules | 5 | SR-37 |
 | T-18.6 | The bonus cap | 1 | SR-37 |
@@ -1744,7 +1813,7 @@ can tell a correct high score from a saturated one.**
 
 **Table 8.4 - US-20 and US-21 (assistant) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |-------|------------------------------------------------------|----|-----|
 | T-20.1 | Intent classification over seven intents, with tie-breaking | 6 | SR-40 |
 | T-20.2 | Retrieval sequence per intent | 8 | SR-41 |
@@ -1777,7 +1846,7 @@ suite runs without reaching any external service") is satisfiable at all.
 
 The algorithms are described in **Chapter 11**, sections 11.3 and 11.6.
 
-Figure 11 is drawn in this sprint rather than earlier because this is the
+Figure 5.5 is drawn in this sprint rather than earlier because this is the
 sprint that puts something **outside** the trust boundary. Until the model
 service existed, every component ran on one host.
 
@@ -1791,7 +1860,7 @@ later proved to be the site of a defect: the verdict was computed but never
 persisted, so the indicator sat at its default. Chapter 9, finding D2.
 
 **The anomaly detector was kept visibly separate from the assessment.** Its
-output is labelled "suggested for review" and never merged into the
+output is labeled "suggested for review" and never merged into the
 deterministic score. SR-45 requires this, and it is also the honest treatment
 of an uninterpretable signal sitting beside an explainable one.
 
@@ -1833,11 +1902,11 @@ which would normally be the least predictable.
 
 | Story | Criterion | Outcome |
 |--------|-----------------------------------------------------------|----|
-| US-18 | Eight indicators, each normalised appropriately | Met |
+| US-18 | Eight indicators, each normalized appropriately | Met |
 | US-18 | Interaction bonus bounded | Met |
 | US-18 | Output explains its own score | Met |
-| US-19 | Weights re-normalised; bands strictly increasing | Met |
-| US-20 | Seven intents classified, UNKNOWN recognised | Met |
+| US-19 | Weights re-normalized; bands strictly increasing | Met |
+| US-20 | Seven intents classified, UNKNOWN recognized | Met |
 | US-20 | Answers drawn from retrieved records | Met |
 | US-20 | A usable answer with the service unavailable | Met |
 | US-21 | References absent from context are flagged | Met |
@@ -1867,7 +1936,7 @@ the system had a scoping defect in every aggregate it had just built.
 |---|-------------------------------------------|-------------------------|
 | C1 | Add the per-item risk detail to the evidence view | Delivered |
 | C2 | Document the model-unavailable path in the interface | Delivered |
-| C3 | **Adversarially test the authorisation boundary** | Raised in Sprint 4 - *after* the defect was found, not before |
+| C3 | **Adversarially test the authorization boundary** | Raised in Sprint 4 - *after* the defect was found, not before |
 
 **C3 was an action taken too late.** It was written
 during this retrospective as a general improvement and not acted on until
@@ -1892,7 +1961,7 @@ every test, and satisfied every stated acceptance criterion. Two further
 sprints were nonetheless necessary.
 
 Each found its defects by a different means: Sprint 4 by testing the
-authorisation boundary adversarially, Sprint 5 by reading the code against its
+authorization boundary adversarially, Sprint 5 by reading the code against its
 intent.
 
 ---
@@ -1901,7 +1970,7 @@ intent.
 
 ## 9.1 How the Defect Was Found
 
-Retrospective action C3 - adversarially test the authorisation boundary - was
+Retrospective action C3 - adversarially test the authorization boundary - was
 carried out. A second account was created with no shared investigations, and
 every aggregate view was requested as that account.
 
@@ -1925,7 +1994,7 @@ ranking, its count in a dashboard total, and could ask the assistant about it.
 
 No requirement then in force had been broken. UR-03 existed - *"a person must
 see only the investigations they have been assigned to"* - but the system
-requirements realising it addressed **record access** and never enumerated
+requirements realizing it addressed **record access** and never enumerated
 aggregates.
 
 **The implementation satisfied its specification. The specification was
@@ -1941,7 +2010,7 @@ v2.0, 10 points.
 
 **Table 9.2 - US-28 (scoped aggregates) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |----|----------------------------------------------------------|---|----|
 | T-28.1 | **One function answering "which investigations may this account see"** | 3 | SR-51 |
 | T-28.2 | Route every aggregate through it: dashboard, risk, anomaly, export | 6 | SR-51 |
@@ -1952,7 +2021,7 @@ v2.0, 10 points.
 
 **Table 9.3 - US-29 (scoped assistant) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |-----|--------------------------------------------------------|----|-----|
 | T-29.1 | **Move scoping before retrieval, not after generation** | 5 | SR-41 |
 | T-29.2 | Answer identity questions from the authenticated session | 3 | SR-53 |
@@ -1964,7 +2033,7 @@ v2.0, 10 points.
 T-28.1 and T-29.1 are the repair; the rest is consequence. **A rule expressed
 once can be applied everywhere; a rule expressed inline in each route will be
 omitted by the next route.** The single function is the abstraction the
-original design lacked, and Figure 9 shows it: every component that reads
+original design lacked, and Figure 5.3 shows it: every component that reads
 case-scoped data depends on one provider.
 
 ## 9.4 The Empty State
@@ -1999,10 +2068,10 @@ discovery work.
 ## 9.6 Retrospective
 
 **The lesson.** Positive functional tests, however thorough, do not exercise
-authorisation boundaries. Ninety-three tests were written in Sprint 3 and not
+authorization boundaries. Ninety-three tests were written in Sprint 3 and not
 one asked what an unentitled user receives.
 
-**The second lesson, which generalises further.** A rule applied inline will
+**The second lesson, which generalizes further.** A rule applied inline will
 be applied inconsistently. The defect was not six mistakes; it was one missing
 abstraction, six times.
 
@@ -2010,7 +2079,7 @@ abstraction, six times.
 
 | # | Action |
 |---|--------------------------------------------------------------------|
-| D1 | Adversarial authorisation testing becomes standing practice, not a one-off |
+| D1 | Adversarial authorization testing becomes standing practice, not a one-off |
 | D2 | Any rule governing more than one surface must have exactly one implementation |
 
 ---
@@ -2130,7 +2199,7 @@ the mean of Sprints 1 to 3 (40), reduced for a short fixed window.
 
 **Table 10.2 - Sprint 6 backlog**
 
-| ID | Story | Pts | Realises |
+| ID | Story | Pts | Realizes |
 |-----|---------------------------------------------------|----|----------|
 | US-30 | Quality requirements carry a measurement and a pass value | 5 | Table 3.7 |
 | US-34 | Algorithmic cost measured rather than argued | 5 | SNF-07 to SNF-09 |
@@ -2175,7 +2244,7 @@ An investigation with four hundred exhibits would render four hundred rows.
 
 The repair changed the code rather than the requirement. Softening the
 requirement to match the implementation would have been the smaller edit, but
-an exhibit-heavy investigation is the realistic case for a forensic system
+an exhibit-heavy investigation is the realiztic case for a forensic system
 rather than an edge case.
 
 ## 10.6 US-34: Complexity Measured Rather Than Argued
@@ -2279,7 +2348,7 @@ actually paginated, so a requirement had to be **met** before it could be
 
 ## 10.11 Retrospective
 
-**The lesson.** A requirement and its verification form one artefact. Treating
+**The lesson.** A requirement and its verification form one artifact. Treating
 them separately allows a specification to describe a quality the system does
 not possess, undetected until something checks.
 
@@ -2294,7 +2363,7 @@ is the condition that makes successive increments necessary.
 |---|--------------------------------------------------------------------|
 | F1 | A quality requirement is not accepted without a measurement, a pass value and a test |
 | F2 | An operation is classified by its effect, never by its name |
-| F3 | Before any release, re-derive the authorisation matrix from the routes rather than from the design |
+| F3 | Before any release, re-derive the authorization matrix from the routes rather than from the design |
 
 ---
 
@@ -2309,7 +2378,7 @@ is the condition that makes successive increments necessary.
 
 Five algorithms constitute the project's Category C contribution. Each has its
 own section below, giving the problem it solves, the structure it builds, the
-algorithm itself in pseudocode and UML behavioural diagrams, its complexity,
+algorithm itself in pseudocode and UML behavioral diagrams, its complexity,
 and the design decision that defines it. Sprints 2 and 3 (Chapters 7 and 8)
 record when each was built and what it cost.
 
@@ -2321,10 +2390,10 @@ cryptography is complex. The question is what the project itself contributes.
 **Table 11.1 - The test applied to every feature**
 
 | Question | If yes | Category |
-|-----------------------------------------------|--------------------|---|
-| Is the behaviour obtained by storing, retrieving or arithmetically combining records? | Then the complexity is in the data model | **A** |
-| Is the behaviour obtained by calling a library or service that implements it? | Then the complexity belongs to that library | **B** |
-| Does the behaviour require a data structure, a multi-step control flow, or a search that the project designs and implements? | Then the complexity is the project's own | **C** |
+|-----------------------------------------------|---------------------|---|
+| Is the behavior obtained by storing, retrieving or arithmetically combining records? | Then the complexity is in the data model | **A** |
+| Is the behavior obtained by calling a library or service that implements it? | Then the complexity belongs to that library | **B** |
+| Does the behavior require a data structure, a multi-step control flow, or a search that the project designs and implements? | Then the complexity is the project's own | **C** |
 
 A feature may call Category B components from inside Category C logic without
 changing category, provided the library calls act as primitive operations
@@ -2344,13 +2413,13 @@ despite feeding the same dashboard.
 | # | Algorithm | Structure it builds | Why not A | Why not B |
 |---|-----------|------------------|-------------------------|---------------|
 | 1 | Chain integrity verification | Directed acyclic graph of custody events | No query returns "where and how is this chain unsound" | No library verifies a custody chain |
-| 2 | Multi-factor risk assessment | Weighted, normalised, interaction-amplified score | A weighted sum is arithmetic; the normalisation choice, the interaction model and the cap are not | No library models this domain |
+| 2 | Multi-factor risk assessment | Weighted, normalized, interaction-amplified score | A weighted sum is arithmetic; the normalization choice, the interaction model and the cap are not | No library models this domain |
 | 3 | Custody chain reconstruction | Heuristic best-first search over candidate records | There is no correct answer to query for | No library infers missing custody |
 | 4 | Evidence lifecycle state machine | Transition table with guards and preconditions | A status column is data; a role-gated, precondition-constrained automaton is not | No library knows this domain's procedure |
 | 5 | Assistant orchestration | Six-stage pipeline around a model call | Retrieval is queries, but the pipeline is not | **The model is B; the pipeline around it is C** |
 
 The boundary within Feature 5 requires precision. The language model is a
-third-party service, categorised B in Chapter 2. Category C comprises the
+third-party service, categorized B in Chapter 2. Category C comprises the
 intent classification, the access-scoped retrieval, the template selection,
 the fallback path and the reference validation - none of which the model
 provides, and all of which would still be required if the model were
@@ -2361,7 +2430,7 @@ replaced.
 ## 11.2 Algorithm 1 - Chain Integrity Verification
 
 *Delivered in Sprint 2 as US-13 (13 points, the largest item in the backlog).
-Realises SR-25, SR-26, SR-27.*
+Realizes SR-25, SR-26, SR-27.*
 
 ### 11.2.1 The problem
 
@@ -2384,8 +2453,8 @@ order check needs, nor the branching that concurrent access events produce.
 
 ### 11.2.3 The algorithm
 
-Described by **Figure 23** (activity diagram), **Figure 12** (sequence
-diagram) and **Figure 10** (composite structure of the engine).
+Described by **Figure 11.1** (activity diagram), **Figure 11.2** (sequence
+diagram) and **Figure 5.4** (composite structure of the engine).
 
 The traversal is depth-first from the root. At each unvisited node three
 **independent** checks are applied:
@@ -2397,6 +2466,15 @@ The traversal is depth-first from the root. At each unvisited node three
 | Order | Is this event strictly later than its predecessor? | The sequence has been manipulated |
 
 After the checks, every child is pushed **regardless of the outcome**.
+
+
+![](../../diagrams_v3/23_activity_integrity.png)
+
+**Figure 11.1 - Chain integrity verification: the traversal and its three checks (activity diagram).**
+
+![](../../diagrams_v3/12_sequence_integrity.png)
+
+**Figure 11.2 - Chain integrity verification: the request path (sequence diagram).**
 
 ### 11.2.4 The design decision that defines the algorithm
 
@@ -2410,7 +2488,7 @@ events 4 onward are sound.
 
 Accumulation costs nothing asymptotically, since the traversal visits every
 node either way, and converts the output from a single error into a complete
-account. Figure 10 shows the structural consequence: the failure collector
+account. Figure 5.4 shows the structural consequence: the failure collector
 sits between the checks and the scorer, and no connector routes a failure back
 to the walker.
 
@@ -2467,7 +2545,7 @@ with **three** separate failures, asserting that all three appear in one run.
 
 ## 11.3 Algorithm 2 - Multi-Factor Risk Assessment
 
-*Delivered in Sprint 3 as US-18 (8 points). Realises SR-36, SR-37, SR-38.*
+*Delivered in Sprint 3 as US-18 (8 points). Realizes SR-36, SR-37, SR-38.*
 
 ### 11.3.1 The problem
 
@@ -2477,11 +2555,11 @@ transfers") misses that signals interact: an item with many transfers **and** a
 failed integrity check **and** role mismatches is far more alarming than the
 sum of those three considered separately.
 
-### 11.3.2 Eight indicators, and why each is normalised differently
+### 11.3.2 Eight indicators, and why each is normalized differently
 
 **Table 11.3 - Indicators and weights (summing to 1.0)**
 
-| Indicator | Weight | Normalisation | Why that curve |
+| Indicator | Weight | Normalization | Why that curve |
 |-------------|---|---------|--------------------------------------------|
 | Integrity outcome | **0.25** | Direct mapping | A verified failure is the strongest single signal available |
 | Handover frequency | 0.13 | Logarithmic | The step from 1 to 3 transfers means far more than 21 to 23 |
@@ -2492,7 +2570,7 @@ sum of those three considered separately.
 | Lifecycle state | 0.10 | Ordinal mapping | Flagged 1.0 down to Archived 0.1 |
 | Dormancy | 0.08 | Sigmoid | Risk is flat, then rises sharply around a threshold, then flattens |
 
-The normalisation curve is chosen per indicator rather than globally. A single
+The normalization curve is chosen per indicator rather than globally. A single
 curve applied to all eight would misrepresent at least three: a linear curve on
 handover frequency would let a busy exhibit dominate the ranking by activity
 alone, and a logarithmic curve on function mismatches would make the second
@@ -2517,10 +2595,10 @@ all five, collapsing the discrimination the ranking exists to provide.
 
 ### 11.3.4 The algorithm
 
-Described by **Figure 17** (activity diagram) and **Figure 14**
+Described by **Figure 11.3** (activity diagram) and **Figure 11.4**
 (communication diagram). The communication view is included deliberately: it
 shows *which objects collaborate*, which is the aspect a sequence diagram
-de-emphasises.
+de-emphasizes.
 
 ```
 SCORE(item):
@@ -2545,9 +2623,18 @@ SCORE(item):
     return (final, level, per-indicator contributions, rules fired, recommendations)
 ```
 
+
+![](../../diagrams_v3/17_activity_risk.png)
+
+**Figure 11.3 - Multi-factor risk assessment: extraction to classification (activity diagram).**
+
+![](../../diagrams_v3/14_communication_risk.png)
+
+**Figure 11.4 - Risk assessment collaboration.**
+
 ### 11.3.5 Explainability as a requirement, not a nicety
 
-The algorithm returns every indicator with its raw value, its normalised
+The algorithm returns every indicator with its raw value, its normalized
 value, its weight and its contribution, together with the reason text of each
 rule that fired, as SR-38 requires. In a forensic setting a score an
 investigator cannot interrogate is one they cannot defend in court, so the
@@ -2558,14 +2645,14 @@ explanation forms part of the output rather than a debugging aid.
 Extraction is **O(n)** in the custody records; the weighted sum is O(8) and
 the rules O(5), both constant. The whole assessment is therefore **O(n)**.
 `test_increment3` covers each indicator independently, the weight
-re-normalisation, each interaction rule, and specifically the cap.
+re-normalization, each interaction rule, and specifically the cap.
 `test_nfr::TestPerformanceScaling` measures the linear claim.
 
 ---
 
 ## 11.4 Algorithm 3 - Custody Chain Reconstruction
 
-*Delivered in Sprint 2 as US-15 (8 points). Realises SR-31, SR-32, SR-33.*
+*Delivered in Sprint 2 as US-15 (8 points). Realizes SR-31, SR-32, SR-33.*
 
 ### 11.4.1 The problem
 
@@ -2576,7 +2663,7 @@ evaluate.
 
 ### 11.4.2 The algorithm
 
-Described by **Figure 18** (activity diagram) and **Figure 25** (sequence
+Described by **Figure 11.5** (activity diagram) and **Figure 11.6** (sequence
 diagram).
 
 Discontinuities are detected where a holder changes with no handover between.
@@ -2588,12 +2675,21 @@ time window, and each candidate is scored on four criteria:
 | Temporal proximity | How near the middle of the gap does it fall? |
 | Function consistency | Was this account entitled to hold this kind of exhibit? |
 | Place consistency | Is the location plausible given the surrounding records? |
-| Behavioural consistency | Did this account interact with the investigation around that time? |
+| Behavioral consistency | Did this account interact with the investigation around that time? |
 
 The criteria are averaged with **equal weight over the criteria that have data**.
 A criterion with nothing to judge is omitted from the average rather than
 scored at a neutral 0.5, because diluting every candidate toward the middle
 would flatten exactly the discrimination the search depends on.
+
+
+![](../../diagrams_v3/18_activity_reconstruction.png)
+
+**Figure 11.5 - Custody chain reconstruction: the gap-resolution loop (activity diagram).**
+
+![](../../diagrams_v3/25_sequence_reconstruction.png)
+
+**Figure 11.6 - Custody chain reconstruction: the objects that collaborate (sequence diagram).**
 
 ### 11.4.3 The threshold, and declining to answer
 
@@ -2621,7 +2717,7 @@ presented as complete.
 
 ## 11.5 Algorithm 4 - Evidence Lifecycle State Machine
 
-*Delivered in Sprint 2 as US-14 (8 points). Realises SR-28, SR-29, SR-30.*
+*Delivered in Sprint 2 as US-14 (8 points). Realizes SR-28, SR-29, SR-30.*
 
 ### 11.5.1 The problem
 
@@ -2638,12 +2734,12 @@ entitled to make it and the preconditions that must hold.
 Expressing the policy as data rather than as branching code has three
 consequences. The whole policy is auditable in one place; adding a transition
 is a data change rather than a code change; and the table can be read directly
-into **Figure 15** (state machine diagram) without a human transcribing the
-behaviour from scattered conditionals.
+into **Figure 11.7** (state machine diagram) without a human transcribing the
+behavior from scattered conditionals.
 
 ### 11.5.3 The validation pipeline
 
-Described by **Figure 24** (activity diagram). Four gates in order: the pair
+Described by **Figure 11.8** (activity diagram). Four gates in order: the pair
 must exist in the table; the requesting account's function must be among those
 permitted; every precondition must hold; a justification must be supplied.
 
@@ -2652,11 +2748,20 @@ is written to the audit trail. SR-29 requires this because a rejected attempt
 is forensically interesting: someone tried to archive an item whose integrity
 was never verified, and that attempt is part of the record.
 
+
+![](../../diagrams_v3/15_state_evidence.png)
+
+**Figure 11.7 - Evidence lifecycle: six states, fourteen transitions.**
+
+![](../../diagrams_v3/24_activity_state_machine.png)
+
+**Figure 11.8 - Transition validation pipeline.**
+
 ### 11.5.4 Flagged, and the asymmetry that matters
 
 `Flagged` is reachable from **every** state and escapable from **one**, by an
 administrator alone, and only after re-verification. The asymmetry is
-deliberate and realises DR-06: an item whose integrity has failed must not
+deliberate and realizes DR-06: an item whose integrity has failed must not
 quietly resume normal handling.
 
 One case requires explanation. When verification finds a broken chain it
@@ -2677,7 +2782,7 @@ asserts that each rejection is audited.
 ## 11.6 Algorithm 5 - Assistant Orchestration
 
 *Delivered in Sprint 3 as US-20 and US-21 (11 points), extended in Sprint 4 as
-US-29. Realises SR-40 to SR-43 and SR-53.*
+US-29. Realizes SR-40 to SR-43 and SR-53.*
 
 ### 11.6.1 Where the third-party boundary falls
 
@@ -2693,17 +2798,30 @@ it.
 
 ### 11.6.2 The six stages
 
-Described by **Figure 26** (activity diagram), **Figure 13** (sequence
-diagram) and **Figure 20** (timing diagram).
+Described by **Figure 11.9** (activity diagram), **Figure 11.10** (sequence
+diagram) and **Figure 11.11** (timing diagram).
 
 | Stage | What it does | Whose work |
 |-----------|-------------------------------------------------------|-----|
 | 1. Intent classification | Matches the question against keyword sets for seven intents, breaking ties by fixed priority; parses any identifier; falls back to UNKNOWN | **C** |
 | 2. Access scoping | Determines which investigations this account may see | **C** |
 | 3. Context retrieval | Runs the query sequence for the intent, restricted to those investigations; an integrity question triggers a **fresh run of Algorithm 1** | **C** |
-| 4. Prompt construction | Selects the template for the intent and assembles role, question and serialised context | **C** |
+| 4. Prompt construction | Selects the template for the intent and assembles role, question and serialized context | **C** |
 | 5. Model invocation | Calls the model within a per-call budget, falling through candidates, then to a context-only answer | B inside, **C** around |
 | 6. Reference validation | Extracts every identifier and name from the reply and checks each against the retrieved context | **C** |
+
+
+![](../../diagrams_v3/26_activity_assistant.png)
+
+**Figure 11.9 - Assistant orchestration: the six stages (activity diagram).**
+
+![](../../diagrams_v3/13_sequence_assistant.png)
+
+**Figure 11.10 - Assistant orchestration: scoping before retrieval (sequence diagram).**
+
+![](../../diagrams_v3/20_timing_assistant.png)
+
+**Figure 11.11 - Bounded waiting on the model service.**
 
 ### 11.6.3 Scoping before retrieval, not after
 
@@ -2729,9 +2847,9 @@ investigator can inspect, not as a finding.
 
 ### 11.6.5 Bounded waiting
 
-**Figure 20** shows the timing. A per-call budget bounds any single attempt; a
+**Figure 11.11** shows the timing. A per-call budget bounds any single attempt; a
 total budget bounds the whole stage and sits below the browser's abort, so a
-slow service produces a clear message rather than a cancelled request. When the
+slow service produces a clear message rather than a canceled request. When the
 budget is exhausted the pipeline composes an answer from the retrieved records
 alone and says that it has done so - a degraded answer, visibly degraded.
 
@@ -2760,7 +2878,7 @@ the slow service.
 
 The final row is the control case. Anomaly detection feeds the same dashboard
 as Algorithm 2 but is classified B, because the library implements the
-behaviour and the project supplies only the feature vector.
+behavior and the project supplies only the feature vector.
 
 ## 11.8 Complexity, Measured Rather Than Argued
 
@@ -2839,9 +2957,9 @@ as a lifecycle (Section 4.1.2).
 | `test_increment3` | 93 | Risk assessment, assistant, second factor, encryption, export |
 | `test_increment2` | 17 | Signing, integrity verification, lifecycle, reconstruction |
 | `test_integration` | 16 | End-to-end flows across modules |
-| `test_scoping` | 14 | Adversarial authorisation across every aggregate |
-| `test_day2` | 12 | Early foundation behaviour |
-| `test_increment1` | 10 | Authentication, authorisation, registration, audit |
+| `test_scoping` | 14 | Adversarial authorization across every aggregate |
+| `test_day2` | 12 | Early foundation behavior |
+| `test_increment1` | 10 | Authentication, authorization, registration, audit |
 | `test_intent_classifier` | 10 | Seven intents, UNKNOWN, tie-breaking |
 | **`test_nfr`** | **44** | **All 21 system quality requirements** |
 | **Total** | **216** | |
@@ -2880,7 +2998,7 @@ Measured over the whole suite.
 `chain_reconstruction.py` reaches 65% because its plausibility function has
 four criteria, each of which may be present or absent depending on the data
 available, giving sixteen combinations of live criteria before the threshold
-decision is even reached. The tests cover the four that occur in realistic
+decision is even reached. The tests cover the four that occur in realiztic
 data and the two boundary cases either side of the threshold; the remainder
 are untested.
 
@@ -2963,9 +3081,9 @@ verify what they describe and nothing further.
 | Concurrency | Single-process development; no load harness | Sequential identifier allocation is unverified under concurrent registration |
 | Load and volume | No performance environment | Measured scaling is analytic-scale, not production-scale |
 | Penetration testing | Out of scope and beyond the author's competence to do credibly | Controls are tested individually, not probed as a whole |
-| Live model behaviour | The suite forbids network access | Only the pipeline is verified, never a real reply |
+| Live model behavior | The suite forbids network access | Only the pipeline is verified, never a real reply |
 | Real users | No external customer | Usability is argued, never observed |
-| Browser rendering | No browser automation | Interface behaviour verified server-side only |
+| Browser rendering | No browser automation | Interface behavior verified server-side only |
 
 The last two bear on validation rather than verification, which is the subject
 of the next section.
@@ -3039,8 +3157,8 @@ and the unverified quality requirements after delivery, if at all.
 | **Total** | **153** | **153 + 11** | Mean velocity across the three full sprints: 40.0 |
 
 **Every committed point was delivered, and that should be read sceptically
-rather than as success.** It is partly realistic estimation and stable scope,
-and partly an artefact of a single developer in whom estimator and implementer
+rather than as success.** It is partly realiztic estimation and stable scope,
+and partly an artifact of a single developer in whom estimator and implementer
 are the same person - so estimates could be, and unconsciously were, adjusted
 to the implementer's known pace. This is risk R-10, rated high-probability and
 **accepted rather than mitigated**, because no mitigation exists for one
@@ -3063,7 +3181,7 @@ sprint that had two sprints of retrospective actions behind it.
 | O3 - verifiable custody with append-only history | Signed custody events; append-only enforced at the data layer |
 | O4 - at least three non-trivial algorithms | **Five**, each with pseudocode and UML (Ch. 11) |
 | O5 - third-party services with the boundary stated | Eleven integrations; boundary demonstrated, not asserted (§11.6.1) |
-| O6 - a genuine incremental project with artefacts | Six sprints, six backlogs, six burndowns, six retrospectives |
+| O6 - a genuine incremental project with artifacts | Six sprints, six backlogs, six burndowns, six retrospectives |
 | O7 - a test suite of meaningful coverage | 216 tests; 78% overall, 80% across the Category C algorithms |
 | O8 - quality attributes **demonstrably** enforced | 21 of 21 system quality requirements measured and tested |
 
@@ -3072,7 +3190,7 @@ sprint that had two sprints of retrospective actions behind it.
 | Area | Limitation | Where discussed |
 |-------|---------------------------------------------------------|------|
 | Validation | No customer; requirements never contested by a stakeholder | §12.8 |
-| Testing | No concurrency, load, penetration or browser testing; live model behaviour untested | §12.7 |
+| Testing | No concurrency, load, penetration or browser testing; live model behavior untested | §12.7 |
 | Coverage | Chain reconstruction at 65%; route paths at 71% | §12.3.1, §12.3.2 |
 | Process | Estimator and implementer are the same person | §13.2 |
 | Algorithms | Hallucination detection verifies references, not reasoning; the anomaly detector is uninterpretable | §11.6.4 |
@@ -3100,7 +3218,7 @@ would remove it, which is what the next section is.
    harness that can actually exercise it.
 5. **Continuous integration.** The suite is fast, deterministic and needs no
    network - the three properties that usually block adoption. The project is
-   CI-ready and not CI-practising, and closing that gap is a small step.
+   CI-ready and not CI-practicing, and closing that gap is a small step.
 
 Deferred scope recorded in the backlog's *won't have* list - production
 deployment, notifications, full-text search over content, a mobile client, a
@@ -3113,7 +3231,7 @@ eleven third-party integrations with the boundary stated, four roles with
 case-level membership, and a history that cannot be rewritten.
 
 **A process.** A development model chosen for stated reasons and judged
-against outcomes; a product backlog prioritised, refined and decomposed into
+against outcomes; a product backlog prioritized, refined and decomposed into
 tasks; requirements at two levels, each traced to a test; and twenty-six UML
 diagrams written as text descriptions held in the repository beside the code,
 which the Definition of Done requires to be updated in the same commit.
@@ -3240,11 +3358,11 @@ the intact and the failed verdict - the comparison is stated in the caption.
 
 ![](../../extracted_images/fig_18.16_risk_report.png)
 
-**Figure 16.16 - Per-exhibit risk report.** Each of the eight indicators with its normalised value and weighted contribution, the interaction rules that fired with their reasons, and the resulting recommendations. The output is an account the investigator can read and challenge, not an opaque number (SR-38).
+**Figure 16.16 - Per-exhibit risk report.** Each of the eight indicators with its normalized value and weighted contribution, the interaction rules that fired with their reasons, and the resulting recommendations. The output is an account the investigator can read and challenge, not an opaque number (SR-38).
 
 ![](../../extracted_images/fig_18.17_risk_settings.png)
 
-**Figure 16.17 - Administrator risk settings.** The eight indicator weights and the three band boundaries are editable. Weights are re-normalised to a unit total on save and boundaries validated as strictly increasing, so the configuration cannot be left in a state the algorithm could not use (SR-39).
+**Figure 16.17 - Administrator risk settings.** The eight indicator weights and the three band boundaries are editable. Weights are re-normalized to a unit total on save and boundaries validated as strictly increasing, so the configuration cannot be left in a state the algorithm could not use (SR-39).
 
 ![](../../extracted_images/fig_18.18_assistant_refusal.png)
 
@@ -3279,7 +3397,7 @@ specific construct the text argues about, not the module in full.
 
 ![](../../extracted_images/lst_18.2_risk_scoring.png)
 
-**Listing 16.2 - `risk_scoring.py` - weights, interaction rules and the cap.** The eight weights sum to 1.0 and are re-normalised whenever an administrator overrides them. Each of the five interaction rules names a pair of indicators with their thresholds, and the total bonus is capped at 0.30 - without that cap several rules firing together would saturate every moderately risky exhibit and destroy the ranking (Section 11.3.3).
+**Listing 16.2 - `risk_scoring.py` - weights, interaction rules and the cap.** The eight weights sum to 1.0 and are re-normalized whenever an administrator overrides them. Each of the five interaction rules names a pair of indicators with their thresholds, and the total bonus is capped at 0.30 - without that cap several rules firing together would saturate every moderately risky exhibit and destroy the ranking (Section 11.3.3).
 
 ![](../../extracted_images/lst_18.3_state_machine_a.png)
 
@@ -3289,7 +3407,7 @@ specific construct the text argues about, not the module in full.
 
 ![](../../extracted_images/lst_18.4_signature_payload.png)
 
-**Listing 16.4 - The canonical signature payload.** Six fields serialised with deterministic key ordering. The ordering is the point: it makes the byte sequence reproducible, so the bytes signed when a custody record is created are identical to those reconstructed when it is verified (Section 5.4).
+**Listing 16.4 - The canonical signature payload.** Six fields serialized with deterministic key ordering. The ordering is the point: it makes the byte sequence reproducible, so the bytes signed when a custody record is created are identical to those reconstructed when it is verified (Section 5.4).
 
 ![](../../extracted_images/lst_18.5_accessible_case_ids.png)
 
@@ -3312,9 +3430,9 @@ specific construct the text argues about, not the module in full.
 
 ## Software Engineering Process and Practice
 
-1. Sommerville, I. *Software Engineering.* Pearson. - Process models, requirements engineering at two levels, system modelling, architectural design, testing, evolution.
+1. Sommerville, I. *Software Engineering.* Pearson. - Process models, requirements engineering at two levels, system modeling, architectural design, testing, evolution.
 2. Ghezzi, C., Jazayeri, M., and Mandrioli, D. *Fundamentals of Software Engineering.* Prentice Hall.
-3. Schwaber, K., and Sutherland, J. *The Scrum Guide.* scrumguides.org. - Roles, events and artefacts, adapted in Section 4.2.
+3. Schwaber, K., and Sutherland, J. *The Scrum Guide.* scrumguides.org. - Roles, events and artifacts, adapted in Section 4.2.
 4. Beck, K., et al. (2001). *Manifesto for Agile Software Development.* agilemanifesto.org.
 5. Beck, K. *Extreme Programming Explained: Embrace Change.* Addison-Wesley. - Test-first development, adopted as retrospective action B1.
 6. Boehm, B. (1988). *A Spiral Model of Software Development and Enhancement.* IEEE Computer. - Surveyed and rejected in Table 4.2.
@@ -3324,7 +3442,7 @@ specific construct the text argues about, not the module in full.
 10. Kruchten, P. (1995). *Architectural Blueprints - The 4+1 View Model.* IEEE Software.
 11. Lehman, M. M., and Belady, L. A. *Program Evolution: Processes of Software Change.* Academic Press.
 
-## Modelling and Notation
+## Modeling and Notation
 
 12. Object Management Group. *Unified Modeling Language (UML) Specification.* omg.org. - Including the profile and stereotype mechanism used in Figures 6 and 21.
 13. Rumbaugh, J., Jacobson, I., and Booch, G. *The Unified Modeling Language Reference Manual.* Addison-Wesley.
@@ -3371,7 +3489,7 @@ specific construct the text argues about, not the module in full.
 
 ---
 
-## Appendix A - Complete User Story Catalogue
+## Appendix A - Complete User Story Cataloge
 
 Thirty-six stories, 153 points. Ranking within a sprint follows the four rules
 of Section 4.4.1. Acceptance criteria are given in the sprint chapters.
@@ -3402,7 +3520,7 @@ of Section 4.4.1. Acceptance criteria are given in the sprint chapters.
 | US-22 | Statistical outliers surfaced | B | Could | 5 | 3 |
 | US-23 | Ranked and anomalous views | A | Should | 3 | 3 |
 | US-24 | Second factor and lockout | B | Should | 5 | 3 |
-| US-25 | Evidence unreadable without authorisation | B | Should | 3 | 3 |
+| US-25 | Evidence unreadable without authorization | B | Should | 3 | 3 |
 | US-26 | Verifiable export | B | Should | 2 | 3 |
 | US-27 | Printable custody report | B | Could | 2 | 3 |
 | US-28 | Scoped aggregates | A | Must | 5 | 4 |
@@ -3416,14 +3534,14 @@ of Section 4.4.1. Acceptance criteria are given in the sprint chapters.
 | US-36 | Injection repair guarded by a test | A | Must | 2 | 6 |
 | | **Total** | | | **153** | |
 
-The eleven M2 findings (D1-D6, H1-H3, R1-R2) are catalogued in Table 9.6 as
+The eleven M2 findings (D1-D6, H1-H3, R1-R2) are cataloged in Table 9.6 as
 defects rather than stories, and carry no points for the reason in Section
 4.5.
 
 ## Appendix B - Route Reference
 
-Forty-one routes across ten blueprints - one per use case. Authorisation is
-given in full in Chapter 2's categorisation and the use-case diagrams
+Forty-one routes across ten blueprints - one per use case. Authorization is
+given in full in Chapter 2's categorization and the use-case diagrams
 (Figures 1 to 4); only paths are listed here.
 
 | Blueprint | Routes |
@@ -3441,33 +3559,34 @@ given in full in Chapter 2's categorisation and the use-case diagrams
 
 All require authentication except `/login` and `/verify-otp`.
 
-**Authorisation summary, derived from the route guards rather than from the
+**Authorization summary, derived from the route guards rather than from the
 design:** Read-Only Viewer 20, Forensic Analyst 25, Lead Investigator 32,
 Administrator 41.
 
 ## Appendix C - UML Diagram Index
 
-Twenty-six diagrams, thirteen UML kinds, all generated from versioned
-PlantUML source in `diagrams_v3/`.
+Twenty-six diagrams in thirteen UML kinds, each placed beside the text it
+illustrates. All are rendered from PlantUML source in `diagrams_v3/`.
 
 | Kind | Figures |
-|------------|-----------------------------------------------------------|
-| Use case | 1 overview, 2 cases and evidence, 3 reading, 4 analysis |
-| Class | 5 domain, 6 persistent (`«table»`), 22 traceability metamodel |
-| Object | 7 flagged exhibit snapshot |
-| Package | 8 layered architecture |
-| Component | 9 components and interfaces |
-| Composite structure | 10 integrity engine internals |
-| Deployment | 11 nodes, artifacts, trust boundary |
-| Sequence | 12 integrity, 13 assistant, 25 reconstruction |
-| Communication | 14 risk assessment collaboration |
-| State machine | 15 evidence lifecycle, 16 account access |
-| Activity | 17 risk, 18 reconstruction, 19 registration (partitions), 23 integrity, 24 transition pipeline, 26 assistant |
-| Timing | 20 bounded waiting |
-| Profile | 21 stereotype declarations |
+|-----------|------------------------------------------------------------|
+| Use case | 6.1 overview, 6.2 cases and evidence, 6.3 the Read-Only Viewer, 6.4 what each role adds |
+| Class | 5.6 domain, 5.7 persistent (`«table»`), 3.1 traceability metamodel |
+| Object | 5.8 a flagged exhibit |
+| Package | 5.1 layered architecture |
+| Component | 5.3 components and interfaces |
+| Composite structure | 5.4 integrity engine internals |
+| Deployment | 5.5 nodes, artifacts, trust boundary |
+| Sequence | 11.2 integrity, 11.10 assistant, 11.6 reconstruction |
+| Communication | 11.4 risk assessment collaboration |
+| State machine | 11.7 evidence lifecycle, 5.2 account access |
+| Activity | 11.3 risk, 11.5 reconstruction, 6.5 registration (partitions), 11.1 integrity, 11.8 transition pipeline, 11.9 assistant |
+| Timing | 11.11 bounded waiting |
+| Profile | 5.9 stereotype declarations |
 
-**Non-UML figures** are the six burndown charts, which are Scrum artefacts
-rather than models, and the screenshots of Chapter 16.
+**Non-UML figures** are the six burndown charts (6.6, 7.1, 8.1, 9.1, 9.2,
+10.1), which are Scrum artifacts rather than models, and the screenshots of
+Chapter 16.
 
 ## Appendix D - Traceability Summary
 
@@ -3475,7 +3594,7 @@ Carried inline in Tables 3.4, 3.6 and 3.7 rather than duplicated here.
 
 | Check | Result |
 |----------------------------------------------------------------|-------|
-| User requirements realised by at least one system requirement | 22 of 22 |
+| User requirements realized by at least one system requirement | 22 of 22 |
 | System functional requirements traced to a user requirement | 61 of 61 |
 | System functional requirements carried by a user story | 61 of 61 |
 | System quality requirements with a measurement and acceptance value | 21 of 21 |
@@ -3515,7 +3634,7 @@ by the development team. Tables 4.12, 6.2, 7.2, 8.3.
 priority and of duration.
 
 **Stereotype** - UML's own extension mechanism, used here so the relational
-schema can be modelled without a second notation. Figure 21.
+schema can be modeled without a second notation. Figure 5.9.
 
 **Velocity** - points delivered in one sprint; an observed property, not a
 target. Section 13.2 explains why it is weak evidence in a single-developer
@@ -3526,115 +3645,3 @@ project.
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
 ```
-
-
-# Appendix F - UML Diagram Plates
-
-Every diagram referenced as "Figure N" in the text. All are generated
-from versioned PlantUML source in `diagrams_v3/`, so a diagram cannot
-drift from the description it illustrates.
-
-![](../../diagrams_v3/01_usecase_overview.png)
-
-**Figure 1 - Use Case Diagram - system overview.**
-
-![](../../diagrams_v3/02_usecase_case_evidence.png)
-
-**Figure 2 - Use Case Diagram - cases and evidence.**
-
-![](../../diagrams_v3/03_usecase_reading.png)
-
-**Figure 3 - Use Case Diagram - the Read-Only Viewer.**
-
-![](../../diagrams_v3/04_usecase_analysis.png)
-
-**Figure 4 - Use Case Diagram - what each role adds.**
-
-![](../../diagrams_v3/05_class_domain.png)
-
-**Figure 5 - Class Diagram - domain model with behaviour.**
-
-![](../../diagrams_v3/06_class_persistent.png)
-
-**Figure 6 - Class Diagram - the schema as stereotyped classes.**
-
-![](../../diagrams_v3/07_object_snapshot.png)
-
-**Figure 7 - Object Diagram - a flagged exhibit.**
-
-![](../../diagrams_v3/08_package_layers.png)
-
-**Figure 8 - Package Diagram - layered architecture.**
-
-![](../../diagrams_v3/09_component.png)
-
-**Figure 9 - Component Diagram - components and interfaces.**
-
-![](../../diagrams_v3/10_composite_verifier.png)
-
-**Figure 10 - Composite Structure - the integrity engine.**
-
-![](../../diagrams_v3/11_deployment.png)
-
-**Figure 11 - Deployment Diagram.**
-
-![](../../diagrams_v3/12_sequence_integrity.png)
-
-**Figure 12 - Sequence Diagram - integrity verification.**
-
-![](../../diagrams_v3/13_sequence_assistant.png)
-
-**Figure 13 - Sequence Diagram - assistant orchestration.**
-
-![](../../diagrams_v3/14_communication_risk.png)
-
-**Figure 14 - Communication Diagram - risk assessment.**
-
-![](../../diagrams_v3/15_state_evidence.png)
-
-**Figure 15 - State Machine - evidence lifecycle.**
-
-![](../../diagrams_v3/16_state_account.png)
-
-**Figure 16 - State Machine - account access.**
-
-![](../../diagrams_v3/17_activity_risk.png)
-
-**Figure 17 - Activity Diagram - risk assessment.**
-
-![](../../diagrams_v3/18_activity_reconstruction.png)
-
-**Figure 18 - Activity Diagram - chain reconstruction.**
-
-![](../../diagrams_v3/19_activity_upload.png)
-
-**Figure 19 - Activity Diagram - registration, with partitions.**
-
-![](../../diagrams_v3/20_timing_assistant.png)
-
-**Figure 20 - Timing Diagram - bounded waiting.**
-
-![](../../diagrams_v3/21_profile_stereotypes.png)
-
-**Figure 21 - Profile Diagram - stereotype declarations.**
-
-![](../../diagrams_v3/22_class_traceability.png)
-
-**Figure 22 - Class Diagram - traceability metamodel.**
-
-![](../../diagrams_v3/23_activity_integrity.png)
-
-**Figure 23 - Activity Diagram - integrity verification.**
-
-![](../../diagrams_v3/24_activity_state_machine.png)
-
-**Figure 24 - Activity Diagram - transition validation.**
-
-![](../../diagrams_v3/25_sequence_reconstruction.png)
-
-**Figure 25 - Sequence Diagram - chain reconstruction.**
-
-![](../../diagrams_v3/26_activity_assistant.png)
-
-**Figure 26 - Activity Diagram - assistant, six stages.**
-

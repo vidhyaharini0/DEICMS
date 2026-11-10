@@ -28,7 +28,7 @@ underestimate before it became a plateau.
 
 **Table 7.1 - Sprint 2 backlog**
 
-| ID | Story | Pts | Realises | Category |
+| ID | Story | Pts | Realizes | Category |
 |---|---|---|---|---|
 | US-12 | Custody records attributable to their author | 5 | SR-23, SR-24 | B |
 | US-13 | Verify the whole custody history | **13** | SR-25 to SR-27 | **C** |
@@ -45,7 +45,7 @@ of the product-backlog-to-task chain. Two further decompositions matter here.
 
 **Table 7.2 - US-12 (attributable custody records) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-12.1 | **Fix the canonical payload: six fields, deterministic ordering** | 3 | A2 |
 | T-12.2 | Sign at creation using the creator's private means | 4 | SR-23 |
@@ -56,13 +56,13 @@ of the product-backlog-to-task chain. Two further decompositions matter here.
 
 T-12.1 is retrospective action A2 discharged. **The bytes signed at creation
 must be identical to the bytes reconstructed at verification**, so the
-serialisation is fixed with deterministic key ordering before any signing code
+serialization is fixed with deterministic key ordering before any signing code
 exists. Settling this first avoided the class of defect where signatures
 verify in tests and fail in production because a field order changed.
 
 **Table 7.3 - US-14 (lifecycle enforcement) decomposed**
 
-| Task | Description | Est. (h) | Realises |
+| Task | Description | Est. (h) | Realizes |
 |---|---|---|---|
 | T-14.1 | Express the policy as a transition table, not as branching code | 5 | SR-28 |
 | T-14.2 | Gate 1: the pair must exist | 2 | SR-28 |
@@ -175,7 +175,7 @@ than passing for five days.
 
 | # | Action | Where it shows |
 |---|---|---|
-| B1 | **Write acceptance criteria for Category C stories as failing tests before implementation** | §8.3; the normalisation and cap tests |
+| B1 | **Write acceptance criteria for Category C stories as failing tests before implementation** | §8.3; the normalization and cap tests |
 | B2 | Keep the external model behind a testable seam from the start | §8.5 |
 | B3 | Estimate presentation work separately from the algorithm that produces it | Backlog v1.1, already applied |
 
