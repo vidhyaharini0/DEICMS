@@ -6,7 +6,7 @@ hide empty members
 object "ev7 : EvidenceItem" as EV {
   evidenceNumber = "EV-2026-007"
   originalHash = "a3f1...9c"
-  currentHash = "a3f1...9c"
+  currentHash = "b7e2...41"
   lifecycleState = Flagged
   integrityStatus = FAILED
   riskLevel = High

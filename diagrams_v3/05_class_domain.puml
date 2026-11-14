@@ -14,7 +14,10 @@ class Investigator {
   + canAnalyse() : Boolean
   + setPassword(plain) : void
   + checkPassword(plain) : Boolean
-  + sign(payload) : Signature
+  + isLocked() : Boolean
+  + recordFailedLogin(max, minutes) : void
+  + resetLoginAttempts() : void
+  + is2faEnabled() : Boolean
 }
 
 class Case {
@@ -22,8 +25,6 @@ class Case {
   + title : String
   + status : CaseStatus
   + isArchived : Boolean
-  + archive() : void
-  + evidenceCount() : Integer
 }
 
 class EvidenceItem {
@@ -33,8 +34,6 @@ class EvidenceItem {
   + lifecycleState : LifecycleState
   + integrityStatus : IntegrityStatus
   + isDeleted : Boolean
-  + hasChanged() : Boolean
-  + softDelete() : void
 }
 
 class CustodyLog {
@@ -42,7 +41,6 @@ class CustodyLog {
   + timestamp : DateTime
   + fileHashAtEvent : Digest
   + digitalSignature : Signature
-  + verifySignature() : Boolean
 }
 
 class AuditRecord {
@@ -97,6 +95,12 @@ class EvidenceStateMachine <<engine>> {
   - recalculateRiskScore() : void
 }
 
+class CryptoService <<service>> {
+  + {static} signPayload(privateKey, payload) : Signature
+  + {static} verifySignature(publicKey, payload, sig) : Boolean
+  + {static} generateEncryptedKeyPair() : Pair
+}
+
 class IntegrityReport <<value>> {
   + verdict : Verdict
   + completeness : Percent
@@ -115,15 +119,22 @@ EvidenceItem --> LifecycleState
 GraphIntegrityEngine ..> EvidenceItem : <<use>>
 GraphIntegrityEngine ..> CustodyLog : <<use>>
 GraphIntegrityEngine ..> IntegrityReport : <<create>>
+GraphIntegrityEngine ..> CryptoService : <<use>>
+CustodyLog ..> CryptoService : <<use>>
 EvidenceRiskScorer ..> EvidenceItem : <<use>>
 EvidenceStateMachine ..> EvidenceItem : <<use>>
 EvidenceStateMachine ..> EvidenceRiskScorer : <<use>>
 
 note right of GraphIntegrityEngine
-  The three <<engine>> classes hold BEHAVIOUR
-  and have no persistent state of their own.
-  They have no counterpart in the data model
-  of the next figure - which is the clearest
-  single difference between the two models.
+  The three <<engine>> classes and the <<service>>
+  class hold BEHAVIOR and have no persistent state.
+  None of them has any counterpart in the data model
+  of the next figure, which is the clearest single
+  difference between the two models.
+
+  Case, EvidenceItem, CustodyLog and AuditRecord
+  carry no operations: in this design they are data
+  holders, and the behavior that acts on them lives
+  in the engines.
 end note
 @enduml
