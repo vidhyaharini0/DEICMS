@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam backgroundColor white
+title CARD 4 - Activity diagram: the five symbols
+
+start
+:action (rounded rectangle);
+if (decision?) then ([guard TRUE])
+  :branch A;
+else ([guard FALSE])
+  :branch B;
+endif
+note right
+  EVERY edge out of a DIAMOND
+  needs a guard in [brackets].
+  This is what gets marked wrong.
+end note
+fork
+  :parallel 1;
+fork again
+  :parallel 2;
+end fork
+note right
+  THICK BAR = fork (split)
+  and join (wait for all).
+end note
+:final action;
+stop
+@enduml

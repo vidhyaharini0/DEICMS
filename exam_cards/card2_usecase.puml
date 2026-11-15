@@ -1,0 +1,46 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam backgroundColor white
+left to right direction
+title CARD 2 - Use case: the three relationships
+
+actor "Read-Only Viewer" as RO
+actor "Analyst" as AN
+AN --|> RO
+
+rectangle "System boundary" {
+  usecase "Sign in" as L
+  usecase "Record the attempt" as REC
+  usecase "Present second factor" as SF
+  usecase "Verify integrity" as V
+}
+
+RO --> L
+AN --> V
+
+L  ..> REC : <<include>>
+SF ..> L  : <<extend>>
+
+note bottom of REC
+  <<include>>  arrow goes BASE --> INCLUDED
+  "Sign in ALWAYS records the attempt"
+  Mandatory sub-behavior.
+end note
+
+note bottom of SF
+  <<extend>>  arrow goes EXTENDING --> BASE
+  "Presenting a second factor SOMETIMES extends sign in"
+  Optional behavior. Arrow points AT the base.
+end note
+
+note right of RO
+  GENERALIZATION: the TRIANGLE touches the PARENT.
+  The PARENT generalizes. The CHILD specializes.
+  Here: Read-Only Viewer is the MOST GENERAL actor.
+  Analyst specializes it, Lead specializes Analyst,
+  Administrator specializes Lead.
+end note
+@enduml

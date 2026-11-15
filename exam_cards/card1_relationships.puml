@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam backgroundColor white
+skinparam classFontSize 13
+title CARD 1 - Class diagram relationships: which line, which end
+
+class A1 as "Case"
+class B1 as "EvidenceItem"
+A1 *-- B1 : composition\nFILLED diamond at the WHOLE\nparts die with the whole
+
+class A2 as "Team"
+class B2 as "Member"
+A2 o-- B2 : aggregation\nHOLLOW diamond at the WHOLE\nparts survive the whole
+
+class A3 as "Investigator"
+class B3 as "CustodyLog"
+A3 -- B3 : association\nplain line\nthey simply know each other
+
+class A4 as "Investigator"
+class B4 as "Administrator"
+B4 --|> A4 : generalization\nHOLLOW TRIANGLE at the PARENT\nchild points UP to parent
+
+class A5 as "RiskScorer"
+class B5 as "EvidenceItem"
+A5 ..> B5 : dependency\nDASHED arrow\nuses it, does not hold it
+
+note bottom
+  MULTIPLICITY goes at BOTH ends:  1    0..*    1..*    0..1
+  VISIBILITY before the name:  + public   - private   # protected
+  The DIAMOND always sits at the WHOLE end, never at the part.
+end note
+@enduml
