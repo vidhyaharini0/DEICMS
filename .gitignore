@@ -1,20 +1,43 @@
+# --- Python ---
 venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Secrets and runtime state (never commit) ---
 .env
+*.pem
 deicms.db
 deicms.db-wal
 deicms.db-shm
-cert.pem
-key.pem
-uploads/
 risk_settings.json
-.pytest_cache/
+uploads/
+
+# --- Editor ---
 .vscode/
-.report_v2_combined.md
+.idea/
+
+# --- Course material belonging to others ---
 Software Engineering/
 student reports/
+
+# --- Personal study material ---
+EXAM_PREP.md
+exam_cards/
+
+# --- Working notes, superseded by the report itself ---
+PROJECT_REVIEW_AND_PLAN.md
+DEICMS_Review_and_Implementation_Plan.txt
+docs/nfr_audit.md
+docs/deviations_for_email.md
+
+# --- Build scratch ---
+docs/report-source/_combined.md
+
+# --- Word lock files ---
 ~$*
 ~WRL*.tmp

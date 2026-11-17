@@ -145,7 +145,7 @@
             <ul class="mb-0 small">
               {% for inv in security_alerts.locked_accounts %}
                 <li>{{ inv.full_name }} ({{ inv.email }})
-                  &mdash; <a href="{{ url_for('admin.list_users') }}">manage</a></li>
+                  - <a href="{{ url_for('admin.list_users') }}">manage</a></li>
               {% endfor %}
             </ul>
           {% else %}
@@ -173,7 +173,7 @@
             {% for ev in pending_actions.flagged %}
             <li class="mb-1">
               <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
-                {{ ev.evidence_number }} — {{ ev.title }}</a>
+                {{ ev.evidence_number }} - {{ ev.title }}</a>
               <span class="text-muted">requires resolution</span>
             </li>
             {% endfor %}
@@ -189,7 +189,7 @@
             {% for ev in pending_actions.in_transfer %}
             <li class="mb-1">
               <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
-                {{ ev.evidence_number }} — {{ ev.title }}</a>
+                {{ ev.evidence_number }} - {{ ev.title }}</a>
               <span class="text-muted">awaiting next lifecycle step</span>
             </li>
             {% endfor %}
@@ -204,7 +204,7 @@
   {% if panels.workbench %}
   <div class="card mb-4 shadow-sm">
     <div class="card-header">
-      <i class="bi bi-tools me-2"></i>My Workbench — evidence you currently hold
+      <i class="bi bi-tools me-2"></i>My Workbench - evidence you currently hold
     </div>
     <div class="card-body p-0">
       {% if workbench %}
@@ -217,7 +217,7 @@
           <tr>
             <td>
               <a href="{{ url_for('evidence.view_evidence', case_id=ev.case_id, evidence_id=ev.id) }}">
-                {{ ev.evidence_number }} — {{ ev.title }}</a>
+                {{ ev.evidence_number }} - {{ ev.title }}</a>
             </td>
             <td><span class="badge bg-secondary">{{ ev.lifecycle_state }}</span></td>
             <td><small class="text-muted">{{ (ev.integrity_status or 'NOT_CHECKED') | replace('_',' ') | title }}</small></td>
@@ -243,7 +243,7 @@
   {% if panels.review_queue %}
   <div class="card mb-4 shadow-sm">
     <div class="card-header">
-      <i class="bi bi-eyeglasses me-2"></i>Review Queue — recently updated evidence in your shared cases
+      <i class="bi bi-eyeglasses me-2"></i>Review Queue - recently updated evidence in your shared cases
     </div>
     <div class="card-body p-0">
       {% if review_queue %}
@@ -254,7 +254,7 @@
         <tbody>
           {% for ev in review_queue %}
           <tr>
-            <td>{{ ev.evidence_number }} — {{ ev.title }}</td>
+            <td>{{ ev.evidence_number }} - {{ ev.title }}</td>
             <td><a href="{{ url_for('cases.view_case', case_id=ev.case_id) }}">#{{ ev.case_id }}</a></td>
             <td><span class="badge bg-secondary">{{ ev.lifecycle_state }}</span></td>
             <td><small class="text-muted">{{ ev.updated_at.strftime('%Y-%m-%d %H:%M') }}</small></td>

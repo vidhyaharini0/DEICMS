@@ -8,7 +8,7 @@
 <p class="text-muted">
   Adjust the relative importance of each risk factor and the score thresholds
   used to classify evidence as LOW / MEDIUM / HIGH / CRITICAL.
-  Weights are re-normalised so they always sum to 1.0 &mdash; enter any
+  Weights are re-normalised so they always sum to 1.0 - enter any
   relative values. Changes apply immediately to newly computed scores.
 </p>
 
@@ -53,9 +53,9 @@
               {% for level, value in thresholds.items() %}
               <tr>
                 <td class="fw-semibold">
-                  {% if level == 'LOW' %}LOW &rarr; MEDIUM
-                  {% elif level == 'MEDIUM' %}MEDIUM &rarr; HIGH
-                  {% else %}HIGH &rarr; CRITICAL{% endif %}
+                  {% if level == 'LOW' %}LOW -> MEDIUM
+                  {% elif level == 'MEDIUM' %}MEDIUM -> HIGH
+                  {% else %}HIGH -> CRITICAL{% endif %}
                 </td>
                 <td>
                   <input type="number" step="0.01" min="0.01" max="0.99" class="form-control form-control-sm"
@@ -71,8 +71,8 @@
 
       <div class="alert alert-info small">
         <i class="bi bi-info-circle me-1"></i>
-        Scores below the LOW&rarr;MEDIUM boundary are classified LOW;
-        scores at or above the HIGH&rarr;CRITICAL boundary are CRITICAL.
+        Scores below the LOW->MEDIUM boundary are classified LOW;
+        scores at or above the HIGH->CRITICAL boundary are CRITICAL.
         Thresholds must be strictly increasing.
       </div>
     </div>

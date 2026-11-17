@@ -19,7 +19,7 @@ score and a detailed list of failures at specific nodes.
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from typing import List, Optional
 from app.logic.crypto import verify_signature
 from app.utils import now_local
